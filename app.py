@@ -11,18 +11,16 @@ from models import User, ActivityLog
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY']        = os.getenv('SECRET_KEY')
+app.config['SECRET_KEY']              = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///cctv.db')
-app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
+app.config['RATELIMIT_STORAGE_URI']   = 'memory://'
 
 # ── Wire up extensions ──────────────────────────────────────────────
 db.init_app(app)
 login_manager.init_app(app)
-login_manager.login_view = 'login'   # redirect here if not logged in
+login_manager.login_view = 'login'
 limiter.init_app(app)
 
-# Talisman adds security headers (forces HTTPS, XSS protection, etc.)
-# force_https=False during local dev; set True on Railway
 Talisman(app, force_https=False,
          content_security_policy={
              'default-src': "'self'",
@@ -43,7 +41,7 @@ def load_user(user_id):
 
 # ── SIGNUP ──────────────────────────────────────────────────────────
 @app.route('/signup', methods=['GET', 'POST'])
-@limiter.limit("10 per hour")        # stops mass account creation from one IP
+@limiter.limit("10 per hour")
 def signup():
     if request.method == 'POST':
         username         = request.form['username'].strip()
@@ -51,7 +49,6 @@ def signup():
         password         = request.form['password']
         confirm_password = request.form['confirm_password']
 
-        # ── Basic validation ─────────────────────────────────────────
         if password != confirm_password:
             flash("Passwords do not match.", "error")
             return redirect(url_for('signup'))
@@ -68,7 +65,6 @@ def signup():
             flash("Email already registered.", "error")
             return redirect(url_for('signup'))
 
-        # ── Hash and save ────────────────────────────────────────────
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         user = User(username=username, email=email,
                     password=hashed.decode('utf-8'))
@@ -81,7 +77,7 @@ def signup():
 
     return render_template('signup.html')
 
-# ── LOGIN — limited to 5 attempts per minute per IP ────────────────
+# ── LOGIN ───────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("5 per minute")
 def login():
@@ -133,7 +129,7 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
-      
+
 @app.route('/video_feed')
 @login_required
 def video_feed():
@@ -141,7 +137,7 @@ def video_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# ── LOGS PAGE (admin only) ───────────────────────────────────────────
+# ── LOGS PAGE ───────────────────────────────────────────────────────
 @app.route('/logs')
 @login_required
 def view_logs():
@@ -150,65 +146,54 @@ def view_logs():
     logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
     return render_template('logs.html', logs=logs)
 
-# ── INIT DB AND RUN ──────────────────────────────────────────────────
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(debug=False)
+# ── ADMIN: View all users ────────────────────────────────────────────
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        abort(403)
+    users = User.query.order_by(User.created_at.desc()).all()
+    log_action("Viewed user list", username=current_user.username)
+    return render_template('admin_users.html', users=users)
 
+# ── ADMIN: Delete a user ─────────────────────────────────────────────
+@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    if not current_user.is_admin:
+        abort(403)
 
-    # ── ADMIN: View all users ────────────────────────────────────────────
-    @app.route('/admin/users')
-    @login_required
-    def admin_users():
-        if not current_user.is_admin:
-            abort(403)
-        users = User.query.order_by(User.created_at.desc()).all()
-        log_action("Viewed user list", username=current_user.username)
-        return render_template('admin_users.html', users=users)
-
-
-    # ── ADMIN: Delete a user ─────────────────────────────────────────────
-    @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
-    @login_required
-    def delete_user(user_id):
-        if not current_user.is_admin:
-            abort(403)
-
-        # Admins cannot delete themselves
-        if user_id == current_user.id:
-            flash("You cannot delete your own account.", "error")
-            return redirect(url_for('admin_users'))
-
-        user = User.query.get_or_404(user_id)
-        username_deleted = user.username
-        db.session.delete(user)
-        db.session.commit()
-
-        log_action(f"Deleted user '{username_deleted}'",
-                   username=current_user.username)
-        flash(f"User '{username_deleted}' has been deleted.", "success")
+    if user_id == current_user.id:
+        flash("You cannot delete your own account.", "error")
         return redirect(url_for('admin_users'))
 
+    user = User.query.get_or_404(user_id)
+    username_deleted = user.username
+    db.session.delete(user)
+    db.session.commit()
 
-    # ── ADMIN: Promote a user to admin ──────────────────────────────────
-    @app.route('/admin/promote/<int:user_id>', methods=['POST'])
-    @login_required
-    def promote_user(user_id):
-        if not current_user.is_admin:
-            abort(403)
+    log_action(f"Deleted user '{username_deleted}'",
+               username=current_user.username)
+    flash(f"User '{username_deleted}' has been deleted.", "success")
+    return redirect(url_for('admin_users'))
 
-        user = User.query.get_or_404(user_id)
-        user.is_admin = True
-        db.session.commit()
+# ── ADMIN: Promote a user to admin ──────────────────────────────────
+@app.route('/admin/promote/<int:user_id>', methods=['POST'])
+@login_required
+def promote_user(user_id):
+    if not current_user.is_admin:
+        abort(403)
 
-        log_action(f"Promoted '{user.username}' to admin",
-                   username=current_user.username)
-        flash(f"'{user.username}' is now an admin.", "success")
-        return redirect(url_for('admin_users'))
+    user = User.query.get_or_404(user_id)
+    user.is_admin = True
+    db.session.commit()
 
-app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
+    log_action(f"Promoted '{user.username}' to admin",
+               username=current_user.username)
+    flash(f"'{user.username}' is now an admin.", "success")
+    return redirect(url_for('admin_users'))
 
+# ── TEMPORARY: Create admin on Railway (DELETE AFTER USE) ───────────
 @app.route('/create_admin')
 def create_admin():
     existing = User.query.filter_by(username='hotmariaclara').first()
@@ -224,3 +209,9 @@ def create_admin():
     db.session.add(admin)
     db.session.commit()
     return "Admin created."
+
+# ── INIT DB AND RUN ──────────────────────────────────────────────────
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=False)
