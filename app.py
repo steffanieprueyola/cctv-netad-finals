@@ -1,4 +1,6 @@
 import cv2, bcrypt, os
+from datetime import datetime
+import pytz
 from flask import (Flask, render_template, redirect, url_for,
                    request, flash, Response, abort)
 from flask_login import (login_user, logout_user,
@@ -7,6 +9,8 @@ from flask_talisman import Talisman
 from dotenv import load_dotenv
 from extensions import db, login_manager, limiter
 from models import User, ActivityLog
+
+
 
 load_dotenv()
 
@@ -31,7 +35,9 @@ Talisman(app, force_https=False,
 # ── Helper: write a log entry ───────────────────────────────────────
 def log_action(action, username="anonymous"):
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    entry = ActivityLog(ip_address=ip, username=username, action=action)
+    ph_time = datetime.now(pytz.timezone('Asia/Manila'))
+    entry = ActivityLog(ip_address=ip, username=username, action=action,
+                        timestamp=ph_time.replace(tzinfo=None))
     db.session.add(entry)
     db.session.commit()
 
@@ -193,27 +199,6 @@ def promote_user(user_id):
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
-# ADMIN CREATION -------------------------
-
-@app.route('/create_admin')
-def create_admin():
-    try:
-        db.create_all()
-        existing = User.query.filter_by(username='hotmariaclara').first()
-        if existing:
-            return "Admin already exists."
-        hashed = bcrypt.hashpw(b'likekotsengmagaradontneedamekaniko', bcrypt.gensalt())
-        admin = User(
-            username='hotmariaclara',
-            email='kotsengmagara@netad.com',
-            password=hashed.decode('utf-8'),
-            is_admin=True
-        )
-        db.session.add(admin)
-        db.session.commit()
-        return "Admin created successfully!"
-    except Exception as e:
-        return f"Error: {str(e)}"
 
 # ── INIT DB AND RUN ──────────────────────────────────────────────────
 with app.app_context():
