@@ -120,11 +120,11 @@ def dashboard():
 # ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
     rtsp_url = os.getenv('RTSP_URL')
-  if not rtsp_url:
-    return 
-  cap = cv2.VideoCapture(rtsp_url)
- if not cap.IsOpened():
-   return
+    if not rtsp_url:
+        return
+    cap = cv2.VideoCapture(rtsp_url)
+    if not cap.isOpened():
+        return
     while True:
         success, frame = cap.read()
         if not success:
@@ -133,7 +133,7 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
-
+      
 @app.route('/video_feed')
 @login_required
 def video_feed():
