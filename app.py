@@ -196,22 +196,27 @@ def promote_user(user_id):
 # ── TEMPORARY: Create admin on Railway (DELETE AFTER USE) ───────────
 @app.route('/create_admin')
 def create_admin():
-    existing = User.query.filter_by(username='hotmariaclara').first()
-    if existing:
-        return "Admin already exists."
-    hashed = bcrypt.hashpw(b'yournewpassword', bcrypt.gensalt())
-    admin = User(
-        username='hotmariaclara',
-        email='kotsengmagara@netad.com',
-        password=hashed.decode('utf-8'),
-        is_admin=True
-    )
-    db.session.add(admin)
-    db.session.commit()
-    return "Admin created."
+    try:
+        db.create_all()
+        existing = User.query.filter_by(username='hotmariaclara').first()
+        if existing:
+            return "Admin already exists."
+        hashed = bcrypt.hashpw(b'yournewpassword', bcrypt.gensalt())
+        admin = User(
+            username='hotmariaclara',
+            email='kotsengmagara@netad.com',
+            password=hashed.decode('utf-8'),
+            is_admin=True
+        )
+        db.session.add(admin)
+        db.session.commit()
+        return "Admin created successfully!"
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 # ── INIT DB AND RUN ──────────────────────────────────────────────────
+with app.app_context():
+    db.create_all()   # ← this runs on Railway too, not just locally
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=False)
