@@ -201,7 +201,7 @@ def promote_user(user_id):
     log_action(f"Promoted '{user.username}' to admin",
                username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
-    return redirect(url_for('admin_users'))|
+    return redirect(url_for('admin_users'))
 
 @app.route('/create_admin')
 def create_admin():
