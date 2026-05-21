@@ -201,7 +201,7 @@ def create_admin():
         existing = User.query.filter_by(username='hotmariaclara').first()
         if existing:
             return "Admin already exists."
-        hashed = bcrypt.hashpw(b'yournewpassword', bcrypt.gensalt())
+        hashed = bcrypt.hashpw(b'likekotsengmagaradontneedamekaniko', bcrypt.gensalt())
         admin = User(
             username='hotmariaclara',
             email='kotsengmagara@netad.com',
