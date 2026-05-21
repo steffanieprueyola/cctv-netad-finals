@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Admin — Manage Users</title>
+  <meta http-equiv="refresh" content="10">
   <style>
     body { font-family: Arial, sans-serif; max-width: 900px;
            margin: 40px auto; padding: 0 20px; }
@@ -33,23 +34,20 @@
     <a href="/logs">Activity Logs</a>
     <a href="/logout">Logout</a>
   </div>
-
   <h2>Manage Users</h2>
   <p>Total users: <strong>{{ users | length }}</strong></p>
-
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
       <p class="{{ category }}">{{ message }}</p>
     {% endfor %}
   {% endwith %}
-
   <table>
     <tr>
       <th>#</th>
       <th>Username</th>
       <th>Email</th>
       <th>Role</th>
-      <th>Created</th>
+      <th>Created (PHT)</th>
       <th>Actions</th>
     </tr>
     {% for user in users %}
@@ -67,26 +65,20 @@
       <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
       <td>
         {% if user.id == current_user.id %}
-          <!-- Can't act on yourself -->
           <button class="btn-self" disabled>You</button>
-
         {% else %}
-          <!-- Delete button — uses POST for safety, not a plain link -->
           <form method="POST" action="/admin/delete_user/{{ user.id }}"
                 style="display:inline"
                 onsubmit="return confirm('Delete {{ user.username }}? This cannot be undone.')">
             <button class="btn-delete" type="submit">Delete</button>
           </form>
-
           {% if not user.is_admin %}
-          <!-- Promote to admin -->
           <form method="POST" action="/admin/promote/{{ user.id }}"
                 style="display:inline"
                 onsubmit="return confirm('Promote {{ user.username }} to admin?')">
             <button class="btn-promote" type="submit">Make Admin</button>
           </form>
           {% endif %}
-
         {% endif %}
       </td>
     </tr>
