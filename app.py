@@ -154,41 +154,32 @@ def generate_frames():
         return
 
     cap = cv2.VideoCapture(rtsp_url)
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    
-    frame_count = 0
     
     while True:
-        # Check connection status dynamically
         if not cap.isOpened():
-            time.sleep(2) # Give the tunnel 2 seconds to breathe before retrying
+            time.sleep(2)
             cap = cv2.VideoCapture(rtsp_url)
-            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
             continue
 
+        # ── THE LAG KILLER ────────────────────────────────────────────────
+        # Quickly unloads up to 5 backed-up network frames sitting in the pipeline
+        for _ in range(5):
+            cap.grab()
+            
         success, frame = cap.read()
         if not success:
-            # Drop individual dead frame capture gracefully, loop back up to verify connection
             cap.release()
             continue
-            
-        frame_count += 1
-        if frame_count % 2 != 0:
-            continue
 
-        frame = cv2.resize(frame, (1280, 720), interpolation=cv2.INTER_AREA)
-        _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+        # Resize the frame down to a snappy, lightweight 480p canvas
+        frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
+        
+        # Drop compression target to 50% to optimize data speed over the tunnel
+        _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
         
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
-
-@app.route('/video_feed')
-@login_required
-def video_feed():
-    log_action("Accessed video feed", username=current_user.username)
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # ── ADMIN PAGES ─────────────────────────────────────────────────────
 @app.route('/logs')
