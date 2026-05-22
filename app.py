@@ -278,4 +278,5 @@ def create_admin():
 with app.app_context():
     db.create_all()
 
-if __
+if __name__ == '__main__':
+    app.run(debug=False)
