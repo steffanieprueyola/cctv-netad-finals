@@ -22,4 +22,6 @@ psycopg2-binary
 Flask-WTF>=1.2.0
 WTForms>=3.1.0
 requests
+python-dotenv
+
 
