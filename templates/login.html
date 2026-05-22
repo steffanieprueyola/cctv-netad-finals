@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>CCTV System Login</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
@@ -237,25 +235,21 @@
         font-size:28px;
       }
     }
+
+  
   </style>
 </head>
 <body>
 
 <div class="container">
-
   <div class="login-card">
-
     <div class="logo">
-      <div class="shield">
-        <i class="fa-solid fa-camera"></i>
-      </div>
-
+      <div class="shield"><i class="fa-solid fa-camera"></i></div>
       <h1>CCTV LOGIN</h1>
       <div class="subtitle">Secure Surveillance Access</div>
       <div class="divider"></div>
     </div>
 
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
         <div class="message">{{ message }}</div>
@@ -263,6 +257,7 @@
     {% endwith %}
 
     <form method="POST" action="/login">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <div class="input-group">
         <label>USERNAME</label>
@@ -282,36 +277,27 @@
       </div>
 
       <div class="options">
-        <label>
-          <input type="checkbox"> Remember me
-        </label>
-
+        <label><input type="checkbox"> Remember me</label>
         <a href="#">Forgot Password?</a>
       </div>
 
-      <button type="submit">
-        LOGIN
-      </button>
-
+      <button type="submit">LOGIN</button>
     </form>
 
     <p style="text-align:center; margin-top:18px; font-size:13px;">
       Don't have an account?
       <a href="/signup" style="color:#00ffb3;">Sign up</a>
     </p>
-
   </div>
 
   <div class="side-text">
     AUTHORIZED<br>PERSONNEL ONLY
   </div>
-
 </div>
 
 <script>
   const password = document.getElementById("password");
   const togglePassword = document.getElementById("togglePassword");
-
   togglePassword.addEventListener("click", () => {
     if(password.type === "password"){
       password.type = "text";
