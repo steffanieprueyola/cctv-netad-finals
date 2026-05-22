@@ -7,6 +7,8 @@ from flask import (Flask, render_template, redirect, url_for,
                    request, flash, abort, jsonify)
 from flask_login import (login_user, logout_user,
                          login_required, current_user)
+import traceback
+import logging
 from flask_talisman import Talisman
 from flask_wtf import CSRFProtect
 from dotenv import load_dotenv
@@ -48,22 +50,24 @@ Talisman(app,
 @app.route('/stream_proxy/<path:filename>')
 @login_required
 def stream_proxy(filename):
-    hls_url = os.getenv('MEDIAMTX_HLS_URL') 
-    if not hls_url:
-        return "HLS URL not configured", 500
-        
-    base_path = hls_url.rsplit('/', 1)[0]
-    target_url = f"{base_path}/{filename}"
+    # Get the base URL from Railway variables
+    base_url = os.getenv('MEDIAMTX_HLS_URL')
+    
+    # Construct the full target URL
+    target_url = f"{base_url}/{filename}"
     
     try:
+        # Attempt to fetch the HLS segment from MediaMTX
         resp = requests.get(target_url, timeout=5)
-        if resp.status_code != 200:
-            return f"Remote source returned {resp.status_code}", resp.status_code
-            
-        content_type = 'application/x-mpegURL' if filename.endswith('.m3u8') else 'video/MP2T'
-        return resp.content, resp.status_code, {'Content-Type': content_type}
-    except Exception as e:
-        return f"Proxy Error: {str(e)}", 500
+        resp.raise_for_status() 
+        
+        # Return the video data and the original status code
+        return resp.content, resp.status_code
+        
+    except Exception:
+        # If it fails, this prints the exact error to your Railway logs!
+        logging.error(f"Failed to fetch {target_url}: {traceback.format_exc()}")
+        return "Internal Proxy Error", 500
 
 # ── Helper & Auth ──────────────────────────────────────────────────
 def log_action(action, username="anonymous"):
