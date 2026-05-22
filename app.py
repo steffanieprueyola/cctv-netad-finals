@@ -161,8 +161,6 @@ def generate_frames():
             cap = cv2.VideoCapture(rtsp_url)
             continue
 
-        # ── THE LAG KILLER ────────────────────────────────────────────────
-        # Quickly unloads up to 5 backed-up network frames sitting in the pipeline
         for _ in range(5):
             cap.grab()
             
@@ -171,15 +169,19 @@ def generate_frames():
             cap.release()
             continue
 
-        # Resize the frame down to a snappy, lightweight 480p canvas
         frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
-        
-        # Drop compression target to 50% to optimize data speed over the tunnel
         _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
         
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
+
+@app.route('/video_feed')
+@login_required
+def video_feed():
+    log_action("Accessed video feed", username=current_user.username)
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # ── ADMIN PAGES ─────────────────────────────────────────────────────
 @app.route('/logs')
