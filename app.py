@@ -52,7 +52,6 @@ Talisman(app,
 
 # ── Helper: write a log entry ───────────────────────────────────────
 def log_action(action, username="anonymous"):
-    # Fixes logging context processing if triggered outside an active HTTP request context
     try:
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     except RuntimeError:
@@ -66,7 +65,6 @@ def log_action(action, username="anonymous"):
 
 @login_manager.user_loader
 def load_user(user_id):
-    # Using session.get() prevents deprecation warnings in newer versions of SQLAlchemy
     return db.session.get(User, int(user_id))
 
 # ── SIGNUP ──────────────────────────────────────────────────────────
@@ -103,7 +101,7 @@ def signup():
 
         log_action(f"New account signed up: {username}")
         flash("Account created! You can now log in.", "success")
-        return redirect(url_for('login')) # Changed path redirect straight to your login template!
+        return redirect(url_for('login'))
 
     return render_template('signup.html')
 
@@ -116,7 +114,6 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        # Secure byte cast sanitization handling
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             login_user(user)
             log_action("Logged in", username=username)
@@ -147,42 +144,42 @@ def dashboard():
 
     return render_template('user_dashboard.html')
 
-# ── CAMERA STREAM ───────────────────────────────────────────────────
+# ── CAMERA STREAM GENERATOR ─────────────────────────────────────────
 def generate_frames():
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
-        print("Error: RTSP_URL variable is missing.")
         return
 
     cap = cv2.VideoCapture(rtsp_url)
     
     while True:
-       
         if cap is None or not cap.isOpened():
-            print("Stream connection lost. Reconnecting...")
             time.sleep(2)
             cap = cv2.VideoCapture(rtsp_url)
             continue
 
-        # Safe packet flusher: only flushes if the capture device is actively open
         for _ in range(5):
             if cap.isOpened():
                 cap.grab()
             
         success, frame = cap.read()
         if not success:
-           
             continue
 
-        # Downscale canvas payload to save tunnel bandwidth
         frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
-        
-        # JPEG Quality compression 50%
         _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
         
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
+
+# ── THE ENDPOINT ROUTE ──────────────────────────────────────────────
+@app.route('/video_feed')
+@login_required
+def video_feed():
+    log_action("Accessed video feed", username=current_user.username)
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # ── ADMIN PAGES ─────────────────────────────────────────────────────
 @app.route('/logs')
