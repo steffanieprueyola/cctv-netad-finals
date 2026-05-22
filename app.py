@@ -155,18 +155,38 @@ def dashboard():
 
 # ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
-    # Grabs the ngrok RTSP address securely from your Railway Config Variables tab
+    # Grabs the ngrok address securely from your Railway Config Variables tab
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
         return
+    
     cap = cv2.VideoCapture(rtsp_url)
     if not cap.isOpened():
         return
+        
+    # Optimization 1: Drop old frames out of internal buffer memory (Prevents stream lag accumulation)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    
+    frame_count = 0
     while True:
         success, frame = cap.read()
         if not success:
             break
-        _, buffer = cv2.imencode('.jpg', frame)
+            
+        frame_count += 1
+        # Optimization 2: Frame-skipping mechanism (Only processes every 2nd frame)
+        # Drops frame processing frequency to 15-20 FPS, cutting Railway CPU usage in half.
+        if frame_count % 2 != 0:
+            continue
+
+        # Optimization 3: Handle server-side downscaling
+        # Reduces extreme resource strain if the input video profile is 1080p or higher.
+        frame = cv2.resize(frame, (1280, 720), interpolation=cv2.INTER_AREA)
+        
+        # Optimization 4: Set explicit JPEG compression flags [Quality: 80]
+        # Maintains sharp image visibility while maintaining tiny web network transfer payloads.
+        _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+        
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
@@ -258,5 +278,4 @@ def create_admin():
 with app.app_context():
     db.create_all()
 
-if __name__ == '__main__':
-    app.run(debug=False)
+if __
