@@ -2,13 +2,16 @@
 <html lang="en">
 <head>
   <title>CCTV Dashboard</title>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
+
     *{
       margin:0;
       padding:0;
@@ -26,6 +29,7 @@
     }
 
     /* Background Glow */
+
     body::before{
       content:"";
       position:fixed;
@@ -37,6 +41,7 @@
     }
 
     /* Grid Overlay */
+
     body::after{
       content:"";
       position:fixed;
@@ -56,6 +61,7 @@
     }
 
     /* Header */
+
     .header-card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
@@ -70,6 +76,7 @@
       color:#00ffb3;
       margin-bottom:8px;
       font-size:28px;
+      text-shadow:0 0 12px rgba(0,255,170,0.25);
     }
 
     .subtitle{
@@ -79,6 +86,7 @@
     }
 
     /* Navigation */
+
     .nav{
       display:flex;
       flex-wrap:wrap;
@@ -92,16 +100,21 @@
       border-radius:12px;
       border:1px solid rgba(0,255,170,0.2);
       background:rgba(255,255,255,0.03);
-      transition:.3s;
+      transition:.3s ease;
       font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
 
     .nav a:hover{
       background:rgba(0,255,170,0.08);
-      box-shadow:0 0 12px rgba(0,255,170,0.15);
+      box-shadow:0 0 14px rgba(0,255,170,0.15);
+      transform:translateY(-1px);
     }
 
     /* Dashboard Grid */
+
     .dashboard-grid{
       display:grid;
       grid-template-columns:2fr 1fr;
@@ -124,59 +137,20 @@
       color:#00ffb3;
       margin-bottom:18px;
       font-size:20px;
+      text-shadow:0 0 10px rgba(0,255,170,0.2);
     }
 
-    /* Live Feed Container */
+    /* Live Feed */
+
     .live-feed img{
       width:100%;
       border-radius:16px;
       border:1px solid rgba(0,255,170,0.2);
-      background: #000;
+      background:#000;
     }
 
-    /* Table */
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:500px;
-    }
+    /* Status */
 
-    th{
-      padding:14px;
-      text-align:left;
-      color:#00ffb3;
-      font-family:'Orbitron';
-      font-size:12px;
-      border-bottom:1px solid rgba(0,255,170,0.2);
-    }
-
-    td{
-      padding:14px;
-      border-bottom:1px solid rgba(255,255,255,0.05);
-      color:#e5e5e5;
-      font-size:13px;
-    }
-
-    tr:hover{
-      background:rgba(0,255,170,0.04);
-    }
-
-    .action{
-      color:#00ffb3;
-      font-weight:500;
-    }
-
-    /* Failed Log Intercept Styles */
-    .log-failed {
-      background: rgba(255, 0, 0, 0.12) !important;
-    }
-
-    .log-failed td {
-      color: #ff4d4d !important;
-      font-weight: bold;
-    }
-
-    /* Status Box */
     .status-box{
       display:flex;
       flex-direction:column;
@@ -201,13 +175,227 @@
       font-size:14px;
     }
 
+    /* Recent Activity */
+
+    .activity-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.05);
+      font-size:12px;
+    }
+
+    .legend-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+    }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0 10px;
+      min-width:650px;
+    }
+
+    th{
+      padding:14px;
+      text-align:left;
+      color:#00ffb3;
+      font-family:'Orbitron';
+      font-size:12px;
+      border-bottom:1px solid rgba(0,255,170,0.2);
+      letter-spacing:1px;
+    }
+
+    td{
+      padding:16px;
+      color:#e5e5e5;
+      font-size:13px;
+      transition:0.25s ease;
+    }
+
+    tbody tr{
+      transition:0.25s ease;
+    }
+
+    tbody tr:hover{
+      transform:translateX(4px);
+    }
+
+    .action{
+      font-weight:600;
+      letter-spacing:.3px;
+    }
+
+    .username{
+      font-weight:600;
+    }
+
+    .timestamp{
+      color:#cfcfcf;
+      font-size:12px;
+    }
+
+    .ip{
+      font-family:monospace;
+      color:#d9d9d9;
+    }
+
+    /* Success */
+
+    .log-success{
+      background:rgba(0,255,178,0.08);
+    }
+
+    .log-success td{
+      color:#c9ffe8;
+    }
+
+    .log-success td:first-child{
+      border-left:4px solid #00ffb2;
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-success td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    .log-success:hover{
+      background:rgba(0,255,178,0.12);
+      box-shadow:0 0 18px rgba(0,255,178,0.14);
+    }
+
+    /* Failed */
+
+    .log-failed{
+      background:rgba(255,59,92,0.08);
+    }
+
+    .log-failed td{
+      color:#ffd6dd;
+    }
+
+    .log-failed td:first-child{
+      border-left:4px solid #ff3b5c;
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-failed td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    .log-failed:hover{
+      background:rgba(255,59,92,0.12);
+      box-shadow:0 0 18px rgba(255,59,92,0.14);
+    }
+
+    /* Admin */
+
+    .log-admin{
+      background:rgba(255,200,87,0.08);
+    }
+
+    .log-admin td{
+      color:#ffe7b2;
+    }
+
+    .log-admin td:first-child{
+      border-left:4px solid #ffc857;
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-admin td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    .log-admin:hover{
+      background:rgba(255,200,87,0.12);
+      box-shadow:0 0 18px rgba(255,200,87,0.14);
+    }
+
+    /* User */
+
+    .log-user{
+      background:rgba(0,217,255,0.08);
+    }
+
+    .log-user td{
+      color:#c8f5ff;
+    }
+
+    .log-user td:first-child{
+      border-left:4px solid #00d9ff;
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-user td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    .log-user:hover{
+      background:rgba(0,217,255,0.12);
+      box-shadow:0 0 18px rgba(0,217,255,0.14);
+    }
+
+    /* Badges */
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    .badge i{
+      font-size:8px;
+    }
+
+    .badge-success{
+      background:rgba(0,255,178,0.12);
+      color:#00ffb2;
+    }
+
+    .badge-failed{
+      background:rgba(255,59,92,0.12);
+      color:#ff3b5c;
+    }
+
+    .badge-admin{
+      background:rgba(255,200,87,0.12);
+      color:#ffc857;
+    }
+
+    .badge-user{
+      background:rgba(0,217,255,0.12);
+      color:#00d9ff;
+    }
+
     @media(max-width:1000px){
+
       .dashboard-grid{
         grid-template-columns:1fr;
       }
+
     }
 
     @media(max-width:700px){
+
       body{
         padding:15px;
       }
@@ -218,56 +406,91 @@
 
       .nav a{
         width:100%;
-        text-align:center;
+        justify-content:center;
       }
 
       h1{
         font-size:22px;
       }
+
     }
+
   </style>
 </head>
+
 <body>
 
 <div class="container">
 
+  <!-- Header -->
+
   <div class="header-card">
+
     <h1>WELCOME, {{ current_user.username }}</h1>
+
     <div class="subtitle">
       CCTV Monitoring Dashboard
     </div>
 
     <div class="nav">
+
       <a href="/logout">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
       </a>
 
       {% if current_user.is_admin %}
+
       <a href="/admin/users">
-        <i class="fa-solid fa-users"></i> Manage Users
+        <i class="fa-solid fa-users"></i>
+        Manage Users
       </a>
 
       <a href="/logs">
-        <i class="fa-solid fa-clock-rotate-left"></i> Activity Logs
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Activity Logs
       </a>
+
       {% endif %}
+
     </div>
+
   </div>
+
+  <!-- Dashboard -->
 
   <div class="dashboard-grid">
 
+    <!-- Live Feed -->
+
     <div class="card live-feed">
-      <h2><i class="fa-solid fa-video"></i> LIVE FEED</h2>
+
+      <h2>
+        <i class="fa-solid fa-video"></i>
+        LIVE FEED
+      </h2>
+
       <img src="{{ url_for('video_feed') }}" alt="Live Security Stream Pipeline">
+
     </div>
 
+    <!-- Status -->
+
     <div class="card">
-      <h2><i class="fa-solid fa-shield-halved"></i> SYSTEM STATUS</h2>
+
+      <h2>
+        <i class="fa-solid fa-shield-halved"></i>
+        SYSTEM STATUS
+      </h2>
 
       <div class="status-box">
+
         <div class="status-item">
           <h3>Camera Status</h3>
-          <p style="color: #7dffb3; font-weight: 500;"><i class="fa-solid fa-circle" style="font-size: 10px; margin-right: 4px;"></i> Online</p>
+          <p style="color:#7dffb3;font-weight:500;">
+            <i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i>
+            Online
+          </p>
         </div>
 
         <div class="status-item">
@@ -290,35 +513,147 @@
             {% endif %}
           </p>
         </div>
+
       </div>
+
     </div>
 
   </div>
 
+  <!-- Recent Activity -->
+
   <div class="card" style="margin-top:25px;">
-    <h2><i class="fa-solid fa-list"></i> RECENT ACTIVITY</h2>
+
+    <h2>
+      <i class="fa-solid fa-list"></i>
+      RECENT ACTIVITY
+    </h2>
+
+    <!-- Legend -->
+
+    <div class="activity-legend">
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00ffb2;box-shadow:0 0 10px #00ffb2;"></span>
+        Successful Login
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ff3b5c;box-shadow:0 0 10px #ff3b5c;"></span>
+        Failed Login
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ffc857;box-shadow:0 0 10px #ffc857;"></span>
+        Admin Activity
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00d9ff;box-shadow:0 0 10px #00d9ff;"></span>
+        User Activity
+      </div>
+
+    </div>
 
     <table>
+
       <tr>
         <th>TIME (PHT)</th>
         <th>IP ADDRESS</th>
         <th>USERNAME</th>
+        <th>STATUS</th>
         <th>ACTION</th>
       </tr>
 
       {% for log in logs %}
+
       <tr
-        {% if 'failed' in log.action.lower() %}
-          class="log-failed"
-        {% endif %}
+
+        class="
+          {% if 'failed' in log.action.lower() %}
+
+            log-failed
+
+          {% elif 'logged in' in log.action.lower()
+              or 'successful login' in log.action.lower()
+              or 'login successful' in log.action.lower()
+              or 'logged in successfully' in log.action.lower() %}
+
+            log-success
+
+          {% elif log.username.lower() == 'hotmariaclara' %}
+
+            log-admin
+
+          {% else %}
+
+            log-user
+
+          {% endif %}
+        "
       >
-        <td>{{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}</td>
-        <td>{{ log.ip_address }}</td>
-        <td>{{ log.username }}</td>
-        <td class="action">{{ log.action }}</td>
+
+        <td class="timestamp">
+          {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
+        </td>
+
+        <td class="ip">
+          {{ log.ip_address }}
+        </td>
+
+        <td class="username">
+          {{ log.username }}
+        </td>
+
+        <!-- STATUS -->
+
+        <td>
+
+          {% if 'failed' in log.action.lower() %}
+
+            <span class="badge badge-failed">
+              <i class="fa-solid fa-circle"></i>
+              Failed
+            </span>
+
+          {% elif 'logged in' in log.action.lower()
+              or 'successful login' in log.action.lower()
+              or 'login successful' in log.action.lower()
+              or 'logged in successfully' in log.action.lower() %}
+
+            <span class="badge badge-success">
+              <i class="fa-solid fa-circle"></i>
+              Success
+            </span>
+
+          {% elif log.username.lower() == 'hotmariaclara' %}
+
+            <span class="badge badge-admin">
+              <i class="fa-solid fa-shield-halved"></i>
+              Admin
+            </span>
+
+          {% else %}
+
+            <span class="badge badge-user">
+              <i class="fa-solid fa-user"></i>
+              User
+            </span>
+
+          {% endif %}
+
+        </td>
+
+        <td class="action">
+          {{ log.action }}
+        </td>
+
       </tr>
+
       {% endfor %}
+
     </table>
+
   </div>
 
 </div>
