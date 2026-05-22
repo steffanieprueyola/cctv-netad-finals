@@ -4,7 +4,6 @@
   <title>Admin — Manage Users</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="10">
 
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -68,28 +67,66 @@
       background:rgba(255,255,255,0.03);
     }
 
+    /* Split layout panel configuration */
+    .dashboard-header-grid {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
     .card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
       border:1px solid rgba(0,255,170,0.3);
       border-radius:24px;
       padding:25px;
-      margin-bottom:20px;
     }
 
-    h1{
+    .panel-stats {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .panel-stream {
+      flex: 1.5;
+      min-width: 300px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .stream-frame {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,255,170,0.2);
+      box-shadow: 0 0 20px rgba(0,255,170,0.1);
+    }
+
+    .table-card {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1, h2{
       font-family:'Orbitron';
       color:#00ffb3;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
     }
 
     .subtitle{
       color:#bbb;
       font-size:14px;
     }
-
-    /* =========================
-       🔥 CATEGORY-DRIVEN FLASH
-    ========================= */
 
     .message{
       padding:12px;
@@ -181,7 +218,6 @@
       border-radius:10px;
       cursor:pointer;
     }
-
   </style>
 </head>
 
@@ -194,13 +230,21 @@
     <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
   </div>
 
-  <div class="card">
-    <h1>MANAGE USERS</h1>
-    <div class="subtitle">Administrator access — control user accounts and permissions</div>
-    <p>Total Users: <strong>{{ users | length }}</strong></p>
+  <div class="dashboard-header-grid">
+    
+    <div class="card panel-stats">
+      <h1>MANAGE USERS</h1>
+      <div class="subtitle">Administrator access — control user accounts and permissions</div>
+      <p style="margin-top: 20px;">Total Registered Users: <strong>{{ users | length }}</strong></p>
+    </div>
+
+    <div class="card panel-stream">
+      <h2><i class="fa-solid fa-video" style="color: #00ffb3;"></i> SYSTEM MONITOR FEED</h2>
+      <img src="{{ url_for('video_feed') }}" class="stream-frame" alt="Live CCTV Network Feed">
+    </div>
+
   </div>
 
-  <!-- CATEGORY-DRIVEN FLASH ONLY -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
       <div class="message {{ category }}">
@@ -209,7 +253,7 @@
     {% endfor %}
   {% endwith %}
 
-  <div class="card">
+  <div class="card table-card">
     <table>
       <tr>
         <th>#</th>
@@ -238,7 +282,7 @@
 
         <td>
           {% if user.id == current_user.id %}
-            <button disabled>You</button>
+            <button disabled style="background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 10px;">You</button>
           {% else %}
 
             <form method="POST" action="/admin/delete_user/{{ user.id }}" style="display:inline">
