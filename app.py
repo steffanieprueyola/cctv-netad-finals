@@ -183,6 +183,12 @@ def promote_user(user_id):
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
+@app.route('/stream_url')
+@login_required # Ensure this matches your login protection decorator
+def stream_url():
+    # This matches the path your JavaScript is expecting
+    return jsonify({"stream_url": "/stream_proxy/index.m3u8"})
+
 # ── INIT DB ──────────────────────────────────────────────────────────
 with app.app_context():
     db.create_all()
