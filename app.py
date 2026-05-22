@@ -154,18 +154,11 @@ def logout():
     return redirect(url_for('login'))
 
 
-# ── HLS STREAM URL (UPDATED DYNAMIC ROUTE) ──────────────────────────
-# MediaMTX serves the HLS playlist directly to the browser.
-# This pulls environment values configured directly via your Railway settings dashboard panel.
+# ── HLS STREAM URL ──────────────────────────────────────────────────
 @app.route('/stream_url')
 @login_required
 def stream_url():
-    # Looks for Railway environmental system data, falls back to local storage routing link context if blank
     hls_url = os.getenv('MEDIAMTX_HLS_URL', 'http://localhost:8888/cam/index.m3u8')
-    
-    if not hls_url:
-        return jsonify({'error': 'Stream configuration missing or unmapped'}), 500
-        
     log_action("Fetched stream URL", username=current_user.username)
     return jsonify({'url': hls_url})
 
