@@ -8,7 +8,7 @@
   <meta http-equiv="refresh" content="10">
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -21,9 +21,32 @@
       box-sizing:border-box;
     }
 
+    :root{
+      --bg:#050505;
+      --card-bg:rgba(0,0,0,0.72);
+
+      --primary:#00ffb2;
+      --primary-soft:rgba(0,255,178,0.08);
+
+      --success:#00ffb2;
+      --success-bg:rgba(0,255,178,0.08);
+
+      --danger:#ff3b5c;
+      --danger-bg:rgba(255,59,92,0.08);
+
+      --admin:#ffc857;
+      --admin-bg:rgba(255,200,87,0.08);
+
+      --user:#00d9ff;
+      --user-bg:rgba(0,217,255,0.08);
+
+      --text:#e8e8e8;
+      --muted:#b7b7b7;
+    }
+
     body{
       min-height:100vh;
-      background:#050505;
+      background:var(--bg);
       font-family:'Inter',sans-serif;
       color:white;
       overflow-x:hidden;
@@ -32,6 +55,7 @@
     }
 
     /* Background Glow */
+
     body::before{
       content:"";
       position:fixed;
@@ -43,6 +67,7 @@
     }
 
     /* Cyber Grid */
+
     body::after{
       content:"";
       position:fixed;
@@ -55,7 +80,7 @@
     }
 
     .container{
-      max-width:1200px;
+      max-width:1300px;
       margin:auto;
       position:relative;
       z-index:2;
@@ -71,178 +96,306 @@
     }
 
     .nav a{
-      color:#00ffb3;
+      color:var(--primary);
       text-decoration:none;
-      padding:10px 18px;
-      border-radius:14px;
-      border:1px solid rgba(0,255,170,0.2);
+      padding:12px 20px;
+      border-radius:16px;
+      border:1px solid rgba(0,255,170,0.18);
       background:rgba(255,255,255,0.03);
-      transition:.3s;
+      transition:0.3s ease;
       font-size:14px;
       backdrop-filter:blur(10px);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:500;
     }
 
     .nav a:hover{
       background:rgba(0,255,170,0.08);
-      box-shadow:0 0 18px rgba(0,255,170,0.18);
-      transform:translateY(-1px);
+      box-shadow:0 0 20px rgba(0,255,170,0.18);
+      transform:translateY(-2px);
     }
 
     /* Header */
 
     .header-card{
-      background:rgba(0,0,0,0.72);
+      background:var(--card-bg);
       backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.28);
-      border-radius:28px;
-      padding:28px;
+      border:1px solid rgba(0,255,170,0.22);
+      border-radius:30px;
+      padding:30px;
       margin-bottom:25px;
-      box-shadow:0 0 35px rgba(0,255,170,0.06);
+      box-shadow:0 0 40px rgba(0,255,170,0.06);
     }
 
     h1{
       font-family:'Orbitron',sans-serif;
-      color:#00ffb3;
-      margin-bottom:8px;
-      font-size:30px;
+      color:var(--primary);
+      margin-bottom:10px;
+      font-size:32px;
       letter-spacing:2px;
-      text-shadow:0 0 12px rgba(0,255,170,0.25);
+      text-shadow:0 0 14px rgba(0,255,170,0.22);
     }
 
     .subtitle{
-      color:#b7b7b7;
+      color:var(--muted);
       font-size:14px;
+      margin-bottom:18px;
     }
 
     .count{
-      margin-top:15px;
-      color:#00ffb3;
+      color:var(--primary);
       font-size:15px;
+    }
+
+    /* Legend */
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:22px;
+    }
+
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.05);
+      font-size:13px;
+    }
+
+    .legend-dot{
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      box-shadow:0 0 12px currentColor;
     }
 
     /* Table Card */
 
     .table-card{
-      background:rgba(0,0,0,0.72);
+      background:var(--card-bg);
       backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.28);
-      border-radius:28px;
-      padding:20px;
+      border:1px solid rgba(0,255,170,0.22);
+      border-radius:30px;
+      padding:22px;
       overflow-x:auto;
-      box-shadow:0 0 35px rgba(0,255,170,0.06);
+      box-shadow:0 0 40px rgba(0,255,170,0.06);
     }
 
     table{
       width:100%;
-      border-collapse:collapse;
-      min-width:700px;
+      border-collapse:separate;
+      border-spacing:0 12px;
+      min-width:850px;
+    }
+
+    thead tr{
+      background:transparent;
     }
 
     th{
-      padding:18px;
+      padding:16px;
       text-align:left;
-      color:#00ffb3;
+      color:var(--primary);
       font-family:'Orbitron',sans-serif;
       font-size:13px;
-      border-bottom:1px solid rgba(0,255,170,0.2);
       letter-spacing:1px;
+      border-bottom:1px solid rgba(0,255,170,0.15);
+    }
+
+    tbody tr{
+      transition:0.25s ease;
+      backdrop-filter:blur(8px);
+    }
+
+    tbody tr:hover{
+      transform:translateX(4px);
     }
 
     td{
       padding:18px;
-      border-bottom:1px solid rgba(255,255,255,0.04);
-      color:#e5e5e5;
+      color:var(--text);
       font-size:14px;
-      transition:all .25s ease;
+      border-top:1px solid rgba(255,255,255,0.04);
+      border-bottom:1px solid rgba(255,255,255,0.04);
     }
 
-    tr{
-      transition:all .25s ease;
+    td:first-child{
+      border-radius:14px 0 0 14px;
     }
 
-    tr:hover{
-      transform:scale(1.003);
+    td:last-child{
+      border-radius:0 14px 14px 0;
     }
 
     .action{
       font-weight:600;
-      letter-spacing:.3px;
+      letter-spacing:0.3px;
     }
 
-    /* ================================= */
-    /* 🔴 FAILED LOGIN */
-    /* ================================= */
-
-    .log-failed{
-      background:rgba(255,50,50,0.14) !important;
-      border-left:4px solid #ff3b3b;
+    .timestamp{
+      color:#b8b8b8;
+      font-size:13px;
     }
 
-    .log-failed td{
-      color:#ff8080 !important;
-      font-weight:700;
+    .ip{
+      color:#d6d6d6;
+      font-family:monospace;
     }
 
-    .log-failed:hover{
-      background:rgba(255,50,50,0.20) !important;
-      box-shadow:0 0 18px rgba(255,59,59,0.18);
+    .username{
+      font-weight:600;
     }
 
-    /* ================================= */
-    /* 🟢 SUCCESSFUL LOGIN */
-    /* ================================= */
+    /* ============================== */
+    /* SUCCESS LOG */
+    /* ============================== */
 
     .log-success{
-      background:rgba(0,255,140,0.14) !important;
-      border-left:4px solid #00ff88;
+      background:var(--success-bg);
     }
 
     .log-success td{
-      color:#7dffb2 !important;
-      font-weight:700;
+      color:#baffdf;
+    }
+
+    .log-success td:first-child{
+      border-left:4px solid var(--success);
     }
 
     .log-success:hover{
-      background:rgba(0,255,140,0.20) !important;
-      box-shadow:0 0 18px rgba(0,255,136,0.18);
+      box-shadow:0 0 20px rgba(0,255,178,0.14);
+      background:rgba(0,255,178,0.12);
     }
 
-    /* ================================= */
-    /* 🔵 USER LOGS */
-    /* ================================= */
+    /* ============================== */
+    /* FAILED LOG */
+    /* ============================== */
 
-    .log-user{
-      background:rgba(80,140,255,0.10) !important;
-      border-left:4px solid #5ea0ff;
+    .log-failed{
+      background:var(--danger-bg);
     }
 
-    .log-user td{
-      color:#c9ddff !important;
+    .log-failed td{
+      color:#ffd0d8;
     }
 
-    .log-user:hover{
-      background:rgba(80,140,255,0.16) !important;
-      box-shadow:0 0 18px rgba(94,160,255,0.15);
+    .log-failed td:first-child{
+      border-left:4px solid var(--danger);
     }
 
-    /* ================================= */
-    /* 💖 ADMIN LOGS */
-    /* ADMIN = hotmariaclara */
-    /* ================================= */
+    .log-failed:hover{
+      box-shadow:0 0 20px rgba(255,59,92,0.14);
+      background:rgba(255,59,92,0.12);
+    }
+
+    /* ============================== */
+    /* ADMIN LOG */
+    /* ============================== */
 
     .log-admin{
-      background:rgba(255,20,147,0.14) !important;
-      border-left:4px solid #ff4fc3;
+      background:var(--admin-bg);
     }
 
     .log-admin td{
-      color:#ffd6ef !important;
-      font-weight:700;
+      color:#ffe7b2;
+    }
+
+    .log-admin td:first-child{
+      border-left:4px solid var(--admin);
     }
 
     .log-admin:hover{
-      background:rgba(255,20,147,0.20) !important;
-      box-shadow:0 0 20px rgba(255,79,195,0.20);
+      box-shadow:0 0 20px rgba(255,200,87,0.14);
+      background:rgba(255,200,87,0.12);
+    }
+
+    /* ============================== */
+    /* USER LOG */
+    /* ============================== */
+
+    .log-user{
+      background:var(--user-bg);
+    }
+
+    .log-user td{
+      color:#c8f5ff;
+    }
+
+    .log-user td:first-child{
+      border-left:4px solid var(--user);
+    }
+
+    .log-user:hover{
+      box-shadow:0 0 20px rgba(0,217,255,0.14);
+      background:rgba(0,217,255,0.12);
+    }
+
+    /* Status Badge */
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+
+    .badge i{
+      font-size:10px;
+    }
+
+    .badge-success{
+      color:var(--success);
+      background:rgba(0,255,178,0.12);
+    }
+
+    .badge-failed{
+      color:var(--danger);
+      background:rgba(255,59,92,0.12);
+    }
+
+    .badge-admin{
+      color:var(--admin);
+      background:rgba(255,200,87,0.12);
+    }
+
+    .badge-user{
+      color:var(--user);
+      background:rgba(0,217,255,0.12);
+    }
+
+    /* Responsive */
+
+    @media(max-width:768px){
+
+      body{
+        padding:20px;
+      }
+
+      h1{
+        font-size:24px;
+      }
+
+      .nav{
+        flex-direction:column;
+      }
+
+      .nav a{
+        width:100%;
+        justify-content:center;
+      }
+
     }
 
   </style>
@@ -288,6 +441,32 @@
       <strong>{{ logs | length }}</strong>
     </div>
 
+    <!-- Legend -->
+
+    <div class="legend">
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00ffb2;color:#00ffb2;"></span>
+        Successful Login
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ff3b5c;color:#ff3b5c;"></span>
+        Failed Login
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ffc857;color:#ffc857;"></span>
+        Admin Activity
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#00d9ff;color:#00d9ff;"></span>
+        User Activity
+      </div>
+
+    </div>
+
   </div>
 
   <!-- Logs Table -->
@@ -296,12 +475,17 @@
 
     <table>
 
-      <tr>
-        <th>TIME (PHT)</th>
-        <th>IP ADDRESS</th>
-        <th>USERNAME</th>
-        <th>ACTION</th>
-      </tr>
+      <thead>
+        <tr>
+          <th>TIME (PHT)</th>
+          <th>IP ADDRESS</th>
+          <th>USERNAME</th>
+          <th>STATUS</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+
+      <tbody>
 
       {% for log in logs %}
 
@@ -330,16 +514,53 @@
         "
       >
 
-        <td>
+        <td class="timestamp">
           {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
         </td>
 
-        <td>
+        <td class="ip">
           {{ log.ip_address }}
         </td>
 
-        <td>
+        <td class="username">
           {{ log.username }}
+        </td>
+
+        <td>
+
+          {% if 'failed' in log.action.lower() %}
+
+            <span class="badge badge-failed">
+              <i class="fa-solid fa-circle"></i>
+              Failed
+            </span>
+
+          {% elif 'logged in' in log.action.lower()
+              or 'successful login' in log.action.lower()
+              or 'login successful' in log.action.lower()
+              or 'logged in successfully' in log.action.lower() %}
+
+            <span class="badge badge-success">
+              <i class="fa-solid fa-circle"></i>
+              Success
+            </span>
+
+          {% elif log.username.lower() == 'hotmariaclara' %}
+
+            <span class="badge badge-admin">
+              <i class="fa-solid fa-shield-halved"></i>
+              Admin
+            </span>
+
+          {% else %}
+
+            <span class="badge badge-user">
+              <i class="fa-solid fa-user"></i>
+              User
+            </span>
+
+          {% endif %}
+
         </td>
 
         <td class="action">
@@ -349,6 +570,8 @@
       </tr>
 
       {% endfor %}
+
+      </tbody>
 
     </table>
 
