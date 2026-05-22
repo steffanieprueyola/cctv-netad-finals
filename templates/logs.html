@@ -147,10 +147,14 @@
       font-weight:500;
     }
 
-    /* 🔴 ONLY CHANGE: FAILED LOGIN COLOR */
-    .action-failed{
-      color:#ff4d4d;
-      font-weight:700;
+    /* 🔴 FULL ROW FAILED STYLE */
+    .log-failed {
+      background: rgba(255, 0, 0, 0.12) !important;
+    }
+
+    .log-failed td {
+      color: #ff4d4d !important;
+      font-weight: bold;
     }
 
   </style>
@@ -198,14 +202,16 @@
       </tr>
 
       {% for log in logs %}
-      <tr>
+      <tr
+        {% if 'failed' in log.action.lower() %}
+          class="log-failed"
+        {% endif %}
+      >
+
         <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         <td>{{ log.ip_address }}</td>
         <td>{{ log.username }}</td>
-
-        <td class="{% if 'failed' in log.action.lower() %}action-failed{% else %}action{% endif %}">
-          {{ log.action }}
-        </td>
+        <td class="action">{{ log.action }}</td>
 
       </tr>
       {% endfor %}
