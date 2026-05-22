@@ -1,4 +1,4 @@
-import cv2, bcrypt, os, time
+import cv2, bcrypt, os, time, threading
 from datetime import datetime
 import pytz
 from flask import (Flask, render_template, redirect, url_for,
@@ -56,7 +56,6 @@ def log_action(action, username="anonymous"):
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     except RuntimeError:
         ip = "127.0.0.1"
-
     ph_time = datetime.now(pytz.timezone('Asia/Manila'))
     entry = ActivityLog(ip_address=ip, username=username, action=action,
                         timestamp=ph_time.replace(tzinfo=None))
@@ -80,15 +79,12 @@ def signup():
         if password != confirm_password:
             flash("Passwords do not match.", "error")
             return redirect(url_for('signup'))
-
         if len(password) < 8:
             flash("Password must be at least 8 characters.", "error")
             return redirect(url_for('signup'))
-
         if User.query.filter_by(username=username).first():
             flash("Username already taken.", "error")
             return redirect(url_for('signup'))
-
         if User.query.filter_by(email=email).first():
             flash("Email already registered.", "error")
             return redirect(url_for('signup'))
@@ -98,7 +94,6 @@ def signup():
                     password=hashed.decode('utf-8'))
         db.session.add(user)
         db.session.commit()
-
         log_action(f"New account signed up: {username}")
         flash("Account created! You can now log in.", "success")
         return redirect(url_for('login'))
@@ -113,7 +108,6 @@ def login():
         username = request.form['username'].strip()
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-
         if user and bcrypt.checkpw(password.encode('utf-8'),
                                    user.password.encode('utf-8')):
             login_user(user)
@@ -122,7 +116,6 @@ def login():
         else:
             log_action(f"Failed login attempt for '{username}'")
             flash('Invalid credentials.', 'error')
-
     return render_template('login.html')
 
 # ── LOGOUT ──────────────────────────────────────────────────────────
@@ -145,45 +138,119 @@ def dashboard():
     return render_template('user_dashboard.html')
 
 # ── CAMERA STREAM ───────────────────────────────────────────────────
-def generate_frames():
+
+# Module-level camera singleton — shared across all requests so we
+# don't open a new RTSP connection for every viewer.
+_cap_lock   = threading.Lock()
+_cap        = None   # cv2.VideoCapture instance
+
+
+def get_cap():
+    """Return the shared VideoCapture, (re)opening it when necessary."""
+    global _cap
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
-        return
+        return None
 
     source = int(rtsp_url) if rtsp_url.isdigit() else rtsp_url
-    os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
 
-    cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    with _cap_lock:
+        if _cap is None or not _cap.isOpened():
+            if _cap is not None:
+                _cap.release()
+
+            # stimeout is in microseconds (5 s = 5_000_000 µs).
+            # This prevents OpenCV from hanging forever on a dead URL.
+            os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = (
+                "rtsp_transport;tcp|stimeout;5000000"
+            )
+            cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+            # Buffer of 3 gives the FFMPEG decoder enough room to work
+            # without building up excessive latency.
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+            _cap = cap
+
+        return _cap
+
+
+def generate_frames():
+    """
+    Generator that yields MJPEG frames.
+
+    Key improvements over the original:
+    - Singleton VideoCapture (no new connection per request)
+    - FPS throttle so we don't hammer the stream / network
+    - Reconnect logic never blocks the yield path, so Railway's proxy
+      timeout cannot be triggered by a momentary stream hiccup
+    - Socket timeout via FFMPEG so a dead URL fails fast instead of hanging
+    """
+    FRAME_INTERVAL   = 1 / 15   # ~15 fps — tune to taste
+    RECONNECT_DELAY  = 2        # seconds to wait between full reconnects
+    MAX_READ_FAILS   = 10       # consecutive failures before forcing reconnect
+
+    fail_count = 0
 
     while True:
-        if not cap.isOpened():
-            cap.release()
-            time.sleep(2)
-            cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+        t_start = time.monotonic()
+
+        cap = get_cap()
+        if cap is None:
+            # RTSP_URL not configured — nothing to stream
+            time.sleep(1)
             continue
 
         success, frame = cap.read()
+
         if not success:
-            cap.release()
-            time.sleep(1)
-            cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+            fail_count += 1
+            if fail_count >= MAX_READ_FAILS:
+                # Force a full reconnect on the next iteration
+                with _cap_lock:
+                    global _cap
+                    if _cap is not None:
+                        _cap.release()
+                        _cap = None
+                fail_count = 0
+                time.sleep(RECONNECT_DELAY)
+            # Skip yield — never stall the HTTP response on a bad read
             continue
 
-        frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
-        _, buffer = cv2.imencode('.jpg', frame,
-                                 [int(cv2.IMWRITE_JPEG_QUALITY), 50])
+        fail_count = 0  # reset counter on a good frame
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' +
-               buffer.tobytes() + b'\r\n')
+        frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
+        _, buffer = cv2.imencode(
+            '.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 60]
+        )
+
+        yield (
+            b'--frame\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n'
+            + buffer.tobytes()
+            + b'\r\n'
+        )
+
+        # Throttle to target FPS
+        elapsed   = time.monotonic() - t_start
+        sleep_for = FRAME_INTERVAL - elapsed
+        if sleep_for > 0:
+            time.sleep(sleep_for)
+
 
 @app.route('/video_feed')
 @login_required
 def video_feed():
     log_action("Accessed video feed", username=current_user.username)
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(
+        generate_frames(),
+        mimetype='multipart/x-mixed-replace; boundary=frame',
+        headers={
+            # Tell Railway's nginx proxy NOT to buffer this streaming response.
+            # Without this header the proxy accumulates frames and either
+            # delays delivery or kills the connection at its own timeout.
+            'X-Accel-Buffering': 'no',
+            'Cache-Control':     'no-cache, no-store',
+        }
+    )
 
 # ── LOGS PAGE ───────────────────────────────────────────────────────
 @app.route('/logs')
@@ -210,16 +277,13 @@ def admin_users():
 def delete_user(user_id):
     if not current_user.is_admin:
         abort(403)
-
     if user_id == current_user.id:
         flash("You cannot delete your own account.", "error")
         return redirect(url_for('admin_users'))
-
     user = User.query.get_or_404(user_id)
     username_deleted = user.username
     db.session.delete(user)
     db.session.commit()
-
     log_action(f"Deleted user '{username_deleted}'",
                username=current_user.username)
     flash(f"User '{username_deleted}' has been deleted.", "success")
@@ -231,11 +295,9 @@ def delete_user(user_id):
 def promote_user(user_id):
     if not current_user.is_admin:
         abort(403)
-
     user = User.query.get_or_404(user_id)
     user.is_admin = True
     db.session.commit()
-
     log_action(f"Promoted '{user.username}' to admin",
                username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
