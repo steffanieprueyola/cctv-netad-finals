@@ -158,6 +158,11 @@
       font-weight:500;
     }
 
+    .action-failed{
+      color:#ff4d4d;
+      font-weight:600;
+    }
+
     @media(max-width:768px){
       body{
         padding:20px;
@@ -225,7 +230,9 @@
         <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         <td>{{ log.ip_address }}</td>
         <td>{{ log.username }}</td>
-        <td class="action">{{ log.action }}</td>
+        <td class="{% if 'failed' in log.action.lower() %}action-failed{% else %}action{% endif %}">
+          {{ log.action }}
+        </td>
       </tr>
       {% endfor %}
     </table>
