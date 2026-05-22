@@ -13,8 +13,8 @@ from models import User, ActivityLog
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY']              = os.getenv('SECRET_KEY')
-app.config['RATELIMIT_STORAGE_URI']   = 'memory://'
+app.config['SECRET_KEY']            = os.getenv('SECRET_KEY')
+app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
 
 database_url = os.getenv('DATABASE_URL', 'sqlite:///cctv.db')
 if database_url.startswith('postgres://'):
@@ -56,7 +56,7 @@ def log_action(action, username="anonymous"):
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     except RuntimeError:
         ip = "127.0.0.1"
-        
+
     ph_time = datetime.now(pytz.timezone('Asia/Manila'))
     entry = ActivityLog(ip_address=ip, username=username, action=action,
                         timestamp=ph_time.replace(tzinfo=None))
@@ -114,7 +114,8 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+        if user and bcrypt.checkpw(password.encode('utf-8'),
+                                   user.password.encode('utf-8')):
             login_user(user)
             log_action("Logged in", username=username)
             return redirect(url_for('dashboard'))
@@ -137,45 +138,46 @@ def logout():
 @login_required
 def dashboard():
     log_action("Viewed dashboard", username=current_user.username)
-
     if current_user.is_admin:
-        logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(50).all()
+        logs = ActivityLog.query.order_by(
+            ActivityLog.timestamp.desc()).limit(50).all()
         return render_template('dashboard.html', logs=logs)
-
     return render_template('user_dashboard.html')
 
-# ── CAMERA STREAM GENERATOR ─────────────────────────────────────────
+# ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
         return
 
-    # Force OpenCV to capture using TCP packets over the tunnel backend
+    source = int(rtsp_url) if rtsp_url.isdigit() else rtsp_url
     os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;tcp"
-    cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
-    
+
+    cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+
     while True:
-        if cap is None or not cap.isOpened():
+        if not cap.isOpened():
+            cap.release()
             time.sleep(2)
-            cap = cv2.VideoCapture(rtsp_url, cv2.CAP_FFMPEG)
+            cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
             continue
 
-        for _ in range(5):
-            if cap.isOpened():
-                cap.grab()
-            
         success, frame = cap.read()
         if not success:
+            cap.release()
+            time.sleep(1)
+            cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
             continue
 
         frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
-        _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
-        
+        _, buffer = cv2.imencode('.jpg', frame,
+                                 [int(cv2.IMWRITE_JPEG_QUALITY), 50])
+
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
 
-# ── THE ENDPOINT ROUTE ──────────────────────────────────────────────
 @app.route('/video_feed')
 @login_required
 def video_feed():
@@ -183,7 +185,7 @@ def video_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# ── ADMIN PAGES ─────────────────────────────────────────────────────
+# ── LOGS PAGE ───────────────────────────────────────────────────────
 @app.route('/logs')
 @login_required
 def view_logs():
@@ -192,6 +194,7 @@ def view_logs():
     logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
     return render_template('logs.html', logs=logs)
 
+# ── ADMIN: View all users ────────────────────────────────────────────
 @app.route('/admin/users')
 @login_required
 def admin_users():
@@ -201,6 +204,7 @@ def admin_users():
     log_action("Viewed user list", username=current_user.username)
     return render_template('admin_users.html', users=users)
 
+# ── ADMIN: Delete a user ─────────────────────────────────────────────
 @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 @login_required
 def delete_user(user_id):
@@ -216,10 +220,12 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
 
-    log_action(f"Deleted user '{username_deleted}'", username=current_user.username)
+    log_action(f"Deleted user '{username_deleted}'",
+               username=current_user.username)
     flash(f"User '{username_deleted}' has been deleted.", "success")
     return redirect(url_for('admin_users'))
 
+# ── ADMIN: Promote a user to admin ──────────────────────────────────
 @app.route('/admin/promote/<int:user_id>', methods=['POST'])
 @login_required
 def promote_user(user_id):
@@ -230,31 +236,14 @@ def promote_user(user_id):
     user.is_admin = True
     db.session.commit()
 
-    log_action(f"Promoted '{user.username}' to admin", username=current_user.username)
+    log_action(f"Promoted '{user.username}' to admin",
+               username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
-# ── INITIAL SEED ROUTE ─────────────────────────────────────────────────
-@app.route('/create_admin')
-def create_admin():
-    try:
-        db.create_all()
-        existing = User.query.filter_by(username='hotmariaclara').first()
-        if existing:
-            return "Admin already exists."
-            
-        hashed = bcrypt.hashpw(b'likekotsengmagaradontneedamekaniko', bcrypt.gensalt())
-        admin = User(
-            username='hotmariaclara',
-            email='kotsengmagara@netad.com',
-            password=hashed.decode('utf-8'),
-            is_admin=True
-        )
-        db.session.add(admin)
-        db.session.commit()
-        return "Admin created successfully!"
-    except Exception as e:
-        return f"Error: {str(e)}"
+# ── INIT DB AND RUN ──────────────────────────────────────────────────
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=False)
