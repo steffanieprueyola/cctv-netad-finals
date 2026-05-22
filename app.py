@@ -49,31 +49,30 @@ Talisman(app,
 @app.route('/stream_proxy/<path:filename>')
 @login_required
 def stream_proxy(filename):
-    # Get the base URL from environment
+    # This is the full URL to the playlist
     hls_url = os.getenv('MEDIAMTX_HLS_URL', 'http://localhost:8888/cam/index.m3u8')
     
-    # Extract the base path (e.g., https://your-ngrok.ngrok-free.dev/cam/)
-    # We remove 'index.m3u8' from the URL
+    # We strip 'index.m3u8' to get the base folder
     base_path = hls_url.rsplit('/', 1)[0]
     
-    # Construct the full URL
-    # If filename is 'index.m3u8', this becomes '.../cam/index.m3u8'
-    # If filename is 'segment_0.ts', this becomes '.../cam/segment_0.ts'
+    # Construct the full URL for the requested file
     url = f"{base_path}/{filename}"
     
+    # Log the URL so we can see it in Railway's Deploy Logs
+    print(f"DEBUG: Proxying request to: {url}")
+    
     try:
-        # Log the URL being attempted for debugging purposes
-        print(f"DEBUG: Proxying request to: {url}")
+        resp = requests.get(url, timeout=10)
         
-        resp = requests.get(url, timeout=5)
-        
-        # Check if the file was found on the local machine
+        # If the local server returns a 404, we need to see that
         if resp.status_code != 200:
-            return f"Local source returned {resp.status_code}", resp.status_code
+            print(f"DEBUG: Local server returned {resp.status_code} for {url}")
+            return f"Remote source returned {resp.status_code}", resp.status_code
             
         content_type = 'application/x-mpegURL' if filename.endswith('.m3u8') else 'video/MP2T'
         return resp.content, resp.status_code, {'Content-Type': content_type}
     except Exception as e:
+        print(f"DEBUG: Proxy exception: {str(e)}")
         return f"Proxy Error: {str(e)}", 500
       
 # ── INIT DB AND RUN ──────────────────────────────────────────────────
