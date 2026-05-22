@@ -154,19 +154,18 @@ def logout():
     return redirect(url_for('login'))
 
 
-# ── HLS STREAM URL ──────────────────────────────────────────────────
+# ── HLS STREAM URL (UPDATED DYNAMIC ROUTE) ──────────────────────────
 # MediaMTX serves the HLS playlist directly to the browser.
-# This endpoint just hands the authenticated client the URL so
-# the template can pass it to hls.js — the video data never touches Flask.
-#
-# Set MEDIAMTX_HLS_URL in your .env, e.g.:
-#   MEDIAMTX_HLS_URL=https://xxxx.ngrok-free.app/cam/index.m3u8
+# This pulls environment values configured directly via your Railway settings dashboard panel.
 @app.route('/stream_url')
 @login_required
 def stream_url():
-    hls_url = os.getenv('MEDIAMTX_HLS_URL')
+    # Looks for Railway environmental system data, falls back to local storage routing link context if blank
+    hls_url = os.getenv('MEDIAMTX_HLS_URL', 'http://localhost:8888/cam/index.m3u8')
+    
     if not hls_url:
-        return jsonify({'error': 'Stream not configured'}), 503
+        return jsonify({'error': 'Stream configuration missing or unmapped'}), 500
+        
     log_action("Fetched stream URL", username=current_user.username)
     return jsonify({'url': hls_url})
 
