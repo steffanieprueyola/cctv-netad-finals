@@ -156,6 +156,10 @@
       background:rgba(0,255,170,0.03);
     }
 
+    .admin-row{
+      background:rgba(0,255,170,0.02);
+    }
+
     /* Badges */
     .badge-admin{
       background:rgba(0,255,170,0.15);
@@ -183,24 +187,25 @@
       font-size:13px;
       margin-right:5px;
       transition:.3s;
+      color:white;
     }
 
     .btn-delete{
       background:#dc2626;
-      color:white;
     }
 
     .btn-delete:hover{
       background:#b91c1c;
+      box-shadow:0 0 12px rgba(255,0,0,0.4);
     }
 
     .btn-promote{
       background:#16a34a;
-      color:white;
     }
 
     .btn-promote:hover{
       background:#15803d;
+      box-shadow:0 0 12px rgba(0,255,100,0.3);
     }
 
     .btn-self{
@@ -222,14 +227,12 @@
         text-align:center;
       }
     }
-
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- Navigation -->
   <div class="nav">
     <a href="/">
       <i class="fa-solid fa-arrow-left"></i> Dashboard
@@ -244,7 +247,6 @@
     </a>
   </div>
 
-  <!-- Header -->
   <div class="card">
     <h1>MANAGE USERS</h1>
     <div class="subtitle">
@@ -254,7 +256,6 @@
     <p>Total Users: <strong>{{ users | length }}</strong></p>
   </div>
 
-  <!-- Flash messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
       <div class="message {{ category }}">
@@ -263,7 +264,6 @@
     {% endfor %}
   {% endwith %}
 
-  <!-- Users Table -->
   <div class="card table-wrapper">
     <table>
       <tr>
@@ -276,7 +276,7 @@
       </tr>
 
       {% for user in users %}
-      <tr>
+      <tr class="{% if user.is_admin %}admin-row{% endif %}">
         <td>{{ user.id }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
