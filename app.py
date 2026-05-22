@@ -135,22 +135,9 @@ def logout():
 @app.route('/')
 @login_required
 def dashboard():
-
     log_action("Viewed dashboard", username=current_user.username)
-
-    # ADMIN DASHBOARD
-    if current_user.is_admin:
-        logs = ActivityLog.query.order_by(
-            ActivityLog.timestamp.desc()
-        ).limit(50).all()
-
-        return render_template(
-            'dashboard.html',
-            logs=logs
-        )
-
-    # USER DASHBOARD
-    return render_template('user_dashboard.html')
+    logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(50).all()
+    return render_template('dashboard.html', logs=logs)
 
 # ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
