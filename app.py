@@ -49,18 +49,26 @@ Talisman(app,
 @app.route('/stream_proxy/<path:filename>')
 @login_required
 def stream_proxy(filename):
+    # Your environment variable is: https://xxxx.ngrok-free.dev/cam/index.m3u8
     hls_url = os.getenv('MEDIAMTX_HLS_URL', 'http://localhost:8888/cam/index.m3u8')
-    base_url = hls_url.replace('index.m3u8', '')
-    url = f"{base_url}{filename}"
+    
+    # Extract the base path (e.g., https://xxxx.ngrok-free.dev/cam/)
+    # We remove 'index.m3u8' and ensure we don't have double slashes
+    base_path = hls_url.rsplit('/', 1)[0]
+    
+    # Construct the final URL (e.g., https://xxxx.ngrok-free.dev/cam/ + segment.ts)
+    url = f"{base_path}/{filename}"
+    
     try:
         resp = requests.get(url, timeout=5)
+        if resp.status_code != 200:
+            return f"Remote server returned {resp.status_code}", resp.status_code
+            
         content_type = 'application/x-mpegURL' if filename.endswith('.m3u8') else 'video/MP2T'
         return resp.content, resp.status_code, {'Content-Type': content_type}
     except Exception as e:
-        return f"Proxy Error", 500
-
-# ... (Keep all your existing helper and admin route functions below) ...
-
+        return f"Proxy Error: {str(e)}", 500
+      
 # ── INIT DB AND RUN ──────────────────────────────────────────────────
 with app.app_context():
     db.create_all()
