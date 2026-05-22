@@ -6,8 +6,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
@@ -18,6 +20,14 @@
       box-sizing:border-box;
     }
 
+    :root{
+      --primary:#00ffb2;
+      --danger:#ff3b5c;
+      --admin:#ffc857;
+      --user:#00d9ff;
+      --card-bg:rgba(0,0,0,0.72);
+    }
+
     body{
       min-height:100vh;
       background:#050505;
@@ -25,7 +35,7 @@
       color:white;
       overflow-x:hidden;
       position:relative;
-      padding:30px;
+      padding:24px;
     }
 
     /* Background Glow */
@@ -54,7 +64,7 @@
     }
 
     .container{
-      max-width:1300px;
+      max-width:1350px;
       margin:auto;
       position:relative;
       z-index:2;
@@ -63,24 +73,28 @@
     /* Header */
 
     .header-card{
-      background:rgba(0,0,0,0.72);
+      background:var(--card-bg);
       backdrop-filter:blur(14px);
-      border:1px solid rgba(0,255,170,0.3);
-      border-radius:24px;
-      padding:25px;
-      margin-bottom:25px;
+      border:1px solid rgba(0,255,170,0.25);
+      border-radius:26px;
+      padding:28px;
+      margin-bottom:24px;
+      box-shadow:
+      0 0 20px rgba(0,255,170,0.08),
+      0 0 40px rgba(0,255,170,0.03);
     }
 
     h1{
       font-family:'Orbitron';
-      color:#00ffb3;
+      color:var(--primary);
       margin-bottom:8px;
-      font-size:28px;
-      text-shadow:0 0 12px rgba(0,255,170,0.25);
+      font-size:clamp(22px,4vw,34px);
+      text-shadow:0 0 12px rgba(0,255,178,0.25);
+      word-break:break-word;
     }
 
     .subtitle{
-      color:#b5b5b5;
+      color:#b8b8b8;
       margin-bottom:20px;
       font-size:14px;
     }
@@ -94,10 +108,10 @@
     }
 
     .nav a{
-      color:#00ffb3;
+      color:var(--primary);
       text-decoration:none;
-      padding:10px 18px;
-      border-radius:12px;
+      padding:12px 18px;
+      border-radius:14px;
       border:1px solid rgba(0,255,170,0.2);
       background:rgba(255,255,255,0.03);
       transition:.3s ease;
@@ -105,6 +119,7 @@
       display:flex;
       align-items:center;
       gap:8px;
+      min-height:46px;
     }
 
     .nav a:hover{
@@ -113,40 +128,47 @@
       transform:translateY(-1px);
     }
 
-    /* Dashboard Grid */
+    /* Dashboard Layout */
 
     .dashboard-grid{
       display:grid;
       grid-template-columns:2fr 1fr;
-      gap:25px;
+      gap:24px;
+      align-items:start;
     }
 
     .card{
-      background:rgba(0,0,0,0.72);
+      background:var(--card-bg);
       backdrop-filter:blur(14px);
-      border:1px solid rgba(0,255,170,0.3);
-      border-radius:24px;
-      padding:20px;
+      border:1px solid rgba(0,255,170,0.25);
+      border-radius:26px;
+      padding:22px;
+      overflow:hidden;
       box-shadow:
       0 0 20px rgba(0,255,170,0.08),
-      0 0 40px rgba(0,255,170,0.04);
+      0 0 40px rgba(0,255,170,0.03);
     }
 
     .card h2{
       font-family:'Orbitron';
-      color:#00ffb3;
-      margin-bottom:18px;
-      font-size:20px;
-      text-shadow:0 0 10px rgba(0,255,170,0.2);
+      color:var(--primary);
+      margin-bottom:20px;
+      font-size:clamp(16px,3vw,22px);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
     /* Live Feed */
 
     .live-feed img{
       width:100%;
-      border-radius:16px;
+      height:auto;
+      border-radius:18px;
       border:1px solid rgba(0,255,170,0.2);
       background:#000;
+      display:block;
     }
 
     /* Status */
@@ -154,33 +176,34 @@
     .status-box{
       display:flex;
       flex-direction:column;
-      gap:15px;
+      gap:16px;
     }
 
     .status-item{
       padding:16px;
-      border-radius:16px;
+      border-radius:18px;
       background:rgba(255,255,255,0.03);
       border:1px solid rgba(0,255,170,0.08);
     }
 
     .status-item h3{
-      color:#00ffb3;
+      color:var(--primary);
       margin-bottom:8px;
       font-size:14px;
     }
 
     .status-item p{
-      color:#ddd;
+      color:#e5e5e5;
       font-size:14px;
+      word-break:break-word;
     }
 
-    /* Recent Activity */
+    /* Activity Legend */
 
     .activity-legend{
       display:flex;
       flex-wrap:wrap;
-      gap:12px;
+      gap:10px;
       margin-bottom:20px;
     }
 
@@ -193,63 +216,87 @@
       background:rgba(255,255,255,0.03);
       border:1px solid rgba(255,255,255,0.05);
       font-size:12px;
+      flex-wrap:wrap;
     }
 
     .legend-dot{
       width:10px;
       height:10px;
       border-radius:50%;
+      flex-shrink:0;
+    }
+
+    /* Table */
+
+    .table-wrapper{
+      width:100%;
+      overflow-x:auto;
+      border-radius:18px;
+    }
+
+    .table-wrapper::-webkit-scrollbar{
+      height:6px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb{
+      background:rgba(0,255,178,0.3);
+      border-radius:999px;
     }
 
     table{
       width:100%;
+      min-width:720px;
       border-collapse:separate;
       border-spacing:0 10px;
-      min-width:650px;
     }
 
     th{
       padding:14px;
       text-align:left;
-      color:#00ffb3;
+      color:var(--primary);
       font-family:'Orbitron';
       font-size:12px;
-      border-bottom:1px solid rgba(0,255,170,0.2);
+      border-bottom:1px solid rgba(0,255,170,0.15);
       letter-spacing:1px;
+      white-space:nowrap;
     }
 
     td{
       padding:16px;
-      color:#e5e5e5;
       font-size:13px;
-      transition:0.25s ease;
+      transition:.25s ease;
+      vertical-align:middle;
     }
 
     tbody tr{
-      transition:0.25s ease;
+      transition:.25s ease;
     }
 
     tbody tr:hover{
       transform:translateX(4px);
     }
 
-    .action{
-      font-weight:600;
-      letter-spacing:.3px;
-    }
-
-    .username{
-      font-weight:600;
-    }
-
     .timestamp{
-      color:#cfcfcf;
+      color:#d0d0d0;
       font-size:12px;
+      white-space:nowrap;
     }
 
     .ip{
       font-family:monospace;
-      color:#d9d9d9;
+      color:#dcdcdc;
+      white-space:nowrap;
+    }
+
+    .username{
+      font-weight:600;
+      word-break:break-word;
+    }
+
+    .action{
+      font-weight:600;
+      word-break:break-word;
+      line-height:1.5;
     }
 
     /* Success */
@@ -259,21 +306,16 @@
     }
 
     .log-success td{
-      color:#c9ffe8;
+      color:#cffff0;
     }
 
     .log-success td:first-child{
-      border-left:4px solid #00ffb2;
+      border-left:4px solid var(--primary);
       border-radius:14px 0 0 14px;
     }
 
     .log-success td:last-child{
       border-radius:0 14px 14px 0;
-    }
-
-    .log-success:hover{
-      background:rgba(0,255,178,0.12);
-      box-shadow:0 0 18px rgba(0,255,178,0.14);
     }
 
     /* Failed */
@@ -283,21 +325,16 @@
     }
 
     .log-failed td{
-      color:#ffd6dd;
+      color:#ffd5dd;
     }
 
     .log-failed td:first-child{
-      border-left:4px solid #ff3b5c;
+      border-left:4px solid var(--danger);
       border-radius:14px 0 0 14px;
     }
 
     .log-failed td:last-child{
       border-radius:0 14px 14px 0;
-    }
-
-    .log-failed:hover{
-      background:rgba(255,59,92,0.12);
-      box-shadow:0 0 18px rgba(255,59,92,0.14);
     }
 
     /* Admin */
@@ -311,17 +348,12 @@
     }
 
     .log-admin td:first-child{
-      border-left:4px solid #ffc857;
+      border-left:4px solid var(--admin);
       border-radius:14px 0 0 14px;
     }
 
     .log-admin td:last-child{
       border-radius:0 14px 14px 0;
-    }
-
-    .log-admin:hover{
-      background:rgba(255,200,87,0.12);
-      box-shadow:0 0 18px rgba(255,200,87,0.14);
     }
 
     /* User */
@@ -331,21 +363,16 @@
     }
 
     .log-user td{
-      color:#c8f5ff;
+      color:#c8f6ff;
     }
 
     .log-user td:first-child{
-      border-left:4px solid #00d9ff;
+      border-left:4px solid var(--user);
       border-radius:14px 0 0 14px;
     }
 
     .log-user td:last-child{
       border-radius:0 14px 14px 0;
-    }
-
-    .log-user:hover{
-      background:rgba(0,217,255,0.12);
-      box-shadow:0 0 18px rgba(0,217,255,0.14);
     }
 
     /* Badges */
@@ -360,6 +387,7 @@
       font-weight:700;
       text-transform:uppercase;
       letter-spacing:.5px;
+      white-space:nowrap;
     }
 
     .badge i{
@@ -368,36 +396,54 @@
 
     .badge-success{
       background:rgba(0,255,178,0.12);
-      color:#00ffb2;
+      color:var(--primary);
     }
 
     .badge-failed{
       background:rgba(255,59,92,0.12);
-      color:#ff3b5c;
+      color:var(--danger);
     }
 
     .badge-admin{
       background:rgba(255,200,87,0.12);
-      color:#ffc857;
+      color:var(--admin);
     }
 
     .badge-user{
       background:rgba(0,217,255,0.12);
-      color:#00d9ff;
+      color:var(--user);
     }
 
-    @media(max-width:1000px){
+    /* ========================= */
+    /* TABLET */
+    /* ========================= */
+
+    @media(max-width:1024px){
 
       .dashboard-grid{
         grid-template-columns:1fr;
       }
 
+      body{
+        padding:20px;
+      }
+
     }
 
-    @media(max-width:700px){
+    /* ========================= */
+    /* MOBILE */
+    /* ========================= */
+
+    @media(max-width:768px){
 
       body{
-        padding:15px;
+        padding:14px;
+      }
+
+      .header-card,
+      .card{
+        padding:18px;
+        border-radius:20px;
       }
 
       .nav{
@@ -409,8 +455,56 @@
         justify-content:center;
       }
 
+      .activity-legend{
+        flex-direction:column;
+      }
+
+      table{
+        min-width:650px;
+      }
+
+      td{
+        padding:14px;
+      }
+
+    }
+
+    /* ========================= */
+    /* SMALL PHONES */
+    /* ========================= */
+
+    @media(max-width:480px){
+
+      body{
+        padding:10px;
+      }
+
+      .header-card,
+      .card{
+        padding:16px;
+        border-radius:18px;
+      }
+
       h1{
-        font-size:22px;
+        line-height:1.4;
+      }
+
+      .subtitle{
+        font-size:13px;
+      }
+
+      .status-item{
+        padding:14px;
+      }
+
+      .badge{
+        font-size:10px;
+        padding:6px 10px;
+      }
+
+      td,
+      th{
+        font-size:12px;
       }
 
     }
@@ -422,7 +516,7 @@
 
 <div class="container">
 
-  <!-- Header -->
+  <!-- HEADER -->
 
   <div class="header-card">
 
@@ -457,11 +551,11 @@
 
   </div>
 
-  <!-- Dashboard -->
+  <!-- DASHBOARD -->
 
   <div class="dashboard-grid">
 
-    <!-- Live Feed -->
+    <!-- LIVE FEED -->
 
     <div class="card live-feed">
 
@@ -474,7 +568,7 @@
 
     </div>
 
-    <!-- Status -->
+    <!-- STATUS -->
 
     <div class="card">
 
@@ -487,6 +581,7 @@
 
         <div class="status-item">
           <h3>Camera Status</h3>
+
           <p style="color:#7dffb3;font-weight:500;">
             <i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i>
             Online
@@ -505,6 +600,7 @@
 
         <div class="status-item">
           <h3>Access Level</h3>
+
           <p>
             {% if current_user.is_admin %}
               Administrator
@@ -512,6 +608,7 @@
               Standard User
             {% endif %}
           </p>
+
         </div>
 
       </div>
@@ -520,139 +617,153 @@
 
   </div>
 
-  <!-- Recent Activity -->
+  <!-- RECENT ACTIVITY -->
 
-  <div class="card" style="margin-top:25px;">
+  <div class="card" style="margin-top:24px;">
 
     <h2>
       <i class="fa-solid fa-list"></i>
       RECENT ACTIVITY
     </h2>
 
-    <!-- Legend -->
+    <!-- LEGEND -->
 
     <div class="activity-legend">
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#00ffb2;box-shadow:0 0 10px #00ffb2;"></span>
+        <span class="legend-dot" style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;"></span>
         Successful Login
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#ff3b5c;box-shadow:0 0 10px #ff3b5c;"></span>
+        <span class="legend-dot" style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;"></span>
         Failed Login
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#ffc857;box-shadow:0 0 10px #ffc857;"></span>
+        <span class="legend-dot" style="background:#ffc857; box-shadow:0 0 10px #ffc857;"></span>
         Admin Activity
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#00d9ff;box-shadow:0 0 10px #00d9ff;"></span>
+        <span class="legend-dot" style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;"></span>
         User Activity
       </div>
 
     </div>
 
-    <table>
+    <!-- TABLE -->
 
-      <tr>
-        <th>TIME (PHT)</th>
-        <th>IP ADDRESS</th>
-        <th>USERNAME</th>
-        <th>STATUS</th>
-        <th>ACTION</th>
-      </tr>
+    <div class="table-wrapper">
 
-      {% for log in logs %}
+      <table>
 
-      <tr
+        <thead>
 
-        class="
-          {% if 'failed' in log.action.lower() %}
+          <tr>
+            <th>TIME (PHT)</th>
+            <th>IP ADDRESS</th>
+            <th>USERNAME</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
 
-            log-failed
+        </thead>
 
-          {% elif 'logged in' in log.action.lower()
-              or 'successful login' in log.action.lower()
-              or 'login successful' in log.action.lower()
-              or 'logged in successfully' in log.action.lower() %}
+        <tbody>
 
-            log-success
+        {% for log in logs %}
 
-          {% elif log.username.lower() == 'hotmariaclara' %}
+        <tr
 
-            log-admin
+          class="
+            {% if 'failed' in log.action.lower() %}
 
-          {% else %}
+              log-failed
 
-            log-user
+            {% elif 'logged in' in log.action.lower()
+                or 'successful login' in log.action.lower()
+                or 'login successful' in log.action.lower()
+                or 'logged in successfully' in log.action.lower() %}
 
-          {% endif %}
-        "
-      >
+              log-success
 
-        <td class="timestamp">
-          {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
-        </td>
+            {% elif log.username.lower() == 'hotmariaclara' %}
 
-        <td class="ip">
-          {{ log.ip_address }}
-        </td>
+              log-admin
 
-        <td class="username">
-          {{ log.username }}
-        </td>
+            {% else %}
 
-        <!-- STATUS -->
+              log-user
 
-        <td>
+            {% endif %}
+          "
+        >
 
-          {% if 'failed' in log.action.lower() %}
+          <td class="timestamp">
+            {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
+          </td>
 
-            <span class="badge badge-failed">
-              <i class="fa-solid fa-circle"></i>
-              Failed
-            </span>
+          <td class="ip">
+            {{ log.ip_address }}
+          </td>
 
-          {% elif 'logged in' in log.action.lower()
-              or 'successful login' in log.action.lower()
-              or 'login successful' in log.action.lower()
-              or 'logged in successfully' in log.action.lower() %}
+          <td class="username">
+            {{ log.username }}
+          </td>
 
-            <span class="badge badge-success">
-              <i class="fa-solid fa-circle"></i>
-              Success
-            </span>
+          <!-- STATUS -->
 
-          {% elif log.username.lower() == 'hotmariaclara' %}
+          <td>
 
-            <span class="badge badge-admin">
-              <i class="fa-solid fa-shield-halved"></i>
-              Admin
-            </span>
+            {% if 'failed' in log.action.lower() %}
 
-          {% else %}
+              <span class="badge badge-failed">
+                <i class="fa-solid fa-circle"></i>
+                Failed
+              </span>
 
-            <span class="badge badge-user">
-              <i class="fa-solid fa-user"></i>
-              User
-            </span>
+            {% elif 'logged in' in log.action.lower()
+                or 'successful login' in log.action.lower()
+                or 'login successful' in log.action.lower()
+                or 'logged in successfully' in log.action.lower() %}
 
-          {% endif %}
+              <span class="badge badge-success">
+                <i class="fa-solid fa-circle"></i>
+                Success
+              </span>
 
-        </td>
+            {% elif log.username.lower() == 'hotmariaclara' %}
 
-        <td class="action">
-          {{ log.action }}
-        </td>
+              <span class="badge badge-admin">
+                <i class="fa-solid fa-shield-halved"></i>
+                Admin
+              </span>
 
-      </tr>
+            {% else %}
 
-      {% endfor %}
+              <span class="badge badge-user">
+                <i class="fa-solid fa-user"></i>
+                User
+              </span>
 
-    </table>
+            {% endif %}
+
+          </td>
+
+          <td class="action">
+            {{ log.action }}
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
 
   </div>
 
