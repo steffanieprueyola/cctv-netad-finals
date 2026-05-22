@@ -33,15 +33,14 @@ limiter.init_app(app)
 csrf = CSRFProtect(app)
 
 Talisman(app,
-         force_https=False,
          content_security_policy={
              'default-src': ["'self'"],
              'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
              'font-src': ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
              'script-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-             'connect-src': ["'self'", "blob:"],
+             'connect-src': ["'self'", "blob:", "https://cdn.jsdelivr.net"], 
              'img-src': ["'self'", "data:"],
-             'media-src': ["'self'", "blob:"],
+             'media-src': ["'self'", "blob:", "https://cdn.jsdelivr.net"],
          })
 
 # ── HLS PROXY ROUTE ─────────────────────────────────────────────────
