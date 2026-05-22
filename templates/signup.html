@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Sign Up — CCTV System</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
@@ -30,7 +27,6 @@
       position:relative;
     }
 
-    /* Background Glow */
     body::before{
       content:"";
       position:fixed;
@@ -41,7 +37,6 @@
       z-index:0;
     }
 
-    /* Grid Overlay */
     body::after{
       content:"";
       position:fixed;
@@ -60,17 +55,17 @@
       justify-content:space-between;
       align-items:center;
       gap:60px;
-      padding:40px;
+      padding:20px; /* reduced */
       position:relative;
       z-index:2;
     }
 
-    /* Card */
+    /* 🔽 REDUCED HEIGHT CARD */
     .signup-card{
       width:100%;
       max-width:450px;
-      padding:30px;
-      border-radius:24px;
+      padding:20px; /* reduced */
+      border-radius:20px;
       background:rgba(0,0,0,0.75);
       backdrop-filter:blur(16px);
       border:1px solid rgba(0,255,170,0.35);
@@ -81,16 +76,16 @@
 
     .logo{
       text-align:center;
-      margin-bottom:25px;
+      margin-bottom:15px; /* reduced */
     }
 
     .shield{
-      width:65px;
-      height:65px;
+      width:55px;
+      height:55px;
       border:2px solid #00ffb3;
       border-radius:18px;
       transform:rotate(45deg);
-      margin:0 auto 20px;
+      margin:0 auto 12px;
       display:flex;
       justify-content:center;
       align-items:center;
@@ -99,71 +94,58 @@
     .shield i{
       transform:rotate(-45deg);
       color:#00ffb3;
-      font-size:22px;
+      font-size:20px;
     }
 
     h1{
       font-family:'Orbitron',sans-serif;
-      font-size:24px;
-      margin-bottom:8px;
+      font-size:20px; /* reduced */
+      margin-bottom:5px;
     }
 
     .subtitle{
       color:#00ffb3;
-      font-size:13px;
-      margin-bottom:15px;
+      font-size:12px;
+      margin-bottom:10px;
     }
 
     .divider{
-      width:60px;
-      height:3px;
+      width:50px;
+      height:2px;
       background:#00ffb3;
       margin:0 auto;
       border-radius:50px;
     }
 
-    /* Flash messages */
     .message{
-      padding:12px;
-      margin:20px 0;
+      padding:10px;
+      margin:12px 0;
       border-radius:10px;
       text-align:center;
-      font-size:14px;
+      font-size:13px;
     }
 
-    .error{
-      background:rgba(255,0,0,0.08);
-      border:1px solid rgba(255,0,0,0.2);
-      color:#ff7b7b;
-    }
-
-    .success{
-      background:rgba(0,255,100,0.08);
-      border:1px solid rgba(0,255,100,0.2);
-      color:#5fff9c;
-    }
-
-    /* Input */
     .input-group{
-      margin-bottom:18px;
+      margin-bottom:12px; /* reduced */
     }
 
     .input-group label{
       display:block;
-      margin-bottom:8px;
-      font-size:12px;
+      margin-bottom:6px;
+      font-size:11px;
       color:#00ffb3;
       font-family:'Orbitron';
       letter-spacing:1px;
     }
 
+    /* 🔽 REDUCED INPUT HEIGHT */
     .input-box{
       display:flex;
       align-items:center;
-      gap:12px;
-      padding:0 15px;
-      height:52px;
-      border-radius:12px;
+      gap:10px;
+      padding:0 12px;
+      height:42px;
+      border-radius:10px;
       background:rgba(255,255,255,0.03);
       border:1px solid rgba(255,255,255,0.08);
       transition:.3s;
@@ -180,28 +162,24 @@
       border:none;
       outline:none;
       color:white;
-      font-size:14px;
+      font-size:13px;
     }
 
-    .icon{
-      color:#00ffb3;
-    }
+    .icon{ color:#00ffb3; }
+    .eye{ cursor:pointer; }
 
-    .eye{
-      cursor:pointer;
-    }
-
+    /* 🔽 REDUCED BUTTON HEIGHT */
     button{
       width:100%;
-      height:52px;
+      height:44px;
       border:none;
-      border-radius:12px;
+      border-radius:10px;
       background:linear-gradient(135deg,#00d97e,#00ffb3);
       font-family:'Orbitron';
       font-weight:700;
       cursor:pointer;
       transition:.3s;
-      margin-top:10px;
+      margin-top:8px;
     }
 
     button:hover{
@@ -211,8 +189,8 @@
 
     .bottom-link{
       text-align:center;
-      margin-top:18px;
-      font-size:13px;
+      margin-top:12px;
+      font-size:12px;
     }
 
     .bottom-link a{
@@ -224,9 +202,9 @@
       flex:1;
       text-align:center;
       font-family:'Orbitron';
-      font-size:44px;
+      font-size:38px;
       color:#00ffb3;
-      line-height:1.3;
+      line-height:1.2;
       opacity:0.9;
     }
 
@@ -234,14 +212,13 @@
       .container{
         flex-direction:column;
       }
-
       .side-text{
-        font-size:28px;
+        font-size:26px;
       }
     }
-
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -258,7 +235,6 @@
       <div class="divider"></div>
     </div>
 
-    <!-- Flash messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
         <div class="message {{ category }}">{{ message }}</div>
@@ -271,7 +247,7 @@
         <label>USERNAME</label>
         <div class="input-box">
           <i class="fa-solid fa-user icon"></i>
-          <input name="username" placeholder="Enter username" required minlength="3" maxlength="80">
+          <input name="username" required minlength="3" maxlength="80">
         </div>
       </div>
 
@@ -279,7 +255,7 @@
         <label>EMAIL</label>
         <div class="input-box">
           <i class="fa-solid fa-envelope icon"></i>
-          <input name="email" type="email" placeholder="Enter email" required>
+          <input name="email" type="email" required>
         </div>
       </div>
 
@@ -287,7 +263,7 @@
         <label>PASSWORD</label>
         <div class="input-box">
           <i class="fa-solid fa-lock icon"></i>
-          <input id="password" name="password" type="password" placeholder="Minimum 8 characters" required minlength="8">
+          <input id="password" name="password" type="password" required minlength="8">
           <i class="fa-regular fa-eye icon eye" id="togglePassword"></i>
         </div>
       </div>
@@ -296,20 +272,17 @@
         <label>CONFIRM PASSWORD</label>
         <div class="input-box">
           <i class="fa-solid fa-lock icon"></i>
-          <input id="confirmPassword" name="confirm_password" type="password" placeholder="Re-enter password" required>
+          <input id="confirmPassword" name="confirm_password" type="password" required>
           <i class="fa-regular fa-eye icon eye" id="toggleConfirm"></i>
         </div>
       </div>
 
-      <button type="submit">
-        CREATE ACCOUNT
-      </button>
+      <button type="submit">CREATE ACCOUNT</button>
 
     </form>
 
     <div class="bottom-link">
-      Already have an account?
-      <a href="/login">Log in</a>
+      Already have an account? <a href="/login">Log in</a>
     </div>
 
   </div>
