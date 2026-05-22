@@ -724,23 +724,42 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
+  // This fetches the stream configuration from your Flask backend
   fetch('/stream_url')
     .then(r => r.json())
-    .then(({ url, error }) => {
-      if (error || !url) { document.getElementById('stream-error').style.display = 'block'; return; }
+    .then(data => {
+      // We look for 'stream_url' because that is the key used in app.py
+      const streamUrl = data.stream_url; 
+      
+      if (!streamUrl) { 
+        document.getElementById('stream-error').style.display = 'block'; 
+        return; 
+      }
+
       const video = document.getElementById('cam');
+      
+      // HLS.js handles the stream initialization
       if (Hls.isSupported()) {
         const hls = new Hls();
-        hls.loadSource(url);
+        hls.loadSource(streamUrl);
         hls.attachMedia(video);
-        hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) document.getElementById('stream-error').style.display = 'block'; });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url; // Safari internal stream engine mapping fallback
-      } else {
+        hls.on(Hls.Events.ERROR, (_, d) => { 
+            if (d.fatal) {
+                document.getElementById('stream-error').style.display = 'block';
+            }
+        });
+      } 
+      // Fallback for Safari/iOS
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = streamUrl; 
+      } 
+      else {
         document.getElementById('stream-error').style.display = 'block';
       }
     })
-    .catch(() => document.getElementById('stream-error').style.display = 'block');
+    .catch(() => {
+      document.getElementById('stream-error').style.display = 'block';
+    });
 </script>
 </body>
 </html>
