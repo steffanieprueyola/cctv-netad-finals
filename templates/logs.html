@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <title>Activity Logs — CCTV System</title>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="refresh" content="10">
@@ -157,9 +158,9 @@
       letter-spacing:.3px;
     }
 
-    /* ========================= */
+    /* ================================= */
     /* 🔴 FAILED LOGIN */
-    /* ========================= */
+    /* ================================= */
 
     .log-failed{
       background:rgba(255,0,0,0.13) !important;
@@ -176,28 +177,28 @@
       box-shadow:0 0 18px rgba(255,0,0,0.18);
     }
 
-    /* ========================= */
+    /* ================================= */
     /* 🟢 SUCCESSFUL LOGIN */
-    /* ========================= */
+    /* ================================= */
 
     .log-success{
-      background:rgba(0,255,120,0.10) !important;
+      background:rgba(0,255,120,0.12) !important;
       border-left:4px solid #00ff88;
     }
 
     .log-success td{
       color:#7dffb2 !important;
-      font-weight:600;
+      font-weight:700;
     }
 
     .log-success:hover{
-      background:rgba(0,255,120,0.15) !important;
-      box-shadow:0 0 18px rgba(0,255,120,0.15);
+      background:rgba(0,255,120,0.18) !important;
+      box-shadow:0 0 18px rgba(0,255,120,0.18);
     }
 
-    /* ========================= */
-    /* 🔵 USER ACTIONS */
-    /* ========================= */
+    /* ================================= */
+    /* 🔵 REGULAR USER ACTIONS */
+    /* ================================= */
 
     .log-user{
       background:rgba(80,140,255,0.10) !important;
@@ -213,33 +214,34 @@
       box-shadow:0 0 18px rgba(80,140,255,0.15);
     }
 
-    /* ========================= */
+    /* ================================= */
     /* 🟢🟡 ADMIN ACTIONS */
-    /* ========================= */
+    /* ADMIN USER = hotmariaclara */
+    /* ================================= */
 
     .log-admin{
       background:linear-gradient(
         90deg,
-        rgba(0,255,140,0.10),
-        rgba(255,215,0,0.05)
+        rgba(0,255,140,0.12),
+        rgba(255,215,0,0.08)
       ) !important;
 
       border-left:4px solid #ffd700;
     }
 
     .log-admin td{
-      color:#e3ffe3 !important;
-      font-weight:600;
+      color:#eaffea !important;
+      font-weight:700;
     }
 
     .log-admin:hover{
       background:linear-gradient(
         90deg,
-        rgba(0,255,140,0.16),
-        rgba(255,215,0,0.08)
+        rgba(0,255,140,0.18),
+        rgba(255,215,0,0.12)
       ) !important;
 
-      box-shadow:0 0 20px rgba(255,215,0,0.12);
+      box-shadow:0 0 20px rgba(255,215,0,0.14);
     }
 
   </style>
@@ -302,18 +304,23 @@
       <tr
         class="
           {% if 'failed' in log.action.lower() %}
+
             log-failed
 
           {% elif 'successful login' in log.action.lower()
-              or 'login successful' in log.action.lower() %}
+              or 'login successful' in log.action.lower()
+              or 'logged in successfully' in log.action.lower() %}
+
             log-success
 
-          {% elif 'admin' in log.username.lower()
-              or 'admin' in log.action.lower() %}
+          {% elif log.username.lower() == 'hotmariaclara' %}
+
             log-admin
 
           {% else %}
+
             log-user
+
           {% endif %}
         "
       >
