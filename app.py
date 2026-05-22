@@ -49,20 +49,27 @@ Talisman(app,
 @app.route('/stream_proxy/<path:filename>')
 @login_required
 def stream_proxy(filename):
-    # Your environment variable is: https://xxxx.ngrok-free.dev/cam/index.m3u8
+    # Get the base URL from environment
     hls_url = os.getenv('MEDIAMTX_HLS_URL', 'http://localhost:8888/cam/index.m3u8')
     
-    # Extract the base path (e.g., https://xxxx.ngrok-free.dev/cam/)
-    # We remove 'index.m3u8' and ensure we don't have double slashes
+    # Extract the base path (e.g., https://your-ngrok.ngrok-free.dev/cam/)
+    # We remove 'index.m3u8' from the URL
     base_path = hls_url.rsplit('/', 1)[0]
     
-    # Construct the final URL (e.g., https://xxxx.ngrok-free.dev/cam/ + segment.ts)
+    # Construct the full URL
+    # If filename is 'index.m3u8', this becomes '.../cam/index.m3u8'
+    # If filename is 'segment_0.ts', this becomes '.../cam/segment_0.ts'
     url = f"{base_path}/{filename}"
     
     try:
+        # Log the URL being attempted for debugging purposes
+        print(f"DEBUG: Proxying request to: {url}")
+        
         resp = requests.get(url, timeout=5)
+        
+        # Check if the file was found on the local machine
         if resp.status_code != 200:
-            return f"Remote server returned {resp.status_code}", resp.status_code
+            return f"Local source returned {resp.status_code}", resp.status_code
             
         content_type = 'application/x-mpegURL' if filename.endswith('.m3u8') else 'video/MP2T'
         return resp.content, resp.status_code, {'Content-Type': content_type}
