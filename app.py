@@ -50,16 +50,16 @@ Talisman(app,
              'script-src': [
                  "'self'",
                  "'unsafe-inline'",
-                 # hls.js CDN
                  "https://cdn.jsdelivr.net",
              ],
-             # Allow the browser to fetch HLS segments from MediaMTX.
-             # MEDIAMTX_HLS_ORIGIN should be e.g. "https://xxxx.ngrok-free.app"
+             # Allows HLS.js to connect to the ngrok tunnel
              'connect-src': [
                  "'self'",
+                 "blob:", 
                  os.getenv('MEDIAMTX_HLS_ORIGIN', ''),
              ],
-             'img-src':   "'self' data:",
+             'img-src': "'self' data:",
+             # Allows the video element to render HLS segments (blobs)
              'media-src': [
                  "'self'",
                  "blob:",
