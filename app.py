@@ -3,8 +3,7 @@ import requests
 import bcrypt
 from datetime import datetime
 import pytz
-from flask import (Flask, render_template, redirect, url_for,
-                   request, flash, abort, jsonify)
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import (login_user, logout_user,
                          login_required, current_user)
 import traceback
