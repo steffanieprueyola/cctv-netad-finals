@@ -1,5 +1,6 @@
 import os
 import bcrypt
+import requests
 from datetime import datetime
 
 import pytz
@@ -18,7 +19,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY']            = os.getenv('SECRET_KEY')
 app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
-app.config['WTF_CSRF_TIME_LIMIT']   = None   # tokens don't expire mid-session
+app.config['WTF_CSRF_TIME_LIMIT']   = None
 
 database_url = os.getenv('DATABASE_URL', 'sqlite:///cctv.db')
 if database_url.startswith('postgres://'):
@@ -36,38 +37,28 @@ Talisman(app,
          force_https=False,
          content_security_policy={
              'default-src': "'self'",
-             'style-src': [
-                 "'self'",
-                 "'unsafe-inline'",
-                 "https://fonts.googleapis.com",
-                 "https://cdnjs.cloudflare.com",
-             ],
-             'font-src': [
-                 "'self'",
-                 "https://fonts.gstatic.com",
-                 "https://cdnjs.cloudflare.com",
-             ],
-             'script-src': [
-                 "'self'",
-                 "'unsafe-inline'",
-                 "https://cdn.jsdelivr.net",
-             ],
-             # Allows HLS.js to connect to the ngrok tunnel
-             'connect-src': [
-                 "'self'",
-                 "blob:", 
-                 os.getenv('MEDIAMTX_HLS_ORIGIN', ''),
-             ],
+             'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+             'font-src': ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+             'script-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+             'connect-src': ["'self'", "blob:", os.getenv('MEDIAMTX_HLS_ORIGIN', '')],
              'img-src': "'self' data:",
-             # Allows the video element to render HLS segments (blobs)
-             'media-src': [
-                 "'self'",
-                 "blob:",
-                 os.getenv('MEDIAMTX_HLS_ORIGIN', ''),
-             ],
+             'media-src': ["'self'", "blob:", os.getenv('MEDIAMTX_HLS_ORIGIN', '')],
          })
 
-
+# ── HLS PROXY ROUTE ─────────────────────────────────────────────────
+@app.route('/stream_proxy/<path:filename>')
+@login_required
+def stream_proxy(filename):
+    hls_url = os.getenv('MEDIAMTX_HLS_URL', 'http://localhost:8888/cam/index.m3u8')
+    base_url = hls_url.replace('index.m3u8', '')
+    url = f"{base_url}{filename}"
+    try:
+        resp = requests.get(url, timeout=5)
+        content_type = 'application/x-mpegURL' if filename.endswith('.m3u8') else 'video/MP2T'
+        return resp.content, resp.status_code, {'Content-Type': content_type}
+    except Exception as e:
+        return f"Proxy Error", 500
+      
 # ── Helper: write a log entry ───────────────────────────────────────
 def log_action(action, username="anonymous"):
     try:
