@@ -38,6 +38,7 @@ Talisman(app,
              'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
              'font-src': ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
              'script-src': ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+             # ADD THESE LINES TO ALLOW THE HLS PLAYER TO FETCH DATA
              'connect-src': ["'self'", "blob:", "https://cdn.jsdelivr.net"], 
              'img-src': ["'self'", "data:"],
              'media-src': ["'self'", "blob:", "https://cdn.jsdelivr.net"],
