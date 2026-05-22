@@ -35,7 +35,7 @@
       color:white;
       overflow-x:hidden;
       position:relative;
-      padding:24px;
+      padding:30px;
     }
 
     /* Background Glow */
@@ -64,7 +64,7 @@
     }
 
     .container{
-      max-width:1350px;
+      max-width:1300px;
       margin:auto;
       position:relative;
       z-index:2;
@@ -73,28 +73,25 @@
     /* Header */
 
     .header-card{
-      background:var(--card-bg);
+      background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
-      border:1px solid rgba(0,255,170,0.25);
-      border-radius:26px;
-      padding:28px;
-      margin-bottom:24px;
-      box-shadow:
-      0 0 20px rgba(0,255,170,0.08),
-      0 0 40px rgba(0,255,170,0.03);
+      border:1px solid rgba(0,255,170,0.3);
+      border-radius:24px;
+      padding:25px;
+      margin-bottom:25px;
     }
 
     h1{
       font-family:'Orbitron';
-      color:var(--primary);
+      color:#00ffb3;
       margin-bottom:8px;
-      font-size:clamp(22px,4vw,34px);
-      text-shadow:0 0 12px rgba(0,255,178,0.25);
+      font-size:28px;
+      text-shadow:0 0 12px rgba(0,255,170,0.25);
       word-break:break-word;
     }
 
     .subtitle{
-      color:#b8b8b8;
+      color:#b5b5b5;
       margin-bottom:20px;
       font-size:14px;
     }
@@ -108,59 +105,56 @@
     }
 
     .nav a{
-      color:var(--primary);
+      color:#00ffb3;
       text-decoration:none;
-      padding:12px 18px;
-      border-radius:14px;
+      padding:10px 18px;
+      border-radius:12px;
       border:1px solid rgba(0,255,170,0.2);
       background:rgba(255,255,255,0.03);
-      transition:.3s ease;
+      transition:.3s;
       font-size:14px;
       display:flex;
       align-items:center;
       gap:8px;
-      min-height:46px;
     }
 
     .nav a:hover{
       background:rgba(0,255,170,0.08);
-      box-shadow:0 0 14px rgba(0,255,170,0.15);
-      transform:translateY(-1px);
+      box-shadow:0 0 12px rgba(0,255,170,0.15);
     }
 
-    /* Dashboard Layout */
+    /* Dashboard Grid */
 
     .dashboard-grid{
       display:grid;
       grid-template-columns:2fr 1fr;
-      gap:24px;
-      align-items:start;
+      gap:25px;
     }
 
     .card{
-      background:var(--card-bg);
+      background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
-      border:1px solid rgba(0,255,170,0.25);
-      border-radius:26px;
-      padding:22px;
-      overflow:hidden;
+      border:1px solid rgba(0,255,170,0.3);
+      border-radius:24px;
+      padding:20px;
       box-shadow:
       0 0 20px rgba(0,255,170,0.08),
-      0 0 40px rgba(0,255,170,0.03);
+      0 0 40px rgba(0,255,170,0.04);
     }
 
     .card h2{
       font-family:'Orbitron';
-      color:var(--primary);
-      margin-bottom:20px;
-      font-size:clamp(16px,3vw,22px);
+      color:#00ffb3;
+      margin-bottom:18px;
+      font-size:20px;
       display:flex;
       align-items:center;
       gap:10px;
-      flex-wrap:wrap;
     }
 
-    /* Live Feed */
+    /* ============================ */
+    /* ORIGINAL LIVE FEED */
+    /* ============================ */
 
     .live-feed img{
       width:100%;
@@ -169,39 +163,39 @@
       background:#000;
     }
 
-    /* Status */
+    /* Status Box */
 
     .status-box{
       display:flex;
       flex-direction:column;
-      gap:16px;
+      gap:15px;
     }
 
     .status-item{
       padding:16px;
-      border-radius:18px;
+      border-radius:16px;
       background:rgba(255,255,255,0.03);
       border:1px solid rgba(0,255,170,0.08);
     }
 
     .status-item h3{
-      color:var(--primary);
+      color:#00ffb3;
       margin-bottom:8px;
       font-size:14px;
     }
 
     .status-item p{
-      color:#e5e5e5;
+      color:#ddd;
       font-size:14px;
       word-break:break-word;
     }
 
-    /* Activity Legend */
+    /* Recent Activity */
 
     .activity-legend{
       display:flex;
       flex-wrap:wrap;
-      gap:10px;
+      gap:12px;
       margin-bottom:20px;
     }
 
@@ -214,7 +208,6 @@
       background:rgba(255,255,255,0.03);
       border:1px solid rgba(255,255,255,0.05);
       font-size:12px;
-      flex-wrap:wrap;
     }
 
     .legend-dot{
@@ -251,18 +244,18 @@
     th{
       padding:14px;
       text-align:left;
-      color:var(--primary);
+      color:#00ffb3;
       font-family:'Orbitron';
       font-size:12px;
-      border-bottom:1px solid rgba(0,255,170,0.15);
+      border-bottom:1px solid rgba(0,255,170,0.2);
       letter-spacing:1px;
       white-space:nowrap;
     }
 
     td{
       padding:16px;
+      color:#e5e5e5;
       font-size:13px;
-      transition:.25s ease;
       vertical-align:middle;
     }
 
@@ -288,12 +281,10 @@
 
     .username{
       font-weight:600;
-      word-break:break-word;
     }
 
     .action{
       font-weight:600;
-      word-break:break-word;
       line-height:1.5;
     }
 
@@ -412,32 +403,20 @@
       color:var(--user);
     }
 
-    /* TABLET */
+    /* Responsive */
 
-    @media(max-width:1024px){
+    @media(max-width:1000px){
 
       .dashboard-grid{
         grid-template-columns:1fr;
       }
 
-      body{
-        padding:20px;
-      }
-
     }
-
-    /* MOBILE */
 
     @media(max-width:768px){
 
       body{
-        padding:14px;
-      }
-
-      .header-card,
-      .card{
-        padding:18px;
-        border-radius:20px;
+        padding:15px;
       }
 
       .nav{
@@ -453,17 +432,16 @@
         flex-direction:column;
       }
 
+      .header-card,
+      .card{
+        padding:18px;
+      }
+
       table{
         min-width:650px;
       }
 
-      td{
-        padding:14px;
-      }
-
     }
-
-    /* SMALL PHONES */
 
     @media(max-width:480px){
 
@@ -471,32 +449,23 @@
         padding:10px;
       }
 
-      .header-card,
-      .card{
-        padding:16px;
-        border-radius:18px;
-      }
-
       h1{
+        font-size:22px;
         line-height:1.4;
       }
 
-      .subtitle{
-        font-size:13px;
-      }
-
-      .status-item{
-        padding:14px;
-      }
-
-      .badge{
-        font-size:10px;
-        padding:6px 10px;
+      .card h2{
+        font-size:18px;
       }
 
       td,
       th{
         font-size:12px;
+      }
+
+      .badge{
+        font-size:10px;
+        padding:6px 10px;
       }
 
     }
@@ -556,11 +525,14 @@
         LIVE FEED
       </h2>
 
-      <img src="{{ url_for('video_feed') }}" alt="Live Security Stream Pipeline">
+      <img
+        src="{{ url_for('video_feed') }}"
+        alt="Live Security Stream Pipeline"
+      >
 
     </div>
 
-    <!-- STATUS -->
+    <!-- SYSTEM STATUS -->
 
     <div class="card">
 
@@ -575,7 +547,8 @@
           <h3>Camera Status</h3>
 
           <p style="color:#7dffb3;font-weight:500;">
-            <i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i>
+            <i class="fa-solid fa-circle"
+               style="font-size:10px;margin-right:4px;"></i>
             Online
           </p>
         </div>
@@ -611,34 +584,42 @@
 
   <!-- RECENT ACTIVITY -->
 
-  <div class="card" style="margin-top:24px;">
+  <div class="card" style="margin-top:25px;">
 
     <h2>
       <i class="fa-solid fa-list"></i>
       RECENT ACTIVITY
     </h2>
 
-    <!-- LEGEND -->
+    <!-- Legend -->
 
     <div class="activity-legend">
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;"></span>
+        <span class="legend-dot"
+              style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;">
+        </span>
         Successful Login
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;"></span>
+        <span class="legend-dot"
+              style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;">
+        </span>
         Failed Login
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#ffc857; box-shadow:0 0 10px #ffc857;"></span>
+        <span class="legend-dot"
+              style="background:#ffc857; box-shadow:0 0 10px #ffc857;">
+        </span>
         Admin Activity
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;"></span>
+        <span class="legend-dot"
+              style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;">
+        </span>
         User Activity
       </div>
 
@@ -651,7 +632,6 @@
       <table>
 
         <thead>
-
           <tr>
             <th>TIME (PHT)</th>
             <th>IP ADDRESS</th>
@@ -659,7 +639,6 @@
             <th>STATUS</th>
             <th>ACTION</th>
           </tr>
-
         </thead>
 
         <tbody>
