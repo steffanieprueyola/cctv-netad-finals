@@ -62,7 +62,7 @@ Talisman(app,
              'img-src':   "'self' data:",
              'media-src': [
                  "'self'",
-                 # HLS .ts segments are loaded as media by some browsers
+                 "blob:",
                  os.getenv('MEDIAMTX_HLS_ORIGIN', ''),
              ],
          })
