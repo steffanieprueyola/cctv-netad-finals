@@ -240,7 +240,10 @@
 
     <div class="card panel-stream">
       <h2><i class="fa-solid fa-video" style="color: #00ffb3;"></i> SYSTEM MONITOR FEED</h2>
-      <img src="{{ url_for('video_feed') }}" class="stream-frame" alt="Live CCTV Network Feed">
+      <video id="cam" class="stream-frame" autoplay muted playsinline controls></video>
+      <div class="stream-error" id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">
+        <i class="fa-solid fa-triangle-exclamation"></i> Stream unavailable
+      </div>
     </div>
 
   </div>
@@ -286,11 +289,13 @@
           {% else %}
 
             <form method="POST" action="/admin/delete_user/{{ user.id }}" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="btn-delete">Delete</button>
             </form>
 
             {% if not user.is_admin %}
             <form method="POST" action="/admin/promote/{{ user.id }}" style="display:inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="btn-promote">Make Admin</button>
             </form>
             {% endif %}
@@ -303,5 +308,26 @@
   </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  fetch('/stream_url')
+    .then(r => r.json())
+    .then(({ url, error }) => {
+      if (error || !url) { document.getElementById('stream-error').style.display = 'block'; return; }
+      const video = document.getElementById('cam');
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) document.getElementById('stream-error').style.display = 'block'; });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url; 
+      } else {
+        document.getElementById('stream-error').style.display = 'block';
+      }
+    })
+    .catch(() => document.getElementById('stream-error').style.display = 'block');
+</script>
 </body>
 </html>
