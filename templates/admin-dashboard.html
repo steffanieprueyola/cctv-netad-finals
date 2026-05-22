@@ -318,7 +318,7 @@
       const video = document.getElementById('cam');
       if (Hls.isSupported()) {
         const hls = new Hls();
-        hls.loadSource(url);
+        hls.loadSource("/stream_proxy/index.m3u8");
         hls.attachMedia(video);
         hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) document.getElementById('stream-error').style.display = 'block'; });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
