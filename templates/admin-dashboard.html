@@ -21,7 +21,6 @@
       background:#050505;
       font-family:'Inter',sans-serif;
       color:white;
-      overflow-x:hidden;
       padding:30px;
     }
 
@@ -89,7 +88,7 @@
     }
 
     /* =========================
-       🔥 UNIFIED FLASH SYSTEM
+       🔥 CATEGORY-DRIVEN FLASH
     ========================= */
 
     .message{
@@ -106,18 +105,20 @@
       border:1px solid rgba(0,255,100,0.15);
     }
 
-    .error,
-    .failed,
-    .danger{
+    .error{
       color:#ff4d4d;
       background:rgba(255,0,0,0.12);
       border:1px solid rgba(255,0,0,0.35);
       box-shadow:0 0 12px rgba(255,0,0,0.15);
     }
 
-    /* fallback safety (TEXT BASED DETECTION) */
-    .message[data-type*="fail"],
-    .message[data-type*="error"]{
+    .failed{
+      color:#ff4d4d;
+      background:rgba(255,0,0,0.12);
+      border:1px solid rgba(255,0,0,0.35);
+    }
+
+    .danger{
       color:#ff4d4d;
       background:rgba(255,0,0,0.12);
       border:1px solid rgba(255,0,0,0.35);
@@ -163,8 +164,23 @@
       font-size:12px;
     }
 
-    .btn-delete{background:#dc2626;color:white;border:none;padding:8px 14px;border-radius:10px;}
-    .btn-promote{background:#16a34a;color:white;border:none;padding:8px 14px;border-radius:10px;}
+    .btn-delete{
+      background:#dc2626;
+      color:white;
+      border:none;
+      padding:8px 14px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+
+    .btn-promote{
+      background:#16a34a;
+      color:white;
+      border:none;
+      padding:8px 14px;
+      border-radius:10px;
+      cursor:pointer;
+    }
 
   </style>
 </head>
@@ -184,17 +200,12 @@
     <p>Total Users: <strong>{{ users | length }}</strong></p>
   </div>
 
-  <!-- 🔥 UNIFIED FLASH SYSTEM -->
+  <!-- CATEGORY-DRIVEN FLASH ONLY -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
-
-      <div class="message {{ category }}"
-           data-type="{{ category }} {{ message }}">
-
+      <div class="message {{ category }}">
         {{ message }}
-
       </div>
-
     {% endfor %}
   {% endwith %}
 
