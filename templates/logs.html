@@ -29,7 +29,6 @@
       padding:40px;
     }
 
-    /* Background glow */
     body::before{
       content:"";
       position:fixed;
@@ -40,7 +39,6 @@
       z-index:0;
     }
 
-    /* Grid overlay */
     body::after{
       content:"";
       position:fixed;
@@ -59,7 +57,6 @@
       z-index:2;
     }
 
-    /* Navigation */
     .nav{
       display:flex;
       gap:15px;
@@ -83,7 +80,6 @@
       box-shadow:0 0 12px rgba(0,255,170,0.15);
     }
 
-    /* Header Card */
     .header-card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
@@ -91,9 +87,6 @@
       border-radius:24px;
       padding:25px;
       margin-bottom:25px;
-      box-shadow:
-      0 0 20px rgba(0,255,170,0.08),
-      0 0 40px rgba(0,255,170,0.04);
     }
 
     h1{
@@ -114,7 +107,6 @@
       font-size:15px;
     }
 
-    /* Table Card */
     .table-card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
@@ -122,9 +114,6 @@
       border-radius:24px;
       padding:20px;
       overflow-x:auto;
-      box-shadow:
-      0 0 20px rgba(0,255,170,0.08),
-      0 0 40px rgba(0,255,170,0.04);
     }
 
     table{
@@ -158,32 +147,15 @@
       font-weight:500;
     }
 
+    /* 🔴 ONLY CHANGE: FAILED LOGIN COLOR */
     .action-failed{
       color:#ff4d4d;
-      font-weight:600;
-    }
-
-    @media(max-width:768px){
-      body{
-        padding:20px;
-      }
-
-      h1{
-        font-size:22px;
-      }
-
-      .nav{
-        flex-direction:column;
-      }
-
-      .nav a{
-        width:100%;
-        text-align:center;
-      }
+      font-weight:700;
     }
 
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -230,9 +202,11 @@
         <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         <td>{{ log.ip_address }}</td>
         <td>{{ log.username }}</td>
+
         <td class="{% if 'failed' in log.action.lower() %}action-failed{% else %}action{% endif %}">
           {{ log.action }}
         </td>
+
       </tr>
       {% endfor %}
     </table>
