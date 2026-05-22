@@ -6,10 +6,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
@@ -153,10 +151,10 @@
     }
 
     /* ============================ */
-    /* ORIGINAL LIVE FEED */
+    /* UPDATED LIVE FEED STREAM CONFIG */
     /* ============================ */
 
-    .live-feed img{
+    .live-feed video{
       width:100%;
       border-radius:16px;
       border:1px solid rgba(0,255,170,0.2);
@@ -477,8 +475,6 @@
 
 <div class="container">
 
-  <!-- HEADER -->
-
   <div class="header-card">
 
     <h1>WELCOME, {{ current_user.username }}</h1>
@@ -512,11 +508,7 @@
 
   </div>
 
-  <!-- DASHBOARD -->
-
   <div class="dashboard-grid">
-
-    <!-- LIVE FEED -->
 
     <div class="card live-feed">
 
@@ -525,14 +517,12 @@
         LIVE FEED
       </h2>
 
-      <img
-        src="{{ url_for('video_feed') }}"
-        alt="Live Security Stream Pipeline"
-      >
+      <video id="cam" autoplay muted playsinline controls></video>
+      <div class="stream-error" id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">  
+        <i class="fa-solid fa-triangle-exclamation"></i> Stream unavailable
+      </div>
 
     </div>
-
-    <!-- SYSTEM STATUS -->
 
     <div class="card">
 
@@ -582,16 +572,12 @@
 
   </div>
 
-  <!-- RECENT ACTIVITY -->
-
   <div class="card" style="margin-top:25px;">
 
     <h2>
       <i class="fa-solid fa-list"></i>
       RECENT ACTIVITY
     </h2>
-
-    <!-- Legend -->
 
     <div class="activity-legend">
 
@@ -624,8 +610,6 @@
       </div>
 
     </div>
-
-    <!-- TABLE -->
 
     <div class="table-wrapper">
 
@@ -683,8 +667,6 @@
             {{ log.username }}
           </td>
 
-          <!-- STATUS -->
-
           <td>
 
             {% if 'failed' in log.action.lower() %}
@@ -740,5 +722,25 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+  fetch('/stream_url')
+    .then(r => r.json())
+    .then(({ url, error }) => {
+      if (error || !url) { document.getElementById('stream-error').style.display = 'block'; return; }
+      const video = document.getElementById('cam');
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) document.getElementById('stream-error').style.display = 'block'; });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url; // Safari internal stream engine mapping fallback
+      } else {
+        document.getElementById('stream-error').style.display = 'block';
+      }
+    })
+    .catch(() => document.getElementById('stream-error').style.display = 'block');
+</script>
 </body>
 </html>
