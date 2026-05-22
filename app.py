@@ -1,4 +1,4 @@
-import cv2, bcrypt, os
+import cv2, bcrypt, os, time
 from datetime import datetime
 import pytz
 from flask import (Flask, render_template, redirect, url_for,
@@ -27,9 +27,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 limiter.init_app(app)
 
-# Secure Talisman middleware. 
-# The external ngrok tunnel URL is kept out of here because the backend handles 
-# frame translation server-side, protecting your local proxy from front-end visibility.
 Talisman(app,
          force_https=False,
          content_security_policy={
@@ -55,7 +52,12 @@ Talisman(app,
 
 # ── Helper: write a log entry ───────────────────────────────────────
 def log_action(action, username="anonymous"):
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    # Fixes logging context processing if triggered outside an active HTTP request context
+    try:
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    except RuntimeError:
+        ip = "127.0.0.1"
+        
     ph_time = datetime.now(pytz.timezone('Asia/Manila'))
     entry = ActivityLog(ip_address=ip, username=username, action=action,
                         timestamp=ph_time.replace(tzinfo=None))
@@ -64,7 +66,8 @@ def log_action(action, username="anonymous"):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    # Using session.get() prevents deprecation warnings in newer versions of SQLAlchemy
+    return db.session.get(User, int(user_id))
 
 # ── SIGNUP ──────────────────────────────────────────────────────────
 @app.route('/signup', methods=['GET', 'POST'])
@@ -100,7 +103,7 @@ def signup():
 
         log_action(f"New account signed up: {username}")
         flash("Account created! You can now log in.", "success")
-        return redirect(url_for('signup'))
+        return redirect(url_for('login')) # Changed path redirect straight to your login template!
 
     return render_template('signup.html')
 
@@ -113,8 +116,8 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        if user and bcrypt.checkpw(password.encode('utf-8'),
-                                   user.password.encode('utf-8')):
+        # Secure byte cast sanitization handling
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             login_user(user)
             log_action("Logged in", username=username)
             return redirect(url_for('dashboard'))
@@ -136,55 +139,44 @@ def logout():
 @app.route('/')
 @login_required
 def dashboard():
-
     log_action("Viewed dashboard", username=current_user.username)
 
-    # ADMIN DASHBOARD
     if current_user.is_admin:
-        logs = ActivityLog.query.order_by(
-            ActivityLog.timestamp.desc()
-        ).limit(50).all()
+        logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(50).all()
+        return render_template('dashboard.html', logs=logs)
 
-        return render_template(
-            'dashboard.html',
-            logs=logs
-        )
-
-    # USER DASHBOARD
     return render_template('user_dashboard.html')
 
 # ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
-    # Grabs the ngrok address securely from your Railway Config Variables tab
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
         return
-    
+
     cap = cv2.VideoCapture(rtsp_url)
-    if not cap.isOpened():
-        return
-        
-    # Optimization 1: Drop old frames out of internal buffer memory (Prevents stream lag accumulation)
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     
     frame_count = 0
+    
     while True:
+        # Check connection status dynamically
+        if not cap.isOpened():
+            time.sleep(2) # Give the tunnel 2 seconds to breathe before retrying
+            cap = cv2.VideoCapture(rtsp_url)
+            cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+            continue
+
         success, frame = cap.read()
         if not success:
-            break
+            # Drop individual dead frame capture gracefully, loop back up to verify connection
+            cap.release()
+            continue
             
         frame_count += 1
-        # Optimization 2: Frame-skipping mechanism (Only processes every 2nd frame)
-        # Drops frame processing frequency to 15-20 FPS, cutting Railway CPU usage in half.
         if frame_count % 2 != 0:
             continue
 
-        # Optimization 3: Handle server-side downscaling
-        # Reduces extreme resource strain if the input video profile is 1080p or higher.
         frame = cv2.resize(frame, (1280, 720), interpolation=cv2.INTER_AREA)
-        
-        # Optimization 4: Set explicit JPEG compression flags [Quality: 80]
-        # Maintains sharp image visibility while maintaining tiny web network transfer payloads.
         _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
         
         yield (b'--frame\r\n'
@@ -198,7 +190,7 @@ def video_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# ── LOGS PAGE ───────────────────────────────────────────────────────
+# ── ADMIN PAGES ─────────────────────────────────────────────────────
 @app.route('/logs')
 @login_required
 def view_logs():
@@ -207,7 +199,6 @@ def view_logs():
     logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
     return render_template('logs.html', logs=logs)
 
-# ── ADMIN: View all users ────────────────────────────────────────────
 @app.route('/admin/users')
 @login_required
 def admin_users():
@@ -217,7 +208,6 @@ def admin_users():
     log_action("Viewed user list", username=current_user.username)
     return render_template('admin_users.html', users=users)
 
-# ── ADMIN: Delete a user ─────────────────────────────────────────────
 @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 @login_required
 def delete_user(user_id):
@@ -233,12 +223,10 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
 
-    log_action(f"Deleted user '{username_deleted}'",
-               username=current_user.username)
+    log_action(f"Deleted user '{username_deleted}'", username=current_user.username)
     flash(f"User '{username_deleted}' has been deleted.", "success")
     return redirect(url_for('admin_users'))
 
-# ── ADMIN: Promote a user to admin ──────────────────────────────────
 @app.route('/admin/promote/<int:user_id>', methods=['POST'])
 @login_required
 def promote_user(user_id):
@@ -249,11 +237,11 @@ def promote_user(user_id):
     user.is_admin = True
     db.session.commit()
 
-    log_action(f"Promoted '{user.username}' to admin",
-               username=current_user.username)
+    log_action(f"Promoted '{user.username}' to admin", username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
+# ── INITIAL SEED ROUTE ─────────────────────────────────────────────────
 @app.route('/create_admin')
 def create_admin():
     try:
@@ -261,6 +249,7 @@ def create_admin():
         existing = User.query.filter_by(username='hotmariaclara').first()
         if existing:
             return "Admin already exists."
+            
         hashed = bcrypt.hashpw(b'likekotsengmagaradontneedamekaniko', bcrypt.gensalt())
         admin = User(
             username='hotmariaclara',
@@ -273,10 +262,6 @@ def create_admin():
         return "Admin created successfully!"
     except Exception as e:
         return f"Error: {str(e)}"
-
-# ── INIT DB AND RUN ──────────────────────────────────────────────────
-with app.app_context():
-    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=False)
