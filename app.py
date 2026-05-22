@@ -10,8 +10,6 @@ from dotenv import load_dotenv
 from extensions import db, login_manager, limiter
 from models import User, ActivityLog
 
-
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -29,6 +27,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 limiter.init_app(app)
 
+# Secure Talisman middleware. 
+# The external ngrok tunnel URL is kept out of here because the backend handles 
+# frame translation server-side, protecting your local proxy from front-end visibility.
 Talisman(app,
          force_https=False,
          content_security_policy={
@@ -99,7 +100,7 @@ def signup():
 
         log_action(f"New account signed up: {username}")
         flash("Account created! You can now log in.", "success")
-        return redirect(url_for('login'))
+        return redirect(url_for('signup'))
 
     return render_template('signup.html')
 
@@ -154,6 +155,7 @@ def dashboard():
 
 # ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
+    # Grabs the ngrok RTSP address securely from your Railway Config Variables tab
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
         return
@@ -254,7 +256,7 @@ def create_admin():
 
 # ── INIT DB AND RUN ──────────────────────────────────────────────────
 with app.app_context():
-    db.create_all()   # ← this runs on Railway too, not just locally
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(debug=False)
