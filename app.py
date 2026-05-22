@@ -1,11 +1,14 @@
-import cv2, bcrypt, os, time, threading
+import os
+import bcrypt
 from datetime import datetime
+
 import pytz
 from flask import (Flask, render_template, redirect, url_for,
-                   request, flash, Response, abort)
+                   request, flash, abort, jsonify)
 from flask_login import (login_user, logout_user,
                          login_required, current_user)
 from flask_talisman import Talisman
+from flask_wtf import CSRFProtect
 from dotenv import load_dotenv
 from extensions import db, login_manager, limiter
 from models import User, ActivityLog
@@ -15,6 +18,7 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY']            = os.getenv('SECRET_KEY')
 app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
+app.config['WTF_CSRF_TIME_LIMIT']   = None   # tokens don't expire mid-session
 
 database_url = os.getenv('DATABASE_URL', 'sqlite:///cctv.db')
 if database_url.startswith('postgres://'):
@@ -26,6 +30,7 @@ db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 limiter.init_app(app)
+csrf = CSRFProtect(app)
 
 Talisman(app,
          force_https=False,
@@ -35,20 +40,33 @@ Talisman(app,
                  "'self'",
                  "'unsafe-inline'",
                  "https://fonts.googleapis.com",
-                 "https://cdnjs.cloudflare.com"
+                 "https://cdnjs.cloudflare.com",
              ],
              'font-src': [
                  "'self'",
                  "https://fonts.gstatic.com",
-                 "https://cdnjs.cloudflare.com"
+                 "https://cdnjs.cloudflare.com",
              ],
              'script-src': [
                  "'self'",
-                 "'unsafe-inline'"
+                 "'unsafe-inline'",
+                 # hls.js CDN
+                 "https://cdn.jsdelivr.net",
+             ],
+             # Allow the browser to fetch HLS segments from MediaMTX.
+             # MEDIAMTX_HLS_ORIGIN should be e.g. "https://xxxx.ngrok-free.app"
+             'connect-src': [
+                 "'self'",
+                 os.getenv('MEDIAMTX_HLS_ORIGIN', ''),
              ],
              'img-src':   "'self' data:",
-             'media-src': "'self'"
+             'media-src': [
+                 "'self'",
+                 # HLS .ts segments are loaded as media by some browsers
+                 os.getenv('MEDIAMTX_HLS_ORIGIN', ''),
+             ],
          })
+
 
 # ── Helper: write a log entry ───────────────────────────────────────
 def log_action(action, username="anonymous"):
@@ -57,14 +75,20 @@ def log_action(action, username="anonymous"):
     except RuntimeError:
         ip = "127.0.0.1"
     ph_time = datetime.now(pytz.timezone('Asia/Manila'))
-    entry = ActivityLog(ip_address=ip, username=username, action=action,
-                        timestamp=ph_time.replace(tzinfo=None))
+    entry = ActivityLog(
+        ip_address=ip,
+        username=username,
+        action=action,
+        timestamp=ph_time.replace(tzinfo=None),
+    )
     db.session.add(entry)
     db.session.commit()
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
 
 # ── SIGNUP ──────────────────────────────────────────────────────────
 @app.route('/signup', methods=['GET', 'POST'])
@@ -100,6 +124,7 @@ def signup():
 
     return render_template('signup.html')
 
+
 # ── LOGIN ───────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 @limiter.limit("5 per minute")
@@ -116,7 +141,9 @@ def login():
         else:
             log_action(f"Failed login attempt for '{username}'")
             flash('Invalid credentials.', 'error')
+
     return render_template('login.html')
+
 
 # ── LOGOUT ──────────────────────────────────────────────────────────
 @app.route('/logout')
@@ -125,6 +152,24 @@ def logout():
     log_action("Logged out", username=current_user.username)
     logout_user()
     return redirect(url_for('login'))
+
+
+# ── HLS STREAM URL ──────────────────────────────────────────────────
+# MediaMTX serves the HLS playlist directly to the browser.
+# This endpoint just hands the authenticated client the URL so
+# the template can pass it to hls.js — the video data never touches Flask.
+#
+# Set MEDIAMTX_HLS_URL in your .env, e.g.:
+#   MEDIAMTX_HLS_URL=https://xxxx.ngrok-free.app/cam/index.m3u8
+@app.route('/stream_url')
+@login_required
+def stream_url():
+    hls_url = os.getenv('MEDIAMTX_HLS_URL')
+    if not hls_url:
+        return jsonify({'error': 'Stream not configured'}), 503
+    log_action("Fetched stream URL", username=current_user.username)
+    return jsonify({'url': hls_url})
+
 
 # ── DASHBOARD ───────────────────────────────────────────────────────
 @app.route('/')
@@ -137,122 +182,8 @@ def dashboard():
         return render_template('dashboard.html', logs=logs)
     return render_template('user_dashboard.html')
 
-# ── CAMERA STREAM ───────────────────────────────────────────────────
 
-# Module-level camera singleton — shared across all requests so we
-# don't open a new RTSP connection for every viewer.
-_cap_lock   = threading.Lock()
-_cap        = None   # cv2.VideoCapture instance
-
-
-def get_cap():
-    """Return the shared VideoCapture, (re)opening it when necessary."""
-    global _cap
-    rtsp_url = os.getenv('RTSP_URL')
-    if not rtsp_url:
-        return None
-
-    source = int(rtsp_url) if rtsp_url.isdigit() else rtsp_url
-
-    with _cap_lock:
-        if _cap is None or not _cap.isOpened():
-            if _cap is not None:
-                _cap.release()
-
-            # stimeout is in microseconds (5 s = 5_000_000 µs).
-            # This prevents OpenCV from hanging forever on a dead URL.
-            os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = (
-                "rtsp_transport;tcp|stimeout;5000000"
-            )
-            cap = cv2.VideoCapture(source, cv2.CAP_FFMPEG)
-            # Buffer of 3 gives the FFMPEG decoder enough room to work
-            # without building up excessive latency.
-            cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-            _cap = cap
-
-        return _cap
-
-
-def generate_frames():
-    """
-    Generator that yields MJPEG frames.
-
-    Key improvements over the original:
-    - Singleton VideoCapture (no new connection per request)
-    - FPS throttle so we don't hammer the stream / network
-    - Reconnect logic never blocks the yield path, so Railway's proxy
-      timeout cannot be triggered by a momentary stream hiccup
-    - Socket timeout via FFMPEG so a dead URL fails fast instead of hanging
-    """
-    FRAME_INTERVAL   = 1 / 15   # ~15 fps — tune to taste
-    RECONNECT_DELAY  = 2        # seconds to wait between full reconnects
-    MAX_READ_FAILS   = 10       # consecutive failures before forcing reconnect
-
-    fail_count = 0
-
-    while True:
-        t_start = time.monotonic()
-
-        cap = get_cap()
-        if cap is None:
-            # RTSP_URL not configured — nothing to stream
-            time.sleep(1)
-            continue
-
-        success, frame = cap.read()
-
-        if not success:
-            fail_count += 1
-            if fail_count >= MAX_READ_FAILS:
-                # Force a full reconnect on the next iteration
-                with _cap_lock:
-                    global _cap
-                    if _cap is not None:
-                        _cap.release()
-                        _cap = None
-                fail_count = 0
-                time.sleep(RECONNECT_DELAY)
-            # Skip yield — never stall the HTTP response on a bad read
-            continue
-
-        fail_count = 0  # reset counter on a good frame
-
-        frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
-        _, buffer = cv2.imencode(
-            '.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 60]
-        )
-
-        yield (
-            b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n'
-            + buffer.tobytes()
-            + b'\r\n'
-        )
-
-        # Throttle to target FPS
-        elapsed   = time.monotonic() - t_start
-        sleep_for = FRAME_INTERVAL - elapsed
-        if sleep_for > 0:
-            time.sleep(sleep_for)
-
-
-@app.route('/video_feed')
-@login_required
-def video_feed():
-    log_action("Accessed video feed", username=current_user.username)
-    return Response(
-        generate_frames(),
-        mimetype='multipart/x-mixed-replace; boundary=frame',
-        headers={
-            # Tell Railway's nginx proxy NOT to buffer this streaming response.
-            # Without this header the proxy accumulates frames and either
-            # delays delivery or kills the connection at its own timeout.
-            'X-Accel-Buffering': 'no',
-            'Cache-Control':     'no-cache, no-store',
-        }
-    )
-
-# ── LOGS PAGE ───────────────────────────────────────────────────────
+# ── LOGS PAGE ────────────────────────────────────────────────────────
 @app.route('/logs')
 @login_required
 def view_logs():
@@ -260,6 +191,7 @@ def view_logs():
         abort(403)
     logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
     return render_template('logs.html', logs=logs)
+
 
 # ── ADMIN: View all users ────────────────────────────────────────────
 @app.route('/admin/users')
@@ -271,6 +203,7 @@ def admin_users():
     log_action("Viewed user list", username=current_user.username)
     return render_template('admin_users.html', users=users)
 
+
 # ── ADMIN: Delete a user ─────────────────────────────────────────────
 @app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
 @login_required
@@ -280,7 +213,7 @@ def delete_user(user_id):
     if user_id == current_user.id:
         flash("You cannot delete your own account.", "error")
         return redirect(url_for('admin_users'))
-    user = User.query.get_or_404(user_id)
+    user = db.get_or_404(User, user_id)
     username_deleted = user.username
     db.session.delete(user)
     db.session.commit()
@@ -289,19 +222,21 @@ def delete_user(user_id):
     flash(f"User '{username_deleted}' has been deleted.", "success")
     return redirect(url_for('admin_users'))
 
+
 # ── ADMIN: Promote a user to admin ──────────────────────────────────
 @app.route('/admin/promote/<int:user_id>', methods=['POST'])
 @login_required
 def promote_user(user_id):
     if not current_user.is_admin:
         abort(403)
-    user = User.query.get_or_404(user_id)
+    user = db.get_or_404(User, user_id)
     user.is_admin = True
     db.session.commit()
     log_action(f"Promoted '{user.username}' to admin",
                username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
+
 
 # ── INIT DB AND RUN ──────────────────────────────────────────────────
 with app.app_context():
