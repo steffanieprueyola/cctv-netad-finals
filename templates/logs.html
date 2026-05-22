@@ -182,7 +182,7 @@
     /* ================================= */
 
     .log-success{
-      background:rgba(0,255,120,0.12) !important;
+      background:rgba(0,255,120,0.14) !important;
       border-left:4px solid #00ff88;
     }
 
@@ -192,8 +192,8 @@
     }
 
     .log-success:hover{
-      background:rgba(0,255,120,0.18) !important;
-      box-shadow:0 0 18px rgba(0,255,120,0.18);
+      background:rgba(0,255,120,0.20) !important;
+      box-shadow:0 0 18px rgba(0,255,120,0.20);
     }
 
     /* ================================= */
@@ -215,33 +215,33 @@
     }
 
     /* ================================= */
-    /* 🟢🟡 ADMIN ACTIONS */
-    /* ADMIN USER = hotmariaclara */
+    /* 💖 ADMIN ACTIONS */
+    /* ADMIN = hotmariaclara */
     /* ================================= */
 
     .log-admin{
       background:linear-gradient(
         90deg,
-        rgba(0,255,140,0.12),
-        rgba(255,215,0,0.08)
+        rgba(255,20,147,0.15),
+        rgba(255,105,180,0.08)
       ) !important;
 
-      border-left:4px solid #ffd700;
+      border-left:4px solid #ff69b4;
     }
 
     .log-admin td{
-      color:#eaffea !important;
+      color:#ffd6ec !important;
       font-weight:700;
     }
 
     .log-admin:hover{
       background:linear-gradient(
         90deg,
-        rgba(0,255,140,0.18),
-        rgba(255,215,0,0.12)
+        rgba(255,20,147,0.22),
+        rgba(255,105,180,0.12)
       ) !important;
 
-      box-shadow:0 0 20px rgba(255,215,0,0.14);
+      box-shadow:0 0 20px rgba(255,105,180,0.20);
     }
 
   </style>
@@ -307,7 +307,8 @@
 
             log-failed
 
-          {% elif 'successful login' in log.action.lower()
+          {% elif 'logged in' in log.action.lower()
+              or 'successful login' in log.action.lower()
               or 'login successful' in log.action.lower()
               or 'logged in successfully' in log.action.lower() %}
 
