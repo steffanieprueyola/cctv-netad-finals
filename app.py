@@ -151,37 +151,38 @@ def dashboard():
 def generate_frames():
     rtsp_url = os.getenv('RTSP_URL')
     if not rtsp_url:
+        print("Error: RTSP_URL variable is missing.")
         return
 
     cap = cv2.VideoCapture(rtsp_url)
     
     while True:
-        if not cap.isOpened():
+       
+        if cap is None or not cap.isOpened():
+            print("Stream connection lost. Reconnecting...")
             time.sleep(2)
             cap = cv2.VideoCapture(rtsp_url)
             continue
 
+        # Safe packet flusher: only flushes if the capture device is actively open
         for _ in range(5):
-            cap.grab()
+            if cap.isOpened():
+                cap.grab()
             
         success, frame = cap.read()
         if not success:
-            cap.release()
+           
             continue
 
+        # Downscale canvas payload to save tunnel bandwidth
         frame = cv2.resize(frame, (854, 480), interpolation=cv2.INTER_AREA)
+        
+        # JPEG Quality compression 50%
         _, buffer = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 50])
         
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' +
                buffer.tobytes() + b'\r\n')
-
-@app.route('/video_feed')
-@login_required
-def video_feed():
-    log_action("Accessed video feed", username=current_user.username)
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # ── ADMIN PAGES ─────────────────────────────────────────────────────
 @app.route('/logs')
