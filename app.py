@@ -145,7 +145,7 @@ def dashboard():
         ).limit(50).all()
 
         return render_template(
-            'admin-dashboard.html',
+            'dashboard.html',
             logs=logs
         )
 
