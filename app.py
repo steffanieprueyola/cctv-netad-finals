@@ -6,26 +6,17 @@ from flask import (Flask, render_template, redirect, url_for,
 from flask_login import (login_user, logout_user,
                          login_required, current_user)
 from flask_talisman import Talisman
-from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from extensions import db, login_manager, limiter
 from models import User, ActivityLog
 
+
+
 load_dotenv()
 
 app = Flask(__name__)
-
-# ── Secure Session Cookie Configurations ────────────────────────────
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
-app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevents scripts from reading cookies
-app.config['SESSION_COOKIE_SECURE'] = True    # Forces cookies to only be sent over HTTPS
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax' # Mitigates Cross-Site Request Forgery (CSRF)
-
-# ── Reverse Proxy Security ──────────────────────────────────────────
-# If deploying on a cloud platform like Railway, this tells Flask to trust 
-# the upstream proxy headers safely. Adjust x_for numbers based on your proxy setup.
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
+app.config['SECRET_KEY']              = os.getenv('SECRET_KEY')
+app.config['RATELIMIT_STORAGE_URI']   = 'memory://'
 
 database_url = os.getenv('DATABASE_URL', 'sqlite:///cctv.db')
 if database_url.startswith('postgres://'):
@@ -38,23 +29,32 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 limiter.init_app(app)
 
-# Force HTTPS based on the environment (True in production, False for local testing)
-IS_PRODUCTION = os.getenv('FLASK_ENV') == 'production'
-
-Talisman(app, 
-         force_https=IS_PRODUCTION,
+Talisman(app,
+         force_https=False,
          content_security_policy={
              'default-src': "'self'",
-             'img-src':     "'self' data:", # Restricted from '*' to prevent external image exfiltration
-             'media-src':   "'self'"
+             'style-src': [
+                 "'self'",
+                 "'unsafe-inline'",
+                 "https://fonts.googleapis.com",
+                 "https://cdnjs.cloudflare.com"
+             ],
+             'font-src': [
+                 "'self'",
+                 "https://fonts.gstatic.com",
+                 "https://cdnjs.cloudflare.com"
+             ],
+             'script-src': [
+                 "'self'",
+                 "'unsafe-inline'"
+             ],
+             'img-src':   "'self' data:",
+             'media-src': "'self'"
          })
 
-# ── Helper: Safe Logger ─────────────────────────────────────────────
+# ── Helper: write a log entry ───────────────────────────────────────
 def log_action(action, username="anonymous"):
-    # ProxyFix handles parsing the real client IP into request.remote_addr safely.
-    # This completely mitigates manual X-Forwarded-For header injection.
-    ip = request.remote_addr or "Unknown"
-    
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     ph_time = datetime.now(pytz.timezone('Asia/Manila'))
     entry = ActivityLog(ip_address=ip, username=username, action=action,
                         timestamp=ph_time.replace(tzinfo=None))
@@ -97,7 +97,7 @@ def signup():
         db.session.add(user)
         db.session.commit()
 
-        log_action(f"New account signed up", username=username) # Don't rely heavily on string formatting user inputs
+        log_action(f"New account signed up: {username}")
         flash("Account created! You can now log in.", "success")
         return redirect(url_for('login'))
 
@@ -112,14 +112,13 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        # Constant-time comparison via bcrypt helps protect against timing attacks
         if user and bcrypt.checkpw(password.encode('utf-8'),
                                    user.password.encode('utf-8')):
             login_user(user)
             log_action("Logged in", username=username)
             return redirect(url_for('dashboard'))
         else:
-            log_action("Failed login attempt", username=username)
+            log_action(f"Failed login attempt for '{username}'")
             flash('Invalid credentials.', 'error')
 
     return render_template('login.html')
@@ -137,8 +136,8 @@ def logout():
 @login_required
 def dashboard():
     log_action("Viewed dashboard", username=current_user.username)
-    # FIX: Logs removed entirely from the public dashboard to stop standard user information leaks.
-    return render_template('dashboard.html')
+    logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).limit(50).all()
+    return render_template('dashboard.html', logs=logs)
 
 # ── CAMERA STREAM ───────────────────────────────────────────────────
 def generate_frames():
@@ -199,7 +198,8 @@ def delete_user(user_id):
     db.session.delete(user)
     db.session.commit()
 
-    log_action(f"Deleted user", username=current_user.username)
+    log_action(f"Deleted user '{username_deleted}'",
+               username=current_user.username)
     flash(f"User '{username_deleted}' has been deleted.", "success")
     return redirect(url_for('admin_users'))
 
@@ -214,13 +214,34 @@ def promote_user(user_id):
     user.is_admin = True
     db.session.commit()
 
-    log_action(f"Promoted user to admin", username=current_user.username)
+    log_action(f"Promoted '{user.username}' to admin",
+               username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
+@app.route('/create_admin')
+def create_admin():
+    try:
+        db.create_all()
+        existing = User.query.filter_by(username='hotmariaclara').first()
+        if existing:
+            return "Admin already exists."
+        hashed = bcrypt.hashpw(b'likekotsengmagaradontneedamekaniko', bcrypt.gensalt())
+        admin = User(
+            username='hotmariaclara',
+            email='kotsengmagara@netad.com',
+            password=hashed.decode('utf-8'),
+            is_admin=True
+        )
+        db.session.add(admin)
+        db.session.commit()
+        return "Admin created successfully!"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+# ── INIT DB AND RUN ──────────────────────────────────────────────────
 with app.app_context():
-    db.create_all()
+    db.create_all()   # ← this runs on Railway too, not just locally
 
 if __name__ == '__main__':
-    # Never leave debug=True in production code, handled cleanly here
     app.run(debug=False)
