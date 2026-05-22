@@ -4,6 +4,7 @@
   <title>CCTV Dashboard</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="10">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -28,6 +29,7 @@
       padding:30px;
     }
 
+    /* Background Glow */
     body::before{
       content:"";
       position:fixed;
@@ -38,6 +40,7 @@
       z-index:0;
     }
 
+    /* Grid Overlay */
     body::after{
       content:"";
       position:fixed;
@@ -56,7 +59,7 @@
       z-index:2;
     }
 
-    /* HEADER */
+    /* Header */
     .header-card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
@@ -75,14 +78,15 @@
 
     .subtitle{
       color:#b5b5b5;
+      margin-bottom:20px;
       font-size:14px;
-      margin-bottom:15px;
     }
 
+    /* Navigation */
     .nav{
       display:flex;
-      gap:12px;
       flex-wrap:wrap;
+      gap:12px;
     }
 
     .nav a{
@@ -92,9 +96,16 @@
       border-radius:12px;
       border:1px solid rgba(0,255,170,0.2);
       background:rgba(255,255,255,0.03);
+      transition:.3s;
+      font-size:14px;
     }
 
-    /* GRID */
+    .nav a:hover{
+      background:rgba(0,255,170,0.08);
+      box-shadow:0 0 12px rgba(0,255,170,0.15);
+    }
+
+    /* Dashboard Grid */
     .dashboard-grid{
       display:grid;
       grid-template-columns:2fr 1fr;
@@ -103,10 +114,13 @@
 
     .card{
       background:rgba(0,0,0,0.72);
+      backdrop-filter:blur(14px);
       border:1px solid rgba(0,255,170,0.3);
       border-radius:24px;
       padding:20px;
-      backdrop-filter:blur(14px);
+      box-shadow:
+      0 0 20px rgba(0,255,170,0.08),
+      0 0 40px rgba(0,255,170,0.04);
     }
 
     .card h2{
@@ -116,14 +130,59 @@
       font-size:20px;
     }
 
-    /* LIVE FEED */
+    /* Live Feed */
     .live-feed img{
       width:100%;
       border-radius:16px;
       border:1px solid rgba(0,255,170,0.2);
     }
 
-    /* STATUS */
+    /* Table */
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:500px;
+    }
+
+    th{
+      padding:14px;
+      text-align:left;
+      color:#00ffb3;
+      font-family:'Orbitron';
+      font-size:12px;
+      border-bottom:1px solid rgba(0,255,170,0.2);
+    }
+
+    td{
+      padding:14px;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      color:#e5e5e5;
+      font-size:13px;
+    }
+
+    tr:hover{
+      background:rgba(0,255,170,0.04);
+    }
+
+    .action{
+      color:#00ffb3;
+      font-weight:500;
+    }
+
+    /* =========================
+       ONLY CHANGE: FAILED LOG
+    ========================= */
+
+    .log-failed {
+      background: rgba(255, 0, 0, 0.12) !important;
+    }
+
+    .log-failed td {
+      color: #ff4d4d !important;
+      font-weight: bold;
+    }
+
+    /* Status Box */
     .status-box{
       display:flex;
       flex-direction:column;
@@ -134,58 +193,18 @@
       padding:16px;
       border-radius:16px;
       background:rgba(255,255,255,0.03);
+      border:1px solid rgba(0,255,170,0.08);
     }
 
     .status-item h3{
       color:#00ffb3;
+      margin-bottom:8px;
       font-size:14px;
-      margin-bottom:6px;
     }
 
-    /* TABLE */
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:500px;
-    }
-
-    th{
-      text-align:left;
-      padding:14px;
-      color:#00ffb3;
-      border-bottom:1px solid rgba(0,255,170,0.2);
-      font-size:12px;
-    }
-
-    td{
-      padding:14px;
-      border-bottom:1px solid rgba(255,255,255,0.05);
-      font-size:13px;
-      color:#e5e5e5;
-    }
-
-    tr:hover{
-      background:rgba(0,255,170,0.04);
-    }
-
-    /* 🔥 SUCCESS LOG */
-    .log-success{
-      background:rgba(0,255,170,0.06);
-    }
-
-    /* ❌ FAILED LOG */
-    .log-failed{
-      background:rgba(255,0,0,0.12);
-    }
-
-    .log-failed td{
-      color:#ff4d4d;
-      font-weight:bold;
-    }
-
-    .action{
-      color:#00ffb3;
-      font-weight:500;
+    .status-item p{
+      color:#ddd;
+      font-size:14px;
     }
 
     @media(max-width:1000px){
@@ -195,42 +214,63 @@
     }
 
     @media(max-width:700px){
-      body{padding:15px;}
-      h1{font-size:22px;}
+      body{
+        padding:15px;
+      }
+
+      .nav{
+        flex-direction:column;
+      }
+
+      .nav a{
+        width:100%;
+        text-align:center;
+      }
+
+      h1{
+        font-size:22px;
+      }
     }
 
   </style>
 </head>
-
 <body>
 
 <div class="container">
 
-  <!-- HEADER -->
+  <!-- Header -->
   <div class="header-card">
     <h1>WELCOME, {{ current_user.username }}</h1>
-    <div class="subtitle">CCTV Monitoring Dashboard</div>
+    <div class="subtitle">
+      CCTV Monitoring Dashboard
+    </div>
 
     <div class="nav">
-      <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+      <a href="/logout">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
 
       {% if current_user.is_admin %}
-      <a href="/admin/users"><i class="fa-solid fa-users"></i> Manage Users</a>
-      <a href="/logs"><i class="fa-solid fa-clock-rotate-left"></i> Activity Logs</a>
+      <a href="/admin/users">
+        <i class="fa-solid fa-users"></i> Manage Users
+      </a>
+
+      <a href="/logs">
+        <i class="fa-solid fa-clock-rotate-left"></i> Activity Logs
+      </a>
       {% endif %}
     </div>
   </div>
 
-  <!-- GRID -->
   <div class="dashboard-grid">
 
-    <!-- LIVE FEED -->
+    <!-- Live Feed -->
     <div class="card live-feed">
       <h2><i class="fa-solid fa-video"></i> LIVE FEED</h2>
       <img src="{{ url_for('video_feed') }}">
     </div>
 
-    <!-- STATUS -->
+    <!-- System Status -->
     <div class="card">
       <h2><i class="fa-solid fa-shield-halved"></i> SYSTEM STATUS</h2>
 
@@ -238,6 +278,11 @@
         <div class="status-item">
           <h3>Camera Status</h3>
           <p>Online</p>
+        </div>
+
+        <div class="status-item">
+          <h3>Auto Refresh</h3>
+          <p>Every 10 seconds</p>
         </div>
 
         <div class="status-item">
@@ -260,40 +305,31 @@
 
   </div>
 
-  <!-- LOGS -->
+  <!-- Recent Activity -->
   <div class="card" style="margin-top:25px;">
     <h2><i class="fa-solid fa-list"></i> RECENT ACTIVITY</h2>
 
     <table>
       <tr>
-        <th>TIME</th>
-        <th>IP</th>
-        <th>USER</th>
+        <th>TIME (PHT)</th>
+        <th>IP ADDRESS</th>
+        <th>USERNAME</th>
         <th>ACTION</th>
       </tr>
 
       {% for log in logs %}
-
       <tr
-        class="
-          {% if 'failed' in log.action.lower() %}
-            log-failed
-          {% elif 'logged in' in log.action.lower() %}
-            log-success
-          {% endif %}
-        "
+        {% if 'failed' in log.action.lower() %}
+          class="log-failed"
+        {% endif %}
       >
-
         <td>{{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}</td>
         <td>{{ log.ip_address }}</td>
         <td>{{ log.username }}</td>
         <td class="action">{{ log.action }}</td>
-
       </tr>
-
       {% endfor %}
     </table>
-
   </div>
 
 </div>
