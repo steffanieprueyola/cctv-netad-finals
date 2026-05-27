@@ -6,19 +6,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
 
     :root{
       --primary:#00ffb2;
       --danger:#ff3b5c;
       --admin:#ffc857;
       --user:#00d9ff;
+      --card-bg:rgba(0,0,0,0.72);
     }
 
     body{
@@ -27,10 +32,43 @@
       font-family:'Inter',sans-serif;
       color:white;
       overflow-x:hidden;
+      position:relative;
       padding:30px;
     }
 
-    .container{max-width:1300px;margin:auto;position:relative;z-index:2;}
+    /* Background Glow */
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+      radial-gradient(circle at 20% 30%, rgba(0,255,170,0.15), transparent 35%),
+      radial-gradient(circle at 80% 70%, rgba(0,255,170,0.08), transparent 35%);
+      z-index:0;
+    }
+
+    /* Grid Overlay */
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+      linear-gradient(rgba(0,255,170,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,170,0.05) 1px, transparent 1px);
+      background-size:45px 45px;
+      z-index:0;
+    }
+
+    .container{
+      max-width:1300px;
+      margin:auto;
+      position:relative;
+      z-index:2;
+    }
+
+    /* Header */
 
     .header-card{
       background:rgba(0,0,0,0.72);
@@ -44,27 +82,46 @@
     h1{
       font-family:'Orbitron';
       color:#00ffb3;
-      font-size:28px;
       margin-bottom:8px;
+      font-size:28px;
+      text-shadow:0 0 12px rgba(0,255,170,0.25);
+      word-break:break-word;
     }
 
-    .subtitle{color:#b5b5b5;font-size:14px;margin-bottom:20px;}
+    .subtitle{
+      color:#b5b5b5;
+      margin-bottom:20px;
+      font-size:14px;
+    }
 
-    .nav{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+    /* Navigation */
 
-    .nav a, .nav form button{
+    .nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+
+    .nav a{
       color:#00ffb3;
+      text-decoration:none;
       padding:10px 18px;
       border-radius:12px;
       border:1px solid rgba(0,255,170,0.2);
       background:rgba(255,255,255,0.03);
+      transition:.3s;
       font-size:14px;
       display:flex;
       align-items:center;
       gap:8px;
-      cursor:pointer;
-      text-decoration:none;
     }
+
+    .nav a:hover{
+      background:rgba(0,255,170,0.08);
+      box-shadow:0 0 12px rgba(0,255,170,0.15);
+    }
+
+    /* Dashboard Grid */
 
     .dashboard-grid{
       display:grid;
@@ -78,25 +135,39 @@
       border:1px solid rgba(0,255,170,0.3);
       border-radius:24px;
       padding:20px;
+      box-shadow:
+      0 0 20px rgba(0,255,170,0.08),
+      0 0 40px rgba(0,255,170,0.04);
     }
 
     .card h2{
       font-family:'Orbitron';
       color:#00ffb3;
-      font-size:20px;
       margin-bottom:18px;
+      font-size:20px;
       display:flex;
+      align-items:center;
       gap:10px;
     }
+
+    /* ============================ */
+    /* UPDATED LIVE FEED STREAM CONFIG */
+    /* ============================ */
 
     .live-feed video{
       width:100%;
       border-radius:16px;
-      background:#000;
       border:1px solid rgba(0,255,170,0.2);
+      background:#000;
     }
 
-    .status-box{display:flex;flex-direction:column;gap:15px;}
+    /* Status Box */
+
+    .status-box{
+      display:flex;
+      flex-direction:column;
+      gap:15px;
+    }
 
     .status-item{
       padding:16px;
@@ -105,7 +176,61 @@
       border:1px solid rgba(0,255,170,0.08);
     }
 
-    .table-wrapper{overflow-x:auto;border-radius:18px;}
+    .status-item h3{
+      color:#00ffb3;
+      margin-bottom:8px;
+      font-size:14px;
+    }
+
+    .status-item p{
+      color:#ddd;
+      font-size:14px;
+      word-break:break-word;
+    }
+
+    /* Recent Activity */
+
+    .activity-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:20px;
+    }
+
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.05);
+      font-size:12px;
+    }
+
+    .legend-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+
+    /* Table */
+
+    .table-wrapper{
+      width:100%;
+      overflow-x:auto;
+      border-radius:18px;
+    }
+
+    .table-wrapper::-webkit-scrollbar{
+      height:6px;
+    }
+
+    .table-wrapper::-webkit-scrollbar-thumb{
+      background:rgba(0,255,178,0.3);
+      border-radius:999px;
+    }
 
     table{
       width:100%;
@@ -114,14 +239,235 @@
       border-spacing:0 10px;
     }
 
-    th{color:#00ffb3;font-family:'Orbitron';font-size:12px;padding:14px;}
+    th{
+      padding:14px;
+      text-align:left;
+      color:#00ffb3;
+      font-family:'Orbitron';
+      font-size:12px;
+      border-bottom:1px solid rgba(0,255,170,0.2);
+      letter-spacing:1px;
+      white-space:nowrap;
+    }
 
-    td{padding:16px;font-size:13px;}
+    td{
+      padding:16px;
+      color:#e5e5e5;
+      font-size:13px;
+      vertical-align:middle;
+    }
 
-    .log-success{background:rgba(0,255,178,0.08);}
-    .log-failed{background:rgba(255,59,92,0.08);}
-    .log-admin{background:rgba(255,200,87,0.08);}
-    .log-user{background:rgba(0,217,255,0.08);}
+    tbody tr{
+      transition:.25s ease;
+    }
+
+    tbody tr:hover{
+      transform:translateX(4px);
+    }
+
+    .timestamp{
+      color:#d0d0d0;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .ip{
+      font-family:monospace;
+      color:#dcdcdc;
+      white-space:nowrap;
+    }
+
+    .username{
+      font-weight:600;
+    }
+
+    .action{
+      font-weight:600;
+      line-height:1.5;
+    }
+
+    /* Success */
+
+    .log-success{
+      background:rgba(0,255,178,0.08);
+    }
+
+    .log-success td{
+      color:#cffff0;
+    }
+
+    .log-success td:first-child{
+      border-left:4px solid var(--primary);
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-success td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    /* Failed */
+
+    .log-failed{
+      background:rgba(255,59,92,0.08);
+    }
+
+    .log-failed td{
+      color:#ffd5dd;
+    }
+
+    .log-failed td:first-child{
+      border-left:4px solid var(--danger);
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-failed td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    /* Admin */
+
+    .log-admin{
+      background:rgba(255,200,87,0.08);
+    }
+
+    .log-admin td{
+      color:#ffe7b2;
+    }
+
+    .log-admin td:first-child{
+      border-left:4px solid var(--admin);
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-admin td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    /* User */
+
+    .log-user{
+      background:rgba(0,217,255,0.08);
+    }
+
+    .log-user td{
+      color:#c8f6ff;
+    }
+
+    .log-user td:first-child{
+      border-left:4px solid var(--user);
+      border-radius:14px 0 0 14px;
+    }
+
+    .log-user td:last-child{
+      border-radius:0 14px 14px 0;
+    }
+
+    /* Badges */
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 12px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      white-space:nowrap;
+    }
+
+    .badge i{
+      font-size:8px;
+    }
+
+    .badge-success{
+      background:rgba(0,255,178,0.12);
+      color:var(--primary);
+    }
+
+    .badge-failed{
+      background:rgba(255,59,92,0.12);
+      color:var(--danger);
+    }
+
+    .badge-admin{
+      background:rgba(255,200,87,0.12);
+      color:var(--admin);
+    }
+
+    .badge-user{
+      background:rgba(0,217,255,0.12);
+      color:var(--user);
+    }
+
+    /* Responsive */
+
+    @media(max-width:1000px){
+
+      .dashboard-grid{
+        grid-template-columns:1fr;
+      }
+
+    }
+
+    @media(max-width:768px){
+
+      body{
+        padding:15px;
+      }
+
+      .nav{
+        flex-direction:column;
+      }
+
+      .nav a{
+        width:100%;
+        justify-content:center;
+      }
+
+      .activity-legend{
+        flex-direction:column;
+      }
+
+      .header-card,
+      .card{
+        padding:18px;
+      }
+
+      table{
+        min-width:650px;
+      }
+
+    }
+
+    @media(max-width:480px){
+
+      body{
+        padding:10px;
+      }
+
+      h1{
+        font-size:22px;
+        line-height:1.4;
+      }
+
+      .card h2{
+        font-size:18px;
+      }
+
+      td,
+      th{
+        font-size:12px;
+      }
+
+      .badge{
+        font-size:10px;
+        padding:6px 10px;
+      }
+
+    }
+
   </style>
 </head>
 
@@ -132,19 +478,20 @@
   <div class="header-card">
 
     <h1>WELCOME, {{ current_user.username }}</h1>
-    <div class="subtitle">CCTV Monitoring Dashboard</div>
+
+    <div class="subtitle">
+      CCTV Monitoring Dashboard
+    </div>
 
     <div class="nav">
 
-      <form method="POST" action="/logout">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit">
-          <i class="fa-solid fa-right-from-bracket"></i>
-          Logout
-        </button>
-      </form>
+      <a href="/logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </a>
 
       {% if current_user.is_admin %}
+
       <a href="/admin/users">
         <i class="fa-solid fa-users"></i>
         Manage Users
@@ -154,6 +501,7 @@
         <i class="fa-solid fa-clock-rotate-left"></i>
         Activity Logs
       </a>
+
       {% endif %}
 
     </div>
@@ -164,25 +512,40 @@
 
     <div class="card live-feed">
 
-      <h2><i class="fa-solid fa-video"></i> LIVE FEED</h2>
+      <h2>
+        <i class="fa-solid fa-video"></i>
+        LIVE FEED
+      </h2>
 
       <video id="cam" autoplay muted playsinline controls></video>
-
-      <div id="stream-error" style="display:none;color:#ff4d4d;margin-top:10px;">
-        Stream unavailable
+      <div class="stream-error" id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">  
+        <i class="fa-solid fa-triangle-exclamation"></i> Stream unavailable
       </div>
 
     </div>
 
     <div class="card">
 
-      <h2><i class="fa-solid fa-shield-halved"></i> SYSTEM STATUS</h2>
+      <h2>
+        <i class="fa-solid fa-shield-halved"></i>
+        SYSTEM STATUS
+      </h2>
 
       <div class="status-box">
 
         <div class="status-item">
           <h3>Camera Status</h3>
-          <p>Online</p>
+
+          <p style="color:#7dffb3;font-weight:500;">
+            <i class="fa-solid fa-circle"
+               style="font-size:10px;margin-right:4px;"></i>
+            Online
+          </p>
+        </div>
+
+        <div class="status-item">
+          <h3>Stream Refresh Rate</h3>
+          <p>Continuous (Real-time)</p>
         </div>
 
         <div class="status-item">
@@ -192,6 +555,7 @@
 
         <div class="status-item">
           <h3>Access Level</h3>
+
           <p>
             {% if current_user.is_admin %}
               Administrator
@@ -199,6 +563,7 @@
               Standard User
             {% endif %}
           </p>
+
         </div>
 
       </div>
@@ -207,32 +572,188 @@
 
   </div>
 
+  <div class="card" style="margin-top:25px;">
+
+    <h2>
+      <i class="fa-solid fa-list"></i>
+      RECENT ACTIVITY
+    </h2>
+
+    <div class="activity-legend">
+
+      <div class="legend-item">
+        <span class="legend-dot"
+              style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;">
+        </span>
+        Successful Login
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot"
+              style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;">
+        </span>
+        Failed Login
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot"
+              style="background:#ffc857; box-shadow:0 0 10px #ffc857;">
+        </span>
+        Admin Activity
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot"
+              style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;">
+        </span>
+        User Activity
+      </div>
+
+    </div>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>TIME (PHT)</th>
+            <th>IP ADDRESS</th>
+            <th>USERNAME</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+        {% for log in logs %}
+
+        <tr
+
+          class="
+            {% if 'failed' in log.action.lower() %}
+
+              log-failed
+
+            {% elif 'logged in' in log.action.lower()
+                or 'successful login' in log.action.lower()
+                or 'login successful' in log.action.lower()
+                or 'logged in successfully' in log.action.lower() %}
+
+              log-success
+
+            {% elif log.username.lower() == 'hotmariaclara' %}
+
+              log-admin
+
+            {% else %}
+
+              log-user
+
+            {% endif %}
+          "
+        >
+
+          <td class="timestamp">
+            {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
+          </td>
+
+          <td class="ip">
+            {{ log.ip_address }}
+          </td>
+
+          <td class="username">
+            {{ log.username }}
+          </td>
+
+          <td>
+
+            {% if 'failed' in log.action.lower() %}
+
+              <span class="badge badge-failed">
+                <i class="fa-solid fa-circle"></i>
+                Failed
+              </span>
+
+            {% elif 'logged in' in log.action.lower()
+                or 'successful login' in log.action.lower()
+                or 'login successful' in log.action.lower()
+                or 'logged in successfully' in log.action.lower() %}
+
+              <span class="badge badge-success">
+                <i class="fa-solid fa-circle"></i>
+                Success
+              </span>
+
+            {% elif log.username.lower() == 'hotmariaclara' %}
+
+              <span class="badge badge-admin">
+                <i class="fa-solid fa-shield-halved"></i>
+                Admin
+              </span>
+
+            {% else %}
+
+              <span class="badge badge-user">
+                <i class="fa-solid fa-user"></i>
+                User
+              </span>
+
+            {% endif %}
+
+          </td>
+
+          <td class="action">
+            {{ log.action }}
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-
 <script>
-  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
+  // This fetches the stream configuration from your Flask backend
   fetch('/stream_url')
     .then(r => r.json())
     .then(data => {
-
-      const streamUrl = data.stream_url;
-      const video = document.getElementById('cam');
-
-      if (!streamUrl) {
-        document.getElementById('stream-error').style.display = 'block';
-        return;
+      // We look for 'stream_url' because that is the key used in app.py
+      const streamUrl = data.stream_url; 
+      
+      if (!streamUrl) { 
+        document.getElementById('stream-error').style.display = 'block'; 
+        return; 
       }
 
+      const video = document.getElementById('cam');
+      
+      // HLS.js handles the stream initialization
       if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(streamUrl);
         hls.attachMedia(video);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = streamUrl;
-      } else {
+        hls.on(Hls.Events.ERROR, (_, d) => { 
+            if (d.fatal) {
+                document.getElementById('stream-error').style.display = 'block';
+            }
+        });
+      } 
+      // Fallback for Safari/iOS
+      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = streamUrl; 
+      } 
+      else {
         document.getElementById('stream-error').style.display = 'block';
       }
     })
@@ -240,6 +761,5 @@
       document.getElementById('stream-error').style.display = 'block';
     });
 </script>
-
 </body>
 </html>
