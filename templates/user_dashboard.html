@@ -5,6 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
@@ -105,7 +108,6 @@
       margin-bottom:20px;
     }
 
-    /* LIVE VIDEO FIX */
     .live-feed video{
       width:100%;
       border-radius:18px;
@@ -194,7 +196,6 @@
         LIVE CAMERA FEED
       </h2>
 
-      <!-- FIXED CCTV STREAM -->
       <video autoplay muted controls playsinline>
         <source src="/stream_proxy/index.m3u8" type="application/x-mpegURL">
         Your browser does not support video playback.
