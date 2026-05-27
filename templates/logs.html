@@ -50,11 +50,6 @@
       --muted:#b7b7b7;
     }
 
-    *{
-      scrollbar-width:thin;
-      scrollbar-color:#00ffb2 #111;
-    }
-
     body{
       min-height:100vh;
       background:var(--bg);
@@ -272,11 +267,6 @@
       </div>
 
       <div class="legend-item">
-        <span class="legend-dot" style="background:#ff9f1c;color:#ff9f1c;"></span>
-        Logout
-      </div>
-
-      <div class="legend-item">
         <span class="legend-dot" style="background:#ffc857;color:#ffc857;"></span>
         Admin Activity
       </div>
@@ -284,6 +274,11 @@
       <div class="legend-item">
         <span class="legend-dot" style="background:#00d9ff;color:#00d9ff;"></span>
         User Activity
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-dot" style="background:#ff9f1c;color:#ff9f1c;"></span>
+        Logout Activity
       </div>
 
     </div>
@@ -312,19 +307,16 @@
         class="
           {% if 'failed' in log.action.lower() %}
             log-failed
-
-          {% elif 'logged out' in log.action.lower() %}
+          {% elif 'logout' in log.action.lower()
+              or 'logged out' in log.action.lower() %}
             log-logout
-
           {% elif 'logged in' in log.action.lower()
               or 'successful login' in log.action.lower()
               or 'login successful' in log.action.lower()
               or 'logged in successfully' in log.action.lower() %}
             log-success
-
           {% elif log.username.lower() == 'hotmariaclara' %}
             log-admin
-
           {% else %}
             log-user
           {% endif %}
@@ -344,50 +336,36 @@
         </td>
 
         <td>
-
           {% if 'failed' in log.action.lower() %}
-
             <span class="badge">
               <i class="fa-solid fa-circle"></i>
               Failed
             </span>
-
-          {% elif 'logged out' in log.action.lower() %}
-
-            <span class="badge"
-                  style="background:rgba(255,159,28,0.12);
-                         color:#ffb347;
-                         border:1px solid rgba(255,159,28,0.25);">
+          {% elif 'logout' in log.action.lower()
+              or 'logged out' in log.action.lower() %}
+            <span class="badge">
               <i class="fa-solid fa-right-from-bracket"></i>
               Logout
             </span>
-
           {% elif 'logged in' in log.action.lower()
               or 'successful login' in log.action.lower()
               or 'login successful' in log.action.lower()
               or 'logged in successfully' in log.action.lower() %}
-
             <span class="badge">
               <i class="fa-solid fa-circle"></i>
               Success
             </span>
-
           {% elif log.username.lower() == 'hotmariaclara' %}
-
             <span class="badge">
               <i class="fa-solid fa-shield-halved"></i>
               Admin
             </span>
-
           {% else %}
-
             <span class="badge">
               <i class="fa-solid fa-user"></i>
               User
             </span>
-
           {% endif %}
-
         </td>
 
         <td class="action">
