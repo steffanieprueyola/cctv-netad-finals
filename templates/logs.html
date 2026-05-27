@@ -7,13 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="refresh" content="10">
 
-  <!-- CSRF Token -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
@@ -29,22 +26,14 @@
       --card-bg:rgba(0,0,0,0.72);
 
       --primary:#00ffb2;
-      --primary-soft:rgba(0,255,178,0.08);
-
       --success:#00ffb2;
-      --success-bg:rgba(0,255,178,0.08);
-
       --danger:#ff3b5c;
-      --danger-bg:rgba(255,59,92,0.08);
 
       --admin:#ffc857;
-      --admin-bg:rgba(255,200,87,0.08);
-
       --user:#00d9ff;
-      --user-bg:rgba(0,217,255,0.08);
 
       --logout:#ff9f1c;
-      --logout-bg:rgba(255,159,28,0.08);
+      --logout-bg:rgba(255,159,28,0.10);
 
       --text:#e8e8e8;
       --muted:#b7b7b7;
@@ -55,8 +44,6 @@
       background:var(--bg);
       font-family:'Inter',sans-serif;
       color:white;
-      overflow-x:hidden;
-      position:relative;
       padding:40px;
     }
 
@@ -103,83 +90,28 @@
       border:1px solid rgba(0,255,170,0.18);
       background:rgba(255,255,255,0.03);
       transition:0.3s ease;
-      font-size:14px;
-      backdrop-filter:blur(10px);
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:500;
-    }
-
-    .nav a:hover{
-      background:rgba(0,255,170,0.08);
-      box-shadow:0 0 20px rgba(0,255,170,0.18);
-      transform:translateY(-2px);
     }
 
     .header-card{
       background:var(--card-bg);
-      backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.22);
       border-radius:30px;
       padding:30px;
+      border:1px solid rgba(0,255,170,0.22);
       margin-bottom:25px;
-      box-shadow:0 0 40px rgba(0,255,170,0.06);
     }
 
     h1{
       font-family:'Orbitron',sans-serif;
       color:var(--primary);
-      margin-bottom:10px;
       font-size:32px;
-      letter-spacing:2px;
-      text-shadow:0 0 14px rgba(0,255,170,0.22);
-    }
-
-    .subtitle{
-      color:var(--muted);
-      font-size:14px;
-      margin-bottom:18px;
-    }
-
-    .count{
-      color:var(--primary);
-      font-size:15px;
-    }
-
-    .legend{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      margin-top:22px;
-    }
-
-    .legend-item{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 14px;
-      border-radius:14px;
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.05);
-      font-size:13px;
-    }
-
-    .legend-dot{
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      box-shadow:0 0 12px currentColor;
     }
 
     .table-card{
       background:var(--card-bg);
-      backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.22);
       border-radius:30px;
       padding:22px;
       overflow-x:auto;
-      box-shadow:0 0 40px rgba(0,255,170,0.06);
+      border:1px solid rgba(0,255,170,0.22);
     }
 
     table{
@@ -190,33 +122,35 @@
     }
 
     th{
-      padding:16px;
-      text-align:left;
       color:var(--primary);
-      font-family:'Orbitron',sans-serif;
-      font-size:13px;
-      letter-spacing:1px;
-      border-bottom:1px solid rgba(0,255,170,0.15);
+      padding:16px;
     }
 
     td{
       padding:18px;
       color:var(--text);
-      font-size:14px;
-      border-top:1px solid rgba(255,255,255,0.04);
-      border-bottom:1px solid rgba(255,255,255,0.04);
     }
-
-    .timestamp{ color:#b8b8b8; font-size:13px; }
-    .ip{ color:#d6d6d6; font-family:monospace; }
-    .username{ font-weight:600; }
-    .action{ font-weight:600; }
 
     .log-success{ background:rgba(0,255,178,0.08); }
     .log-failed{ background:rgba(255,59,92,0.08); }
     .log-admin{ background:rgba(255,200,87,0.08); }
     .log-user{ background:rgba(0,217,255,0.08); }
-    .log-logout{ background:rgba(255,159,28,0.08); }
+
+    /* ✅ STRONG LOGOUT STYLE */
+    .log-logout{
+      background:rgba(255,159,28,0.12);
+      border-left:4px solid #ff9f1c;
+      box-shadow:0 0 18px rgba(255,159,28,0.18);
+    }
+
+    tr{
+      transition:0.2s ease;
+    }
+
+    tr:hover{
+      transform:scale(1.01);
+      box-shadow:0 0 25px rgba(0,255,178,0.08);
+    }
 
     .badge{
       display:inline-flex;
@@ -226,7 +160,6 @@
       border-radius:999px;
       font-size:12px;
       font-weight:600;
-      text-transform:uppercase;
     }
 
   </style>
@@ -243,56 +176,16 @@
   </div>
 
   <div class="header-card">
-
     <h1>ACTIVITY LOGS</h1>
-
-    <div class="subtitle">
-      Real-time system monitoring and audit trail
-    </div>
-
-    <div class="count">
-      Total Entries: <strong>{{ logs | length }}</strong>
-    </div>
-
-    <div class="legend">
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00ffb2;color:#00ffb2;"></span>
-        Successful Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ff3b5c;color:#ff3b5c;"></span>
-        Failed Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ffc857;color:#ffc857;"></span>
-        Admin Activity
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00d9ff;color:#00d9ff;"></span>
-        User Activity
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ff9f1c;color:#ff9f1c;"></span>
-        Logout Activity
-      </div>
-
-    </div>
-
   </div>
 
   <div class="table-card">
 
     <table>
-
       <thead>
         <tr>
-          <th>TIME (PHT)</th>
-          <th>IP ADDRESS</th>
+          <th>TIME</th>
+          <th>IP</th>
           <th>USERNAME</th>
           <th>STATUS</th>
           <th>ACTION</th>
@@ -307,13 +200,10 @@
         class="
           {% if 'failed' in log.action.lower() %}
             log-failed
-          {% elif 'logout' in log.action.lower()
-              or 'logged out' in log.action.lower() %}
+          {% elif 'logout' in log.action.lower() %}
             log-logout
           {% elif 'logged in' in log.action.lower()
-              or 'successful login' in log.action.lower()
-              or 'login successful' in log.action.lower()
-              or 'logged in successfully' in log.action.lower() %}
+              or 'successful login' in log.action.lower() %}
             log-success
           {% elif log.username.lower() == 'hotmariaclara' %}
             log-admin
@@ -323,54 +213,32 @@
         "
       >
 
-        <td class="timestamp">
-          {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-        </td>
-
-        <td class="ip">
-          {{ log.ip_address }}
-        </td>
-
-        <td class="username">
-          {{ log.username }}
-        </td>
+        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ log.ip_address }}</td>
+        <td>{{ log.username }}</td>
 
         <td>
           {% if 'failed' in log.action.lower() %}
-            <span class="badge">
-              <i class="fa-solid fa-circle"></i>
-              Failed
+            <span class="badge">Failed</span>
+
+          {% elif 'logout' in log.action.lower() %}
+            <span class="badge" style="background:rgba(255,159,28,0.2); color:#ff9f1c;">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
             </span>
-          {% elif 'logout' in log.action.lower()
-              or 'logged out' in log.action.lower() %}
-            <span class="badge">
-              <i class="fa-solid fa-right-from-bracket"></i>
-              Logout
-            </span>
+
           {% elif 'logged in' in log.action.lower()
-              or 'successful login' in log.action.lower()
-              or 'login successful' in log.action.lower()
-              or 'logged in successfully' in log.action.lower() %}
-            <span class="badge">
-              <i class="fa-solid fa-circle"></i>
-              Success
-            </span>
+              or 'successful login' in log.action.lower() %}
+            <span class="badge">Success</span>
+
           {% elif log.username.lower() == 'hotmariaclara' %}
-            <span class="badge">
-              <i class="fa-solid fa-shield-halved"></i>
-              Admin
-            </span>
+            <span class="badge">Admin</span>
+
           {% else %}
-            <span class="badge">
-              <i class="fa-solid fa-user"></i>
-              User
-            </span>
+            <span class="badge">User</span>
           {% endif %}
         </td>
 
-        <td class="action">
-          {{ log.action }}
-        </td>
+        <td>{{ log.action }}</td>
 
       </tr>
 
