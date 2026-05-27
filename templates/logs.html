@@ -7,405 +7,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="refresh" content="10">
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
-
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-    }
-
-    :root{
-      --bg:#050505;
-      --card-bg:rgba(0,0,0,0.72);
-
-      --primary:#00ffb2;
-      --primary-soft:rgba(0,255,178,0.08);
-
-      --success:#00ffb2;
-      --success-bg:rgba(0,255,178,0.08);
-
-      --danger:#ff3b5c;
-      --danger-bg:rgba(255,59,92,0.08);
-
-      --admin:#ffc857;
-      --admin-bg:rgba(255,200,87,0.08);
-
-      --user:#00d9ff;
-      --user-bg:rgba(0,217,255,0.08);
-
-      --text:#e8e8e8;
-      --muted:#b7b7b7;
-    }
+    *{margin:0;padding:0;box-sizing:border-box;}
 
     body{
       min-height:100vh;
-      background:var(--bg);
+      background:#050505;
       font-family:'Inter',sans-serif;
       color:white;
-      overflow-x:hidden;
-      position:relative;
       padding:40px;
     }
 
-    /* Background Glow */
-
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      background:
-      radial-gradient(circle at 20% 30%, rgba(0,255,170,0.15), transparent 35%),
-      radial-gradient(circle at 80% 70%, rgba(0,255,170,0.08), transparent 35%);
-      z-index:0;
-    }
-
-    /* Cyber Grid */
-
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      background-image:
-      linear-gradient(rgba(0,255,170,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,255,170,0.05) 1px, transparent 1px);
-      background-size:45px 45px;
-      z-index:0;
-    }
-
-    .container{
-      max-width:1300px;
-      margin:auto;
-      position:relative;
-      z-index:2;
-    }
-
-    /* Navigation */
+    .container{max-width:1300px;margin:auto;}
 
     .nav{
       display:flex;
       gap:15px;
-      margin-bottom:25px;
       flex-wrap:wrap;
+      margin-bottom:25px;
+      align-items:center;
     }
 
-    .nav a{
-      color:var(--primary);
-      text-decoration:none;
+    .nav a, .nav button{
+      color:#00ffb2;
       padding:12px 20px;
-      border-radius:16px;
-      border:1px solid rgba(0,255,170,0.18);
+      border-radius:14px;
+      border:1px solid rgba(0,255,170,0.2);
       background:rgba(255,255,255,0.03);
-      transition:0.3s ease;
+      cursor:pointer;
       font-size:14px;
-      backdrop-filter:blur(10px);
       display:flex;
       align-items:center;
       gap:10px;
-      font-weight:500;
+      text-decoration:none;
     }
-
-    .nav a:hover{
-      background:rgba(0,255,170,0.08);
-      box-shadow:0 0 20px rgba(0,255,170,0.18);
-      transform:translateY(-2px);
-    }
-
-    /* Header */
 
     .header-card{
-      background:var(--card-bg);
-      backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.22);
-      border-radius:30px;
+      background:rgba(0,0,0,0.72);
+      border:1px solid rgba(0,255,170,0.2);
+      border-radius:24px;
       padding:30px;
       margin-bottom:25px;
-      box-shadow:0 0 40px rgba(0,255,170,0.06);
     }
 
     h1{
-      font-family:'Orbitron',sans-serif;
-      color:var(--primary);
-      margin-bottom:10px;
+      font-family:'Orbitron';
+      color:#00ffb2;
       font-size:32px;
-      letter-spacing:2px;
-      text-shadow:0 0 14px rgba(0,255,170,0.22);
     }
 
-    .subtitle{
-      color:var(--muted);
-      font-size:14px;
-      margin-bottom:18px;
-    }
-
-    .count{
-      color:var(--primary);
-      font-size:15px;
-    }
-
-    /* Legend */
-
-    .legend{
-      display:flex;
-      flex-wrap:wrap;
-      gap:14px;
-      margin-top:22px;
-    }
-
-    .legend-item{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 14px;
-      border-radius:14px;
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.05);
-      font-size:13px;
-    }
-
-    .legend-dot{
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      box-shadow:0 0 12px currentColor;
-    }
-
-    /* Table Card */
+    .subtitle{color:#b7b7b7;margin-top:8px;}
 
     .table-card{
-      background:var(--card-bg);
-      backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.22);
-      border-radius:30px;
-      padding:22px;
+      background:rgba(0,0,0,0.72);
+      border:1px solid rgba(0,255,170,0.2);
+      border-radius:24px;
+      padding:20px;
       overflow-x:auto;
-      box-shadow:0 0 40px rgba(0,255,170,0.06);
     }
 
     table{
       width:100%;
-      border-collapse:separate;
-      border-spacing:0 12px;
       min-width:850px;
-    }
-
-    thead tr{
-      background:transparent;
+      border-collapse:separate;
+      border-spacing:0 10px;
     }
 
     th{
-      padding:16px;
+      color:#00ffb2;
       text-align:left;
-      color:var(--primary);
-      font-family:'Orbitron',sans-serif;
-      font-size:13px;
-      letter-spacing:1px;
-      border-bottom:1px solid rgba(0,255,170,0.15);
-    }
-
-    tbody tr{
-      transition:0.25s ease;
-      backdrop-filter:blur(8px);
-    }
-
-    tbody tr:hover{
-      transform:translateX(4px);
+      padding:14px;
+      font-family:'Orbitron';
     }
 
     td{
-      padding:18px;
-      color:var(--text);
-      font-size:14px;
-      border-top:1px solid rgba(255,255,255,0.04);
-      border-bottom:1px solid rgba(255,255,255,0.04);
+      padding:16px;
     }
 
-    td:first-child{
-      border-radius:14px 0 0 14px;
-    }
-
-    td:last-child{
-      border-radius:0 14px 14px 0;
-    }
-
-    .action{
-      font-weight:600;
-      letter-spacing:0.3px;
-    }
-
-    .timestamp{
-      color:#b8b8b8;
-      font-size:13px;
-    }
-
-    .ip{
-      color:#d6d6d6;
-      font-family:monospace;
-    }
-
-    .username{
-      font-weight:600;
-    }
-
-    /* ============================== */
-    /* SUCCESS LOG */
-    /* ============================== */
-
-    .log-success{
-      background:var(--success-bg);
-    }
-
-    .log-success td{
-      color:#baffdf;
-    }
-
-    .log-success td:first-child{
-      border-left:4px solid var(--success);
-    }
-
-    .log-success:hover{
-      box-shadow:0 0 20px rgba(0,255,178,0.14);
-      background:rgba(0,255,178,0.12);
-    }
-
-    /* ============================== */
-    /* FAILED LOG */
-    /* ============================== */
-
-    .log-failed{
-      background:var(--danger-bg);
-    }
-
-    .log-failed td{
-      color:#ffd0d8;
-    }
-
-    .log-failed td:first-child{
-      border-left:4px solid var(--danger);
-    }
-
-    .log-failed:hover{
-      box-shadow:0 0 20px rgba(255,59,92,0.14);
-      background:rgba(255,59,92,0.12);
-    }
-
-    /* ============================== */
-    /* ADMIN LOG */
-    /* ============================== */
-
-    .log-admin{
-      background:var(--admin-bg);
-    }
-
-    .log-admin td{
-      color:#ffe7b2;
-    }
-
-    .log-admin td:first-child{
-      border-left:4px solid var(--admin);
-    }
-
-    .log-admin:hover{
-      box-shadow:0 0 20px rgba(255,200,87,0.14);
-      background:rgba(255,200,87,0.12);
-    }
-
-    /* ============================== */
-    /* USER LOG */
-    /* ============================== */
-
-    .log-user{
-      background:var(--user-bg);
-    }
-
-    .log-user td{
-      color:#c8f5ff;
-    }
-
-    .log-user td:first-child{
-      border-left:4px solid var(--user);
-    }
-
-    .log-user:hover{
-      box-shadow:0 0 20px rgba(0,217,255,0.14);
-      background:rgba(0,217,255,0.12);
-    }
-
-    /* Status Badge */
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:600;
-      text-transform:uppercase;
-      letter-spacing:0.5px;
-    }
-
-    .badge i{
-      font-size:10px;
-    }
-
-    .badge-success{
-      color:var(--success);
-      background:rgba(0,255,178,0.12);
-    }
-
-    .badge-failed{
-      color:var(--danger);
-      background:rgba(255,59,92,0.12);
-    }
-
-    .badge-admin{
-      color:var(--admin);
-      background:rgba(255,200,87,0.12);
-    }
-
-    .badge-user{
-      color:var(--user);
-      background:rgba(0,217,255,0.12);
-    }
-
-    /* Responsive */
-
-    @media(max-width:768px){
-
-      body{
-        padding:20px;
-      }
-
-      h1{
-        font-size:24px;
-      }
-
-      .nav{
-        flex-direction:column;
-      }
-
-      .nav a{
-        width:100%;
-        justify-content:center;
-      }
-
-    }
-
+    .log-success{background:rgba(0,255,178,0.08);}
+    .log-failed{background:rgba(255,59,92,0.08);}
+    .log-admin{background:rgba(255,200,87,0.08);}
+    .log-user{background:rgba(0,217,255,0.08);}
   </style>
 </head>
 
 <body>
 
 <div class="container">
-
-  <!-- Navigation -->
 
   <div class="nav">
 
@@ -419,62 +112,25 @@
       Manage Users
     </a>
 
-    <a href="/logout">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      Logout
-    </a>
+    <!-- CSRF PROTECTED LOGOUT -->
+    <form method="POST" action="/logout">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </button>
+    </form>
 
   </div>
-
-  <!-- Header -->
 
   <div class="header-card">
-
     <h1>ACTIVITY LOGS</h1>
-
-    <div class="subtitle">
-      Real-time system monitoring and audit trail
-    </div>
-
-    <div class="count">
-      Total Entries:
-      <strong>{{ logs | length }}</strong>
-    </div>
-
-    <!-- Legend -->
-
-    <div class="legend">
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00ffb2;color:#00ffb2;"></span>
-        Successful Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ff3b5c;color:#ff3b5c;"></span>
-        Failed Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#ffc857;color:#ffc857;"></span>
-        Admin Activity
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot" style="background:#00d9ff;color:#00d9ff;"></span>
-        User Activity
-      </div>
-
-    </div>
-
+    <div class="subtitle">Real-time system monitoring and audit trail</div>
   </div>
-
-  <!-- Logs Table -->
 
   <div class="table-card">
 
     <table>
-
       <thead>
         <tr>
           <th>TIME (PHT)</th>
@@ -492,80 +148,40 @@
       <tr
         class="
           {% if 'failed' in log.action.lower() %}
-
             log-failed
-
           {% elif 'logged in' in log.action.lower()
               or 'successful login' in log.action.lower()
               or 'login successful' in log.action.lower()
               or 'logged in successfully' in log.action.lower() %}
-
             log-success
-
           {% elif log.username.lower() == 'hotmariaclara' %}
-
             log-admin
-
           {% else %}
-
             log-user
-
           {% endif %}
         "
       >
 
-        <td class="timestamp">
-          {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-        </td>
-
-        <td class="ip">
-          {{ log.ip_address }}
-        </td>
-
-        <td class="username">
-          {{ log.username }}
-        </td>
+        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ log.ip_address }}</td>
+        <td>{{ log.username }}</td>
 
         <td>
-
           {% if 'failed' in log.action.lower() %}
-
-            <span class="badge badge-failed">
-              <i class="fa-solid fa-circle"></i>
-              Failed
-            </span>
-
+            Failed
           {% elif 'logged in' in log.action.lower()
               or 'successful login' in log.action.lower()
               or 'login successful' in log.action.lower()
               or 'logged in successfully' in log.action.lower() %}
-
-            <span class="badge badge-success">
-              <i class="fa-solid fa-circle"></i>
-              Success
-            </span>
-
+            Success
           {% elif log.username.lower() == 'hotmariaclara' %}
-
-            <span class="badge badge-admin">
-              <i class="fa-solid fa-shield-halved"></i>
-              Admin
-            </span>
-
+            Admin
           {% else %}
-
-            <span class="badge badge-user">
-              <i class="fa-solid fa-user"></i>
-              User
-            </span>
-
+            User
           {% endif %}
-
         </td>
 
-        <td class="action">
-          {{ log.action }}
-        </td>
+        <td>{{ log.action }}</td>
 
       </tr>
 
