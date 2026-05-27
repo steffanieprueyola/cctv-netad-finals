@@ -6,6 +6,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- CSRF TOKEN -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -36,8 +39,6 @@
       padding:30px;
     }
 
-    /* Background Glow */
-
     body::before{
       content:"";
       position:fixed;
@@ -47,8 +48,6 @@
       radial-gradient(circle at 80% 70%, rgba(0,255,170,0.08), transparent 35%);
       z-index:0;
     }
-
-    /* Grid Overlay */
 
     body::after{
       content:"";
@@ -67,8 +66,6 @@
       position:relative;
       z-index:2;
     }
-
-    /* Header */
 
     .header-card{
       background:rgba(0,0,0,0.72);
@@ -94,8 +91,6 @@
       font-size:14px;
     }
 
-    /* Navigation */
-
     .nav{
       display:flex;
       flex-wrap:wrap;
@@ -120,8 +115,6 @@
       background:rgba(0,255,170,0.08);
       box-shadow:0 0 12px rgba(0,255,170,0.15);
     }
-
-    /* Dashboard Grid */
 
     .dashboard-grid{
       display:grid;
@@ -150,18 +143,12 @@
       gap:10px;
     }
 
-    /* ============================ */
-    /* UPDATED LIVE FEED STREAM CONFIG */
-    /* ============================ */
-
     .live-feed video{
       width:100%;
       border-radius:16px;
       border:1px solid rgba(0,255,170,0.2);
       background:#000;
     }
-
-    /* Status Box */
 
     .status-box{
       display:flex;
@@ -188,8 +175,6 @@
       word-break:break-word;
     }
 
-    /* Recent Activity */
-
     .activity-legend{
       display:flex;
       flex-wrap:wrap;
@@ -215,21 +200,10 @@
       flex-shrink:0;
     }
 
-    /* Table */
-
     .table-wrapper{
       width:100%;
       overflow-x:auto;
       border-radius:18px;
-    }
-
-    .table-wrapper::-webkit-scrollbar{
-      height:6px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb{
-      background:rgba(0,255,178,0.3);
-      border-radius:999px;
     }
 
     table{
@@ -257,112 +231,19 @@
       vertical-align:middle;
     }
 
-    tbody tr{
-      transition:.25s ease;
-    }
-
     tbody tr:hover{
       transform:translateX(4px);
     }
 
-    .timestamp{
-      color:#d0d0d0;
-      font-size:12px;
-      white-space:nowrap;
-    }
+    .timestamp{ color:#d0d0d0; font-size:12px; }
+    .ip{ font-family:monospace; }
+    .username{ font-weight:600; }
+    .action{ font-weight:600; }
 
-    .ip{
-      font-family:monospace;
-      color:#dcdcdc;
-      white-space:nowrap;
-    }
-
-    .username{
-      font-weight:600;
-    }
-
-    .action{
-      font-weight:600;
-      line-height:1.5;
-    }
-
-    /* Success */
-
-    .log-success{
-      background:rgba(0,255,178,0.08);
-    }
-
-    .log-success td{
-      color:#cffff0;
-    }
-
-    .log-success td:first-child{
-      border-left:4px solid var(--primary);
-      border-radius:14px 0 0 14px;
-    }
-
-    .log-success td:last-child{
-      border-radius:0 14px 14px 0;
-    }
-
-    /* Failed */
-
-    .log-failed{
-      background:rgba(255,59,92,0.08);
-    }
-
-    .log-failed td{
-      color:#ffd5dd;
-    }
-
-    .log-failed td:first-child{
-      border-left:4px solid var(--danger);
-      border-radius:14px 0 0 14px;
-    }
-
-    .log-failed td:last-child{
-      border-radius:0 14px 14px 0;
-    }
-
-    /* Admin */
-
-    .log-admin{
-      background:rgba(255,200,87,0.08);
-    }
-
-    .log-admin td{
-      color:#ffe7b2;
-    }
-
-    .log-admin td:first-child{
-      border-left:4px solid var(--admin);
-      border-radius:14px 0 0 14px;
-    }
-
-    .log-admin td:last-child{
-      border-radius:0 14px 14px 0;
-    }
-
-    /* User */
-
-    .log-user{
-      background:rgba(0,217,255,0.08);
-    }
-
-    .log-user td{
-      color:#c8f6ff;
-    }
-
-    .log-user td:first-child{
-      border-left:4px solid var(--user);
-      border-radius:14px 0 0 14px;
-    }
-
-    .log-user td:last-child{
-      border-radius:0 14px 14px 0;
-    }
-
-    /* Badges */
+    .log-success{ background:rgba(0,255,178,0.08); }
+    .log-failed{ background:rgba(255,59,92,0.08); }
+    .log-admin{ background:rgba(255,200,87,0.08); }
+    .log-user{ background:rgba(0,217,255,0.08); }
 
     .badge{
       display:inline-flex;
@@ -373,99 +254,15 @@
       font-size:11px;
       font-weight:700;
       text-transform:uppercase;
-      letter-spacing:.5px;
-      white-space:nowrap;
     }
 
-    .badge i{
-      font-size:8px;
-    }
-
-    .badge-success{
-      background:rgba(0,255,178,0.12);
-      color:var(--primary);
-    }
-
-    .badge-failed{
-      background:rgba(255,59,92,0.12);
-      color:var(--danger);
-    }
-
-    .badge-admin{
-      background:rgba(255,200,87,0.12);
-      color:var(--admin);
-    }
-
-    .badge-user{
-      background:rgba(0,217,255,0.12);
-      color:var(--user);
-    }
-
-    /* Responsive */
+    .badge-success{ background:rgba(0,255,178,0.12); color:var(--primary); }
+    .badge-failed{ background:rgba(255,59,92,0.12); color:var(--danger); }
+    .badge-admin{ background:rgba(255,200,87,0.12); color:var(--admin); }
+    .badge-user{ background:rgba(0,217,255,0.12); color:var(--user); }
 
     @media(max-width:1000px){
-
-      .dashboard-grid{
-        grid-template-columns:1fr;
-      }
-
-    }
-
-    @media(max-width:768px){
-
-      body{
-        padding:15px;
-      }
-
-      .nav{
-        flex-direction:column;
-      }
-
-      .nav a{
-        width:100%;
-        justify-content:center;
-      }
-
-      .activity-legend{
-        flex-direction:column;
-      }
-
-      .header-card,
-      .card{
-        padding:18px;
-      }
-
-      table{
-        min-width:650px;
-      }
-
-    }
-
-    @media(max-width:480px){
-
-      body{
-        padding:10px;
-      }
-
-      h1{
-        font-size:22px;
-        line-height:1.4;
-      }
-
-      .card h2{
-        font-size:18px;
-      }
-
-      td,
-      th{
-        font-size:12px;
-      }
-
-      .badge{
-        font-size:10px;
-        padding:6px 10px;
-      }
-
+      .dashboard-grid{ grid-template-columns:1fr; }
     }
 
   </style>
@@ -479,31 +276,15 @@
 
     <h1>WELCOME, {{ current_user.username }}</h1>
 
-    <div class="subtitle">
-      CCTV Monitoring Dashboard
-    </div>
+    <div class="subtitle">CCTV Monitoring Dashboard</div>
 
     <div class="nav">
-
-      <a href="/logout">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        Logout
-      </a>
+      <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
 
       {% if current_user.is_admin %}
-
-      <a href="/admin/users">
-        <i class="fa-solid fa-users"></i>
-        Manage Users
-      </a>
-
-      <a href="/logs">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        Activity Logs
-      </a>
-
+      <a href="/admin/users"><i class="fa-solid fa-users"></i> Manage Users</a>
+      <a href="/logs"><i class="fa-solid fa-clock-rotate-left"></i> Activity Logs</a>
       {% endif %}
-
     </div>
 
   </div>
@@ -512,13 +293,11 @@
 
     <div class="card live-feed">
 
-      <h2>
-        <i class="fa-solid fa-video"></i>
-        LIVE FEED
-      </h2>
+      <h2><i class="fa-solid fa-video"></i> LIVE FEED</h2>
 
       <video id="cam" autoplay muted playsinline controls></video>
-      <div class="stream-error" id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">  
+
+      <div id="stream-error" style="display:none;color:#ff4d4d;font-size:13px;margin-top:8px;">
         <i class="fa-solid fa-triangle-exclamation"></i> Stream unavailable
       </div>
 
@@ -526,26 +305,17 @@
 
     <div class="card">
 
-      <h2>
-        <i class="fa-solid fa-shield-halved"></i>
-        SYSTEM STATUS
-      </h2>
+      <h2><i class="fa-solid fa-shield-halved"></i> SYSTEM STATUS</h2>
 
       <div class="status-box">
-
         <div class="status-item">
           <h3>Camera Status</h3>
-
-          <p style="color:#7dffb3;font-weight:500;">
-            <i class="fa-solid fa-circle"
-               style="font-size:10px;margin-right:4px;"></i>
-            Online
-          </p>
+          <p style="color:#7dffb3;">Online</p>
         </div>
 
         <div class="status-item">
           <h3>Stream Refresh Rate</h3>
-          <p>Continuous (Real-time)</p>
+          <p>Continuous</p>
         </div>
 
         <div class="status-item">
@@ -555,166 +325,9 @@
 
         <div class="status-item">
           <h3>Access Level</h3>
-
-          <p>
-            {% if current_user.is_admin %}
-              Administrator
-            {% else %}
-              Standard User
-            {% endif %}
-          </p>
-
+          <p>{% if current_user.is_admin %}Administrator{% else %}Standard User{% endif %}</p>
         </div>
-
       </div>
-
-    </div>
-
-  </div>
-
-  <div class="card" style="margin-top:25px;">
-
-    <h2>
-      <i class="fa-solid fa-list"></i>
-      RECENT ACTIVITY
-    </h2>
-
-    <div class="activity-legend">
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;">
-        </span>
-        Successful Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;">
-        </span>
-        Failed Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#ffc857; box-shadow:0 0 10px #ffc857;">
-        </span>
-        Admin Activity
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;">
-        </span>
-        User Activity
-      </div>
-
-    </div>
-
-    <div class="table-wrapper">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>TIME (PHT)</th>
-            <th>IP ADDRESS</th>
-            <th>USERNAME</th>
-            <th>STATUS</th>
-            <th>ACTION</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-        {% for log in logs %}
-
-        <tr
-
-          class="
-            {% if 'failed' in log.action.lower() %}
-
-              log-failed
-
-            {% elif 'logged in' in log.action.lower()
-                or 'successful login' in log.action.lower()
-                or 'login successful' in log.action.lower()
-                or 'logged in successfully' in log.action.lower() %}
-
-              log-success
-
-            {% elif log.username.lower() == 'hotmariaclara' %}
-
-              log-admin
-
-            {% else %}
-
-              log-user
-
-            {% endif %}
-          "
-        >
-
-          <td class="timestamp">
-            {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
-          </td>
-
-          <td class="ip">
-            {{ log.ip_address }}
-          </td>
-
-          <td class="username">
-            {{ log.username }}
-          </td>
-
-          <td>
-
-            {% if 'failed' in log.action.lower() %}
-
-              <span class="badge badge-failed">
-                <i class="fa-solid fa-circle"></i>
-                Failed
-              </span>
-
-            {% elif 'logged in' in log.action.lower()
-                or 'successful login' in log.action.lower()
-                or 'login successful' in log.action.lower()
-                or 'logged in successfully' in log.action.lower() %}
-
-              <span class="badge badge-success">
-                <i class="fa-solid fa-circle"></i>
-                Success
-              </span>
-
-            {% elif log.username.lower() == 'hotmariaclara' %}
-
-              <span class="badge badge-admin">
-                <i class="fa-solid fa-shield-halved"></i>
-                Admin
-              </span>
-
-            {% else %}
-
-              <span class="badge badge-user">
-                <i class="fa-solid fa-user"></i>
-                User
-              </span>
-
-            {% endif %}
-
-          </td>
-
-          <td class="action">
-            {{ log.action }}
-          </td>
-
-        </tr>
-
-        {% endfor %}
-
-        </tbody>
-
-      </table>
 
     </div>
 
@@ -723,43 +336,50 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-  // This fetches the stream configuration from your Flask backend
-  fetch('/stream_url')
-    .then(r => r.json())
-    .then(data => {
-      // We look for 'stream_url' because that is the key used in app.py
-      const streamUrl = data.stream_url; 
-      
-      if (!streamUrl) { 
-        document.getElementById('stream-error').style.display = 'block'; 
-        return; 
-      }
 
-      const video = document.getElementById('cam');
-      
-      // HLS.js handles the stream initialization
-      if (Hls.isSupported()) {
-        const hls = new Hls();
-        hls.loadSource(streamUrl);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.ERROR, (_, d) => { 
-            if (d.fatal) {
-                document.getElementById('stream-error').style.display = 'block';
-            }
-        });
-      } 
-      // Fallback for Safari/iOS
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = streamUrl; 
-      } 
-      else {
-        document.getElementById('stream-error').style.display = 'block';
-      }
-    })
-    .catch(() => {
+<script>
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  fetch('/stream_url', {
+    method: 'GET',
+    headers: {
+      'X-CSRFToken': csrfToken
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+
+    const streamUrl = data.stream_url;
+
+    if (!streamUrl) {
       document.getElementById('stream-error').style.display = 'block';
-    });
+      return;
+    }
+
+    const video = document.getElementById('cam');
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(streamUrl);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.ERROR, (_, d) => {
+        if (d.fatal) {
+          document.getElementById('stream-error').style.display = 'block';
+        }
+      });
+    }
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = streamUrl;
+    }
+    else {
+      document.getElementById('stream-error').style.display = 'block';
+    }
+
+  })
+  .catch(() => {
+    document.getElementById('stream-error').style.display = 'block';
+  });
 </script>
+
 </body>
 </html>
