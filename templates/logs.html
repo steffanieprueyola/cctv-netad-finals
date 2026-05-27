@@ -6,13 +6,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="refresh" content="10">
-  
-    <!-- CSRF Token -->
+
+  <!-- CSRF Token -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 
   <style>
 
@@ -36,7 +39,7 @@
       --danger-bg:rgba(255,59,92,0.08);
 
       --admin:#ffc857;
-      --admin-bg:rgba(255,200,87,0.08);
+      --admin-bg:rgba(255,200,87,0.05);
 
       --user:#00d9ff;
       --user-bg:rgba(0,217,255,0.08);
@@ -59,7 +62,7 @@
       color:white;
       overflow-x:hidden;
       position:relative;
-      padding:40px;
+      padding:40px 20px;
     }
 
     body::before{
@@ -84,7 +87,7 @@
     }
 
     .container{
-      max-width:1300px;
+      max-width: 100%;
       margin:auto;
       position:relative;
       z-index:2;
@@ -150,7 +153,7 @@
       margin-bottom:20px;
     }
 
-    /* Color Identification Legend Styles (From image_32ccca.png) */
+    /* Color Identification Legend Styles */
     .color-legend {
       display: flex;
       gap: 15px;
@@ -197,11 +200,10 @@
       width:100%;
       border-collapse:separate;
       border-spacing:0 12px;
-      min-width:850px;
     }
 
     th{
-      padding:16px;
+      padding:16px 24px;
       text-align:left;
       color:var(--primary);
       font-family:'Orbitron',sans-serif;
@@ -211,50 +213,61 @@
     }
 
     td{
-      padding:18px;
-      color:var(--text);
+      padding:22px 24px;
       font-size:14px;
-      border-top:1px solid rgba(255,255,255,0.04);
-      border-bottom:1px solid rgba(255,255,255,0.04);
+      border-top:1px solid rgba(255,255,255,0.02);
+      border-bottom:1px solid rgba(255,255,255,0.02);
     }
 
     td:first-child{border-radius:14px 0 0 14px;}
     td:last-child{border-radius:0 14px 14px 0;}
 
-    .timestamp{color:#b8b8b8;font-size:13px;}
-    .ip{color:#d6d6d6;font-family:monospace;}
+    th:nth-child(1), td:nth-child(1) { width: 20%; }
+    th:nth-child(2), td:nth-child(2) { width: 18%; }
+    th:nth-child(3), td:nth-child(3) { width: 18%; }
+    th:nth-child(4), td:nth-child(4) { width: 14%; }
+    th:nth-child(5), td:nth-child(5) { width: 30%; }
+
+    .timestamp{font-size:14px;}
+    .ip{font-family:monospace;font-size:14px;}
     .username{font-weight:600;}
     .action{font-weight:600;}
 
-    /* SUCCESS */
+    /* SUCCESS - Full Row Uniform Color */
     .log-success{background:var(--success-bg);}
     .log-success td:first-child{border-left:4px solid var(--success);}
+    .log-success td { color: var(--success); }
 
-    /* FAILED */
+    /* FAILED - Full Row Uniform Color */
     .log-failed{background:var(--danger-bg);}
     .log-failed td:first-child{border-left:4px solid var(--danger);}
+    .log-failed td { color: var(--danger); }
 
-    /* ADMIN */
+    /* ADMIN - Full Row Uniform Color */
     .log-admin{background:var(--admin-bg);}
     .log-admin td:first-child{border-left:4px solid var(--admin);}
+    .log-admin td { color: var(--admin); }
 
-    /* USER */
+    /* USER - Full Row Uniform Color */
     .log-user{background:var(--user-bg);}
     .log-user td:first-child{border-left:4px solid var(--user);}
+    .log-user td { color: var(--user); }
 
-    /* LOGOUT (orange) */
+    /* LOGOUT - Full Row Uniform Color */
     .log-logout{background:var(--logout-bg);}
     .log-logout td:first-child{border-left:4px solid var(--logout);}
+    .log-logout td { color: var(--logout); }
 
-    /* NEW: LOGGED OUT (purple-red) */
+    /* LOGGED OUT - Full Row Uniform Color */
     .log-logged-out{background:var(--loggedout-bg);}
     .log-logged-out td:first-child{border-left:4px solid var(--loggedout);}
+    .log-logged-out td { color: var(--loggedout); }
 
     .badge{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:8px 12px;
+      padding:8px 14px;
       border-radius:999px;
       font-size:12px;
       font-weight:600;
