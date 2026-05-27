@@ -218,6 +218,7 @@
     }
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -238,6 +239,7 @@
 
   <div class="card">
     <h1>MANAGE USERS</h1>
+
     <div class="subtitle">
       Administrator access — manage user accounts and permissions
     </div>
@@ -254,7 +256,9 @@
   {% endwith %}
 
   <div class="card table-wrapper">
+
     <table>
+
       <tr>
         <th>#</th>
         <th>USERNAME</th>
@@ -266,8 +270,11 @@
 
       {% for user in users %}
       <tr>
+
         <td>{{ user.id }}</td>
+
         <td>{{ user.username }}</td>
+
         <td>{{ user.email }}</td>
 
         <td>
@@ -278,38 +285,69 @@
           {% endif %}
         </td>
 
-        <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td>
+          {{ user.created_at.strftime('%Y-%m-%d %H:%M') }}
+        </td>
 
         <td>
+
           {% if user.id == current_user.id %}
-            <button class="btn btn-self" disabled>You</button>
+
+            <button class="btn btn-self" disabled>
+              You
+            </button>
+
           {% else %}
 
+            <!-- DELETE USER -->
             <form method="POST"
                   action="/admin/delete_user/{{ user.id }}"
                   style="display:inline"
                   onsubmit="return confirm('Delete {{ user.username }}? This cannot be undone.')">
-              <button class="btn btn-delete" type="submit">
+
+              <!-- CSRF TOKEN -->
+              <input type="hidden"
+                     name="csrf_token"
+                     value="{{ csrf_token() }}">
+
+              <button class="btn btn-delete"
+                      type="submit">
                 Delete
               </button>
+
             </form>
 
             {% if not user.is_admin %}
+
+            <!-- PROMOTE USER -->
             <form method="POST"
                   action="/admin/promote/{{ user.id }}"
                   style="display:inline"
                   onsubmit="return confirm('Promote {{ user.username }} to admin?')">
-              <button class="btn btn-promote" type="submit">
+
+              <!-- CSRF TOKEN -->
+              <input type="hidden"
+                     name="csrf_token"
+                     value="{{ csrf_token() }}">
+
+              <button class="btn btn-promote"
+                      type="submit">
                 Make Admin
               </button>
+
             </form>
+
             {% endif %}
 
           {% endif %}
+
         </td>
+
       </tr>
       {% endfor %}
+
     </table>
+
   </div>
 
 </div>
