@@ -237,6 +237,7 @@
 <body>
 
 <div class="container">
+
   <div class="login-card">
 
     <div class="logo">
@@ -264,6 +265,7 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
       <div class="input-group">
+
         <label>USERNAME</label>
 
         <div class="input-box">
@@ -275,9 +277,11 @@
             required
           >
         </div>
+
       </div>
 
       <div class="input-group">
+
         <label>PASSWORD</label>
 
         <div class="input-box">
@@ -293,6 +297,7 @@
 
           <i class="fa-regular fa-eye icon eye" id="togglePassword"></i>
         </div>
+
       </div>
 
       <div class="options">
@@ -310,6 +315,7 @@
 
     <p style="text-align:center; margin-top:18px; font-size:13px;">
       Don't have an account?
+
       <a href="/signup" style="color:#00ffb3;">
         Sign up
       </a>
@@ -320,9 +326,11 @@
   <div class="side-text">
     AUTHORIZED<br>PERSONNEL ONLY
   </div>
+
 </div>
 
 <script>
+
   const password = document.getElementById("password");
   const togglePassword = document.getElementById("togglePassword");
 
@@ -348,6 +356,7 @@
     }
 
   });
+
 </script>
 
 </body>
