@@ -25,45 +25,26 @@
     }
 
     :root{
-      --bg:#050505;
-      --card-bg:rgba(0,0,0,0.72);
-
       --primary:#00ffb2;
-      --primary-soft:rgba(0,255,178,0.08);
-
-      --success:#00ffb2;
-      --success-bg:rgba(0,255,178,0.08);
-
       --danger:#ff3b5c;
-      --danger-bg:rgba(255,59,92,0.08);
-
       --admin:#ffc857;
-      --admin-bg:rgba(255,200,87,0.05);
-
       --user:#00d9ff;
-      --user-bg:rgba(0,217,255,0.08);
-
       --logout:#ff9f1c;
-      --logout-bg:rgba(255,159,28,0.10);
-
-      /* NEW: logged out (purple-red) */
       --loggedout:#d14a7c;
-      --loggedout-bg:rgba(209,74,124,0.10);
-
-      --text:#e8e8e8;
-      --muted:#b7b7b7;
+      --card-bg:rgba(0,0,0,0.72);
     }
 
     body{
       min-height:100vh;
-      background:var(--bg);
+      background:#050505;
       font-family:'Inter',sans-serif;
       color:white;
       overflow-x:hidden;
       position:relative;
-      padding:40px 24px;
+      padding:40px 20px;
     }
 
+    /* Background Glow */
     body::before{
       content:"";
       position:fixed;
@@ -74,6 +55,7 @@
       z-index:0;
     }
 
+    /* Grid Overlay */
     body::after{
       content:"";
       position:fixed;
@@ -86,27 +68,60 @@
     }
 
     .container{
-      max-width: 100%;
+      max-width:1300px;
       margin:auto;
       position:relative;
       z-index:2;
     }
 
+    /* Header Card */
+    .header-card{
+      background:rgba(0,0,0,0.72);
+      backdrop-filter:blur(16px);
+      border:1px solid rgba(0,255,170,0.22);
+      border-radius:30px;
+      padding:30px;
+      margin-bottom:25px;
+      box-shadow:0 0 40px rgba(0,255,170,0.06);
+    }
+
+    h1{
+      font-family:'Orbitron', sans-serif;
+      color:#00ffb3;
+      margin-bottom:10px;
+      font-size:32px;
+      letter-spacing:2px;
+      text-shadow:0 0 14px rgba(0,255,170,0.22);
+      word-break:break-word;
+    }
+
+    .subtitle{
+      color:#b7b7b7;
+      margin-bottom:18px;
+      font-size:14px;
+    }
+
+    .count{
+      color:#00ffb3;
+      font-size:15px;
+      margin-bottom:20px;
+    }
+
+    /* Navigation */
     .nav{
       display:flex;
-      gap:15px;
-      margin-bottom:25px;
       flex-wrap:wrap;
+      gap:15px;
     }
 
     .nav a{
-      color:var(--primary);
+      color:#00ffb3;
       text-decoration:none;
       padding:12px 20px;
       border-radius:16px;
       border:1px solid rgba(0,255,170,0.18);
       background:rgba(255,255,255,0.03);
-      transition:0.3s ease;
+      transition:.3s ease;
       font-size:14px;
       backdrop-filter:blur(10px);
       display:flex;
@@ -121,163 +136,225 @@
       transform:translateY(-2px);
     }
 
-    .header-card{
-      background:var(--card-bg);
-      backdrop-filter:blur(16px);
-      border:1px solid rgba(0,255,170,0.22);
-      border-radius:30px;
-      padding:30px;
-      margin-bottom:25px;
-      box-shadow:0 0 40px rgba(0,255,170,0.06);
-    }
-
-    h1{
-      font-family:'Orbitron',sans-serif;
-      color:var(--primary);
-      margin-bottom:10px;
-      font-size:32px;
-      letter-spacing:2px;
-      text-shadow:0 0 14px rgba(0,255,170,0.22);
-    }
-
-    .subtitle{
-      color:var(--muted);
-      font-size:14px;
-      margin-bottom:18px;
-    }
-
-    .count{
-      color:var(--primary);
-      font-size:15px;
-      margin-bottom:20px;
-    }
-
-    /* Color Identification Legend Styles */
-    .color-legend {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-top: 5px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 8px 18px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text);
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .dot-success { background: var(--success); box-shadow: 0 0 8px var(--success); }
-    .dot-failed { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-    .dot-admin { background: var(--admin); box-shadow: 0 0 8px var(--admin); }
-    .dot-user { background: var(--user); box-shadow: 0 0 8px var(--user); }
-    .dot-loggedout { background: var(--loggedout); box-shadow: 0 0 8px var(--loggedout); }
-
-    .table-card{
-      background:var(--card-bg);
+    /* Container Card */
+    .card{
+      background:rgba(0,0,0,0.72);
       backdrop-filter:blur(16px);
       border:1px solid rgba(0,255,170,0.22);
       border-radius:30px;
       padding:24px;
+      box-shadow:
+      0 0 20px rgba(0,255,170,0.08),
+      0 0 40px rgba(0,255,170,0.04);
+    }
+
+    .card h2{
+      font-family:'Orbitron', sans-serif;
+      color:#00ffb3;
+      margin-bottom:18px;
+      font-size:20px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    /* Activity Legend */
+    .activity-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:15px;
+      margin-bottom:5px;
+      margin-top:5px;
+    }
+
+    .legend-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 16px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.05);
+      font-size:13px;
+      font-weight:500;
+      color:#e8e8e8;
+    }
+
+    .legend-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      flex-shrink:0;
+    }
+
+    /* Table Spacing Wrapper */
+    .table-wrapper{
+      width:100%;
       overflow-x:auto;
-      box-shadow:0 0 40px rgba(0,255,170,0.06);
     }
 
     table{
       width:100%;
+      min-width:720px;
       border-collapse:separate;
-      border-spacing:0 14px;
+      border-spacing:0 12px;
     }
 
     th{
-      padding:12px 24px;
+      padding:16px 24px;
       text-align:left;
-      color: var(--primary);
-      font-family:'Orbitron',sans-serif;
+      color:#00ffb3;
+      font-family:'Orbitron', sans-serif;
       font-size:13px;
+      border-bottom:1px solid rgba(0,255,170,0.15);
       letter-spacing:1px;
+      white-space:nowrap;
     }
 
     td{
-      padding:18px 24px;
+      padding:22px 24px;
       font-size:14px;
-      border-top:1px solid rgba(255,255,255,0.01);
-      border-bottom:1px solid rgba(255,255,255,0.01);
+      vertical-align:middle;
+      border-top:1px solid rgba(255,255,255,0.02);
+      border-bottom:1px solid rgba(255,255,255,0.02);
     }
 
     td:first-child{border-radius:14px 0 0 14px;}
     td:last-child{border-radius:0 14px 14px 0;}
 
-    th:nth-child(1), td:nth-child(1) { width: 22%; }
+    /* Table Column Width Rule Configuration */
+    th:nth-child(1), td:nth-child(1) { width: 20%; }
     th:nth-child(2), td:nth-child(2) { width: 18%; }
     th:nth-child(3), td:nth-child(3) { width: 18%; }
     th:nth-child(4), td:nth-child(4) { width: 14%; }
-    th:nth-child(5), td:nth-child(5) { width: 28%; }
+    th:nth-child(5), td:nth-child(5) { width: 30%; }
 
-    .timestamp{font-size:14px;}
-    .ip{font-family:monospace;font-size:14px;}
+    .timestamp{font-size:14px; white-space:nowrap;}
+    .ip{font-family:monospace; font-size:14px; white-space:nowrap;}
     .username{font-weight:600;}
-    .action{font-weight:600;}
+    .action{font-weight:600; line-height:1.5;}
 
-    /* SUCCESS ROW THEME STYLES (Uniform Green) */
-    .log-success{background:var(--success-bg);}
-    .log-success td:first-child{border-left:4px solid var(--success);}
-    .log-success td:not(:nth-child(4)) { color: var(--success); }
+    /* ================================== */
+    /* UPDATED RECENT ACTIVITY LOG COLORS */
+    /* ================================== */
 
-    /* FAILED ROW THEME STYLES (Uniform Red) */
-    .log-failed{background:var(--danger-bg);}
-    .log-failed td:first-child{border-left:4px solid var(--danger);}
-    .log-failed td:not(:nth-child(4)) { color: var(--danger); }
+    /* Base row transition (keeps smooth hover) */
+    tbody tr {
+      transition: all 0.25s ease;
+      border-radius: 14px;
+    }
 
-    /* ADMIN ROW THEME STYLES (Uniform Gold) */
-    .log-admin{background:var(--admin-bg);}
-    .log-admin td:first-child{border-left:4px solid var(--admin);}
-    .log-admin td:not(:nth-child(4)) { color: var(--admin); }
+    /* Hover effect (more visible glow) */
+    tbody tr:hover {
+      transform: translateX(4px);
+      filter: brightness(1.15);
+    }
 
-    /* USER ROW THEME STYLES (Uniform Cyan) */
-    .log-user{background:var(--user-bg);}
-    .log-user td:first-child{border-left:4px solid var(--user);}
-    .log-user td:not(:nth-child(4)) { color: var(--user); }
+    /* SUCCESS LOGIN */
+    .log-success {
+      background: rgba(0, 255, 178, 0.10);
+      box-shadow: inset 0 0 0 1px rgba(0, 255, 178, 0.25);
+    }
 
-    /* LOGOUT ROW THEME STYLES (Uniform Orange) */
-    .log-logout{background:var(--logout-bg);}
-    .log-logout td:first-child{border-left:4px solid var(--logout);}
-    .log-logout td:not(:nth-child(4)) { color: var(--logout); }
+    .log-success td:first-child {
+      border-left: 4px solid #00ffb2;
+    }
 
-    /* LOGGED OUT ROW THEME STYLES (Uniform Purple-Red) */
-    .log-logged-out{background:var(--loggedout-bg);}
-    .log-logged-out td:first-child{border-left:4px solid var(--loggedout);}
-    .log-logged-out td:not(:nth-child(4)) { color: var(--loggedout); }
+    /* FAILED LOGIN */
+    .log-failed {
+      background: rgba(255, 59, 92, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(255, 59, 92, 0.25);
+    }
 
+    .log-failed td:first-child {
+      border-left: 4px solid #ff3b5c;
+    }
+
+    /* ADMIN ACTIVITY */
+    .log-admin {
+      background: rgba(255, 200, 87, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(255, 200, 87, 0.25);
+    }
+
+    .log-admin td:first-child {
+      border-left: 4px solid #ffc857;
+    }
+
+    /* USER ACTIVITY */
+    .log-user {
+      background: rgba(0, 217, 255, 0.10);
+      box-shadow: inset 0 0 0 1px rgba(0, 217, 255, 0.20);
+    }
+
+    .log-user td:first-child {
+      border-left: 4px solid #00d9ff;
+    }
+
+    /* LOGOUT ACTION */
+    .log-logout {
+      background: rgba(255, 159, 28, 0.10);
+      box-shadow: inset 0 0 0 1px rgba(255, 159, 28, 0.20);
+    }
+
+    .log-logout td:first-child {
+      border-left: 4px solid #ff9f1c;
+    }
+
+    /* LOGGED OUT ACTION */
+    .log-logged-out {
+      background: rgba(209, 74, 124, 0.10);
+      box-shadow: inset 0 0 0 1px rgba(209, 74, 124, 0.20);
+    }
+
+    .log-logged-out td:first-child {
+      border-left: 4px solid #d14a7c;
+    }
+
+    /* Make text more readable per type (excluding standalone status badges column) */
+    .log-success td:not(:nth-child(4)) { color: #cffff0; }
+    .log-failed td:not(:nth-child(4)) { color: #ffd5dd; }
+    .log-admin td:not(:nth-child(4)) { color: #ffe7b2; }
+    .log-user td:not(:nth-child(4)) { color: #c8f6ff; }
+    .log-logout td:not(:nth-child(4)) { color: #ffe6c7; }
+    .log-logged-out td:not(:nth-child(4)) { color: #f7d5e2; }
+
+    /* Standalone Status Badges Layout Configuration */
     .badge{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:6px 14px;
+      padding:8px 14px;
       border-radius:999px;
       font-size:12px;
       font-weight:600;
       text-transform:uppercase;
+      white-space:nowrap;
     }
 
-    .badge-success{color:var(--success);background:rgba(0,255,178,0.12);}
-    .badge-failed{color:var(--danger);background:rgba(255,59,92,0.12);}
-    .badge-admin{color:var(--admin);background:rgba(255,200,87,0.12);}
-    .badge-user{color:var(--user);background:rgba(0,217,255,0.12);}
-    .badge-logout{color:var(--logout);background:rgba(255,159,28,0.15);}
-    .badge-logged-out{color:var(--loggedout);background:rgba(209,74,124,0.15);}
+    .badge-success{background:rgba(0,255,178,0.12); color:var(--primary);}
+    .badge-failed{background:rgba(255,59,92,0.12); color:var(--danger);}
+    .badge-admin{background:rgba(255,200,87,0.12); color:var(--admin);}
+    .badge-user{background:rgba(0,217,255,0.12); color:var(--user);}
+    .badge-logout{background:rgba(255,159,28,0.15); color:var(--logout);}
+    .badge-logged-out{background:rgba(209,74,124,0.15); color:var(--loggedout);}
+
+    /* Responsive Controls */
+    @media(max-width:768px){
+      body{padding:15px;}
+      .nav{flex-direction:column;}
+      .nav a{width:100%; justify-content:center;}
+      .activity-legend{flex-direction:column;}
+      .header-card, .card{padding:18px;}
+      table{min-width:650px;}
+    }
+
+    @media(max-width:480px){
+      body{padding:10px;}
+      h1{font-size:22px; line-height:1.4;}
+      .card h2{font-size:18px;}
+      td, th{font-size:12px;}
+      .badge{font-size:10px; padding:6px 10px;}
+    }
 
   </style>
 </head>
@@ -286,108 +363,128 @@
 
 <div class="container">
 
-  <div class="nav">
-    <a href="/"><i class="fa-solid fa-arrow-left"></i>Dashboard</a>
-    <a href="/admin/users"><i class="fa-solid fa-users"></i>Manage Users</a>
-    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
-  </div>
-
   <div class="header-card">
     <h1>ACTIVITY LOGS</h1>
     <div class="subtitle">Real-time system monitoring and audit trail</div>
     <div class="count">Total Entries: <strong>{{ logs | length }}</strong></div>
-    
-    <div class="color-legend">
-      <div class="legend-item"><span class="legend-dot dot-success"></span> Successful Login</div>
-      <div class="legend-item"><span class="legend-dot dot-failed"></span> Failed Login</div>
-      <div class="legend-item"><span class="legend-dot dot-admin"></span> Admin Activity</div>
-      <div class="legend-item"><span class="legend-dot dot-user"></span> User Activity</div>
-      <div class="legend-item"><span class="legend-dot dot-loggedout"></span> Account Logged Out</div>
+
+    <div class="nav">
+      <a href="/">
+        <i class="fa-solid fa-arrow-left"></i>
+        Dashboard
+      </a>
+      
+      <a href="/admin/users">
+        <i class="fa-solid fa-users"></i>
+        Manage Users
+      </a>
+
+      <a href="/logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </a>
     </div>
   </div>
 
-  <div class="table-card">
-    <table>
-      <thead>
-        <tr>
-          <th>TIME (PHT)</th>
-          <th>IP ADDRESS</th>
-          <th>USERNAME</th>
-          <th>STATUS</th>
-          <th>ACTION</th>
+  <div class="card">
+    <h2>
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      SYSTEM AUDIT TRAIL
+    </h2>
+
+    <div class="activity-legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;"></span> Successful Login</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;"></span> Failed Login</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffc857; box-shadow:0 0 10px #ffc857;"></span> Admin Activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;"></span> User Activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff9f1c; box-shadow:0 0 10px #ff9f1c;"></span> Logout</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#d14a7c; box-shadow:0 0 10px #d14a7c;"></span> Logged Out</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>TIME (PHT)</th>
+            <th>IP ADDRESS</th>
+            <th>USERNAME</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+
+        <tbody>
+        {% for log in logs %}
+        <tr class="
+            {% if 'logged out' in log.action.lower() %}
+              log-logged-out
+            {% elif 'logout' in log.action.lower() %}
+              log-logout
+            {% elif 'failed' in log.action.lower() %}
+              log-failed
+            {% elif 'logged in' in log.action.lower()
+                or 'successful login' in log.action.lower()
+                or 'login successful' in log.action.lower()
+                or 'logged in successfully' in log.action.lower() %}
+              log-success
+            {% elif log.username.lower() == 'hotmariaclara' %}
+              log-admin
+            {% else %}
+              log-user
+            {% endif %}
+          "
+        >
+          <td class="timestamp">
+            {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
+          </td>
+
+          <td class="ip">
+            {{ log.ip_address }}
+          </td>
+
+          <td class="username">
+            {{ log.username }}
+          </td>
+
+          <td>
+            {% if 'logged out' in log.action.lower() %}
+              <span class="badge badge-logged-out">
+                <i class="fa-solid fa-right-from-bracket"></i> Logged Out
+              </span>
+            {% elif 'logout' in log.action.lower() %}
+              <span class="badge badge-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+              </span>
+            {% elif 'failed' in log.action.lower() %}
+              <span class="badge badge-failed">
+                <i class="fa-solid fa-circle"></i> Failed
+              </span>
+            {% elif 'logged in' in log.action.lower()
+                or 'successful login' in log.action.lower()
+                or 'login successful' in log.action.lower()
+                or 'logged in successfully' in log.action.lower() %}
+              <span class="badge badge-success">
+                <i class="fa-solid fa-circle"></i> Success
+              </span>
+            {% elif log.username.lower() == 'hotmariaclara' %}
+              <span class="badge badge-admin">
+                <i class="fa-solid fa-shield-halved"></i> Admin
+              </span>
+            {% else %}
+              <span class="badge badge-user">
+                <i class="fa-solid fa-user"></i> User
+              </span>
+            {% endif %}
+          </td>
+
+          <td class="action">
+            {{ log.action }}
+          </td>
         </tr>
-      </thead>
-
-      <tbody>
-      {% for log in logs %}
-
-      <tr class="
-        {% if 'logged out' in log.action.lower() %}
-          log-logged-out
-        {% elif 'logout' in log.action.lower() %}
-          log-logout
-        {% elif 'failed' in log.action.lower() %}
-          log-failed
-        {% elif 'logged in' in log.action.lower()
-            or 'successful login' in log.action.lower()
-            or 'login successful' in log.action.lower()
-            or 'logged in successfully' in log.action.lower() %}
-          log-success
-        {% elif log.username.lower() == 'hotmariaclara' %}
-          log-admin
-        {% else %}
-          log-user
-        {% endif %}
-      ">
-
-        <td class="timestamp">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-        <td class="ip">{{ log.ip_address }}</td>
-        <td class="username">{{ log.username }}</td>
-
-        <td>
-          {% if 'logged out' in log.action.lower() %}
-            <span class="badge badge-logged-out">
-              <i class="fa-solid fa-right-from-bracket"></i> Logged Out
-            </span>
-
-          {% elif 'logout' in log.action.lower() %}
-            <span class="badge badge-logout">
-              <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </span>
-
-          {% elif 'failed' in log.action.lower() %}
-            <span class="badge badge-failed">
-              <i class="fa-solid fa-circle"></i> Failed
-            </span>
-
-          {% elif 'logged in' in log.action.lower()
-              or 'successful login' in log.action.lower()
-              or 'login successful' in log.action.lower()
-              or 'logged in successfully' in log.action.lower() %}
-            <span class="badge badge-success">
-              <i class="fa-solid fa-circle"></i> Success
-            </span>
-
-          {% elif log.username.lower() == 'hotmariaclara' %}
-            <span class="badge badge-admin">
-              <i class="fa-solid fa-shield-halved"></i> Admin
-            </span>
-
-          {% else %}
-            <span class="badge badge-user">
-              <i class="fa-solid fa-user"></i> User
-            </span>
-          {% endif %}
-        </td>
-
-        <td class="action">{{ log.action }}</td>
-
-      </tr>
-
-      {% endfor %}
-      </tbody>
-
-    </table>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 
 </div>
