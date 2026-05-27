@@ -29,7 +29,6 @@
       --danger:#ff3b5c;
       --admin:#ffc857;
       --user:#00d9ff;
-      --logout:#ff9f1c;
       --loggedout:#d14a7c;
       --card-bg:rgba(0,0,0,0.72);
     }
@@ -250,73 +249,52 @@
       filter: brightness(1.15);
     }
 
-    /* SUCCESS LOGIN */
+    /* SUCCESS LOGIN - Pale with Restored Border Accent */
     .log-success {
-      background: rgba(0, 255, 178, 0.10);
-      box-shadow: inset 0 0 0 1px rgba(0, 255, 178, 0.25);
+      background: rgba(0, 255, 178, 0.05);
     }
-
     .log-success td:first-child {
       border-left: 4px solid #00ffb2;
     }
 
-    /* FAILED LOGIN */
+    /* FAILED LOGIN - Pale with Restored Border Accent */
     .log-failed {
-      background: rgba(255, 59, 92, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(255, 59, 92, 0.25);
+      background: rgba(255, 59, 92, 0.06);
     }
-
     .log-failed td:first-child {
       border-left: 4px solid #ff3b5c;
     }
 
-    /* ADMIN ACTIVITY */
+    /* ADMIN ACTIVITY - Pale with Restored Border Accent */
     .log-admin {
-      background: rgba(255, 200, 87, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(255, 200, 87, 0.25);
+      background: rgba(255, 200, 87, 0.05);
     }
-
     .log-admin td:first-child {
       border-left: 4px solid #ffc857;
     }
 
-    /* USER ACTIVITY */
+    /* USER ACTIVITY - Pale with Restored Border Accent */
     .log-user {
-      background: rgba(0, 217, 255, 0.10);
-      box-shadow: inset 0 0 0 1px rgba(0, 217, 255, 0.20);
+      background: rgba(0, 217, 255, 0.05);
     }
-
     .log-user td:first-child {
       border-left: 4px solid #00d9ff;
     }
 
-    /* LOGOUT ACTION */
-    .log-logout {
-      background: rgba(255, 159, 28, 0.10);
-      box-shadow: inset 0 0 0 1px rgba(255, 159, 28, 0.20);
+    /* LOGOUT & LOGGED OUT ACTION - Pale with Restored Border Accent */
+    .log-logout, .log-logged-out {
+      background: rgba(209, 74, 124, 0.05);
     }
-
-    .log-logout td:first-child {
-      border-left: 4px solid #ff9f1c;
-    }
-
-    /* LOGGED OUT ACTION */
-    .log-logged-out {
-      background: rgba(209, 74, 124, 0.10);
-      box-shadow: inset 0 0 0 1px rgba(209, 74, 124, 0.20);
-    }
-
-    .log-logged-out td:first-child {
+    .log-logout td:first-child, .log-logged-out td:first-child {
       border-left: 4px solid #d14a7c;
     }
 
-    /* Make text more readable per type (excluding standalone status badges column) */
+    /* Readable row text color states */
     .log-success td:not(:nth-child(4)) { color: #cffff0; }
     .log-failed td:not(:nth-child(4)) { color: #ffd5dd; }
     .log-admin td:not(:nth-child(4)) { color: #ffe7b2; }
     .log-user td:not(:nth-child(4)) { color: #c8f6ff; }
-    .log-logout td:not(:nth-child(4)) { color: #ffe6c7; }
-    .log-logged-out td:not(:nth-child(4)) { color: #f7d5e2; }
+    .log-logout td:not(:nth-child(4)), .log-logged-out td:not(:nth-child(4)) { color: #f7d5e2; }
 
     /* Standalone Status Badges Layout Configuration */
     .badge{
@@ -335,7 +313,6 @@
     .badge-failed{background:rgba(255,59,92,0.12); color:var(--danger);}
     .badge-admin{background:rgba(255,200,87,0.12); color:var(--admin);}
     .badge-user{background:rgba(0,217,255,0.12); color:var(--user);}
-    .badge-logout{background:rgba(255,159,28,0.15); color:var(--logout);}
     .badge-logged-out{background:rgba(209,74,124,0.15); color:var(--loggedout);}
 
     /* Responsive Controls */
@@ -397,7 +374,6 @@
       <div class="legend-item"><span class="legend-dot" style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;"></span> Failed Login</div>
       <div class="legend-item"><span class="legend-dot" style="background:#ffc857; box-shadow:0 0 10px #ffc857;"></span> Admin Activity</div>
       <div class="legend-item"><span class="legend-dot" style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;"></span> User Activity</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#ff9f1c; box-shadow:0 0 10px #ff9f1c;"></span> Logout</div>
       <div class="legend-item"><span class="legend-dot" style="background:#d14a7c; box-shadow:0 0 10px #d14a7c;"></span> Logged Out</div>
     </div>
 
@@ -447,13 +423,9 @@
           </td>
 
           <td>
-            {% if 'logged out' in log.action.lower() %}
+            {% if 'logged out' in log.action.lower() or 'logout' in log.action.lower() %}
               <span class="badge badge-logged-out">
                 <i class="fa-solid fa-right-from-bracket"></i> Logged Out
-              </span>
-            {% elif 'logout' in log.action.lower() %}
-              <span class="badge badge-logout">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
               </span>
             {% elif 'failed' in log.action.lower() %}
               <span class="badge badge-failed">
