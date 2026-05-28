@@ -6,12 +6,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+  
   <style>
-
     *{
       margin:0;
       padding:0;
@@ -37,7 +41,6 @@
     }
 
     /* Background Glow */
-
     body::before{
       content:"";
       position:fixed;
@@ -49,7 +52,6 @@
     }
 
     /* Grid Overlay */
-
     body::after{
       content:"";
       position:fixed;
@@ -69,7 +71,6 @@
     }
 
     /* Header */
-
     .header-card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
@@ -95,7 +96,6 @@
     }
 
     /* Navigation */
-
     .nav{
       display:flex;
       flex-wrap:wrap;
@@ -122,7 +122,6 @@
     }
 
     /* Dashboard Grid */
-
     .dashboard-grid{
       display:grid;
       grid-template-columns:2fr 1fr;
@@ -150,10 +149,7 @@
       gap:10px;
     }
 
-    /* ============================ */
-    /* UPDATED LIVE FEED STREAM CONFIG */
-    /* ============================ */
-
+    /* Live Feed */
     .live-feed video{
       width:100%;
       border-radius:16px;
@@ -162,7 +158,6 @@
     }
 
     /* Status Box */
-
     .status-box{
       display:flex;
       flex-direction:column;
@@ -188,8 +183,7 @@
       word-break:break-word;
     }
 
-    /* Recent Activity */
-
+    /* Recent Activity Layout */
     .activity-legend{
       display:flex;
       flex-wrap:wrap;
@@ -215,8 +209,7 @@
       flex-shrink:0;
     }
 
-    /* Table */
-
+    /* Table Structural Setup */
     .table-wrapper{
       width:100%;
       overflow-x:auto;
@@ -250,9 +243,16 @@
       white-space:nowrap;
     }
 
+    /* Targets all text components except cells containing status badges */
+    tbody tr td.timestamp,
+    tbody tr td.ip,
+    tbody tr td.username,
+    tbody tr td.action {
+      color: var(--row-color, #e5e5e5) !important;
+    }
+
     td{
       padding:16px;
-      color:#e5e5e5;
       font-size:13px;
       vertical-align:middle;
     }
@@ -266,14 +266,12 @@
     }
 
     .timestamp{
-      color:#d0d0d0;
       font-size:12px;
       white-space:nowrap;
     }
 
     .ip{
       font-family:monospace;
-      color:#dcdcdc;
       white-space:nowrap;
     }
 
@@ -286,84 +284,63 @@
       line-height:1.5;
     }
 
-    /* Success */
+    /* ========================================= */
+    /* ENFORCED SCHEME PROPERTIES EACH LOG TYPE  */
+    /* ========================================= */
 
+    /* Success Theme */
     .log-success{
       background:rgba(0,255,178,0.08);
+      --row-color: #cffff0;
     }
-
-    .log-success td{
-      color:#cffff0;
-    }
-
     .log-success td:first-child{
       border-left:4px solid var(--primary);
       border-radius:14px 0 0 14px;
     }
-
     .log-success td:last-child{
       border-radius:0 14px 14px 0;
     }
 
-    /* Failed */
-
+    /* Failed Theme */
     .log-failed{
       background:rgba(255,59,92,0.08);
+      --row-color: #ffd5dd;
     }
-
-    .log-failed td{
-      color:#ffd5dd;
-    }
-
     .log-failed td:first-child{
       border-left:4px solid var(--danger);
       border-radius:14px 0 0 14px;
     }
-
     .log-failed td:last-child{
       border-radius:0 14px 14px 0;
     }
 
-    /* Admin */
-
+    /* Admin Theme */
     .log-admin{
       background:rgba(255,200,87,0.08);
+      --row-color: #ffe7b2;
     }
-
-    .log-admin td{
-      color:#ffe7b2;
-    }
-
     .log-admin td:first-child{
       border-left:4px solid var(--admin);
       border-radius:14px 0 0 14px;
     }
-
     .log-admin td:last-child{
       border-radius:0 14px 14px 0;
     }
 
-    /* User */
-
+    /* User Theme */
     .log-user{
       background:rgba(0,217,255,0.08);
+      --row-color: #c8f6ff;
     }
-
-    .log-user td{
-      color:#c8f6ff;
-    }
-
     .log-user td:first-child{
       border-left:4px solid var(--user);
       border-radius:14px 0 0 14px;
     }
-
     .log-user td:last-child{
       border-radius:0 14px 14px 0;
     }
 
     /* Badges */
-
     .badge{
       display:inline-flex;
       align-items:center;
@@ -383,179 +360,133 @@
 
     .badge-success{
       background:rgba(0,255,178,0.12);
-      color:var(--primary);
+      color:var(--primary) !important;
     }
+    .badge-success i { color:var(--primary) !important; }
 
     .badge-failed{
       background:rgba(255,59,92,0.12);
-      color:var(--danger);
+      color:var(--danger) !important;
     }
+    .badge-failed i { color:var(--danger) !important; }
 
     .badge-admin{
       background:rgba(255,200,87,0.12);
-      color:var(--admin);
+      color:var(--admin) !important;
     }
+    .badge-admin i { color:var(--admin) !important; }
 
     .badge-user{
       background:rgba(0,217,255,0.12);
-      color:var(--user);
+      color:var(--user) !important;
     }
+    .badge-user i { color:var(--user) !important; }
 
-    /* Responsive */
-
+    /* Responsive Design */
     @media(max-width:1000px){
-
       .dashboard-grid{
         grid-template-columns:1fr;
       }
-
     }
 
     @media(max-width:768px){
-
       body{
         padding:15px;
       }
-
       .nav{
         flex-direction:column;
       }
-
       .nav a{
         width:100%;
         justify-content:center;
       }
-
       .activity-legend{
         flex-direction:column;
       }
-
       .header-card,
       .card{
         padding:18px;
       }
-
       table{
         min-width:650px;
       }
-
     }
 
     @media(max-width:480px){
-
       body{
         padding:10px;
       }
-
       h1{
         font-size:22px;
         line-height:1.4;
       }
-
       .card h2{
         font-size:18px;
       }
-
-      td,
-      th{
+      td,th{
         font-size:12px;
       }
-
       .badge{
         font-size:10px;
         padding:6px 10px;
       }
-
     }
-
   </style>
 </head>
 
 <body>
-
 <div class="container">
 
   <div class="header-card">
-
     <h1>WELCOME, {{ current_user.username }}</h1>
-
-    <div class="subtitle">
-      CCTV Monitoring Dashboard
-    </div>
-
+    <div class="subtitle">CCTV Monitoring Dashboard</div>
     <div class="nav">
-
       <a href="/logout">
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
       </a>
-
       {% if current_user.is_admin %}
-
       <a href="/admin/users">
         <i class="fa-solid fa-users"></i>
         Manage Users
       </a>
-
       <a href="/logs">
         <i class="fa-solid fa-clock-rotate-left"></i>
         Activity Logs
       </a>
-
       {% endif %}
-
     </div>
-
   </div>
 
   <div class="dashboard-grid">
-
     <div class="card live-feed">
-
-      <h2>
-        <i class="fa-solid fa-video"></i>
-        LIVE FEED
-      </h2>
-
+      <h2><i class="fa-solid fa-video"></i> LIVE FEED</h2>
       <video id="cam" autoplay muted playsinline controls></video>
       <div class="stream-error" id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">  
         <i class="fa-solid fa-triangle-exclamation"></i> Stream unavailable
       </div>
-
     </div>
 
     <div class="card">
-
-      <h2>
-        <i class="fa-solid fa-shield-halved"></i>
-        SYSTEM STATUS
-      </h2>
-
+      <h2><i class="fa-solid fa-shield-halved"></i> SYSTEM STATUS</h2>
       <div class="status-box">
-
         <div class="status-item">
           <h3>Camera Status</h3>
-
           <p style="color:#7dffb3;font-weight:500;">
-            <i class="fa-solid fa-circle"
-               style="font-size:10px;margin-right:4px;"></i>
+            <i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i>
             Online
           </p>
         </div>
-
         <div class="status-item">
           <h3>Stream Refresh Rate</h3>
           <p>Continuous (Real-time)</p>
         </div>
-
         <div class="status-item">
           <h3>Logged In User</h3>
           <p>{{ current_user.username }}</p>
         </div>
-
         <div class="status-item">
           <h3>Access Level</h3>
-
           <p>
             {% if current_user.is_admin %}
               Administrator
@@ -563,58 +494,24 @@
               Standard User
             {% endif %}
           </p>
-
         </div>
-
       </div>
-
     </div>
-
   </div>
 
   <div class="card" style="margin-top:25px;">
-
-    <h2>
-      <i class="fa-solid fa-list"></i>
-      RECENT ACTIVITY
-    </h2>
+    <h2><i class="fa-solid fa-list"></i> RECENT ACTIVITY</h2>
 
     <div class="activity-legend">
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;">
-        </span>
-        Successful Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;">
-        </span>
-        Failed Login
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#ffc857; box-shadow:0 0 10px #ffc857;">
-        </span>
-        Admin Activity
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-dot"
-              style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;">
-        </span>
-        User Activity
-      </div>
-
+      <div class="legend-item"><span class="legend-dot" style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;"></span>Successful Login</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;"></span>Failed Login</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffc857; box-shadow:0 0 10px #ffc857;"></span>Admin Activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;"></span>User Activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#d14a7c; box-shadow:0 0 10px #d14a7c;"></span>Logged Out</div>
     </div>
 
     <div class="table-wrapper">
-
       <table>
-
         <thead>
           <tr>
             <th>TIME (PHT)</th>
@@ -624,38 +521,30 @@
             <th>ACTION</th>
           </tr>
         </thead>
-
         <tbody>
-
         {% for log in logs %}
+        {% set is_logout = 'logout' in log.action.lower() or 'logged out' in log.action.lower() %}
 
         <tr
-
           class="
-            {% if 'failed' in log.action.lower() %}
-
+            {% if is_logout %}
+              /* Styled dynamically using localized variables below */
+            {% elif 'failed' in log.action.lower() %}
               log-failed
-
             {% elif 'logged in' in log.action.lower()
                 or 'successful login' in log.action.lower()
                 or 'login successful' in log.action.lower()
                 or 'logged in successfully' in log.action.lower() %}
-
               log-success
-
             {% elif log.username.lower() == 'hotmariaclara' %}
-
               log-admin
-
             {% else %}
-
               log-user
-
             {% endif %}
           "
+          style="{% if is_logout %}background: rgba(209, 74, 124, 0.08); --row-color: #f7d5e2;{% endif %}"
         >
-
-          <td class="timestamp">
+          <td class="timestamp" style="{% if is_logout %}border-left: 4px solid #d14a7c; border-radius: 14px 0 0 14px;{% endif %}">
             {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
           </td>
 
@@ -668,77 +557,48 @@
           </td>
 
           <td>
-
-            {% if 'failed' in log.action.lower() %}
-
-              <span class="badge badge-failed">
-                <i class="fa-solid fa-circle"></i>
-                Failed
+            {% if is_logout %}
+              <span class="badge" style="background: rgba(209, 74, 124, 0.15); color: #d14a7c !important;">
+                <i class="fa-solid fa-right-from-bracket" style="color: #d14a7c !important;"></i>
+                Logged Out
               </span>
-
+            {% elif 'failed' in log.action.lower() %}
+              <span class="badge badge-failed"><i class="fa-solid fa-circle"></i> Failed</span>
             {% elif 'logged in' in log.action.lower()
                 or 'successful login' in log.action.lower()
                 or 'login successful' in log.action.lower()
                 or 'logged in successfully' in log.action.lower() %}
-
-              <span class="badge badge-success">
-                <i class="fa-solid fa-circle"></i>
-                Success
-              </span>
-
+              <span class="badge badge-success"><i class="fa-solid fa-circle"></i> Success</span>
             {% elif log.username.lower() == 'hotmariaclara' %}
-
-              <span class="badge badge-admin">
-                <i class="fa-solid fa-shield-halved"></i>
-                Admin
-              </span>
-
+              <span class="badge badge-admin"><i class="fa-solid fa-shield-halved"></i> Admin</span>
             {% else %}
-
-              <span class="badge badge-user">
-                <i class="fa-solid fa-user"></i>
-                User
-              </span>
-
+              <span class="badge badge-user"><i class="fa-solid fa-user"></i> User</span>
             {% endif %}
-
           </td>
 
-          <td class="action">
+          <td class="action" style="{% if is_logout %}border-radius: 0 14px 14px 0;{% endif %}">
             {{ log.action }}
           </td>
-
         </tr>
-
         {% endfor %}
-
         </tbody>
-
       </table>
-
     </div>
-
   </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // This fetches the stream configuration from your Flask backend
   fetch('/stream_url')
     .then(r => r.json())
     .then(data => {
-      // We look for 'stream_url' because that is the key used in app.py
       const streamUrl = data.stream_url; 
-      
       if (!streamUrl) { 
         document.getElementById('stream-error').style.display = 'block'; 
         return; 
       }
-
       const video = document.getElementById('cam');
-      
-      // HLS.js handles the stream initialization
       if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(streamUrl);
@@ -749,7 +609,6 @@
             }
         });
       } 
-      // Fallback for Safari/iOS
       else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = streamUrl; 
       } 
