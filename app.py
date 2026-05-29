@@ -81,17 +81,21 @@ def stream_proxy(filename):
     base_url = os.getenv('MEDIAMTX_HLS_URL')
     target_url = f"{base_url.rstrip('/')}/{filename}"
     
-    user = os.getenv('MEDIAMTX_USER') 
+    user = os.getenv('MEDIAMTX_USER')
     password = os.getenv('MEDIAMTX_PASSWORD')
 
     session = requests.Session()
-    session.auth = (user, password)
     session.headers.update({
         "ngrok-skip-browser-warning": "true"
     })
 
     try:
-        resp = session.get(target_url, timeout=5, stream=True)
+        resp = session.get(
+            target_url,
+            timeout=5,
+            stream=True,
+            auth=(user, password)  # pass as HTTPBasicAuth tuple
+        )
         resp.raise_for_status()
         
         return Response(
@@ -102,7 +106,6 @@ def stream_proxy(filename):
     except Exception:
         logging.error(f"Failed stream proxy: {target_url}\n{traceback.format_exc()}")
         return "Internal Proxy Error", 500
-        
         
 # ── HELPERS ────────────────────────────────────────────
 def log_action(action, username="anonymous"):
