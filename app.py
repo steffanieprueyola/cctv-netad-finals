@@ -90,7 +90,22 @@ def stream_proxy(filename):
     try:
         resp = session.get(target_url, timeout=5, stream=True)
         resp.raise_for_status()
-        
+
+        # If it's a playlist file, rewrite URLs to go through our proxy
+        if filename.endswith('.m3u8'):
+            content = resp.text
+            # Replace absolute ngrok URLs with proxy URLs
+            content = content.replace(base_url.rstrip('/'), '/stream_proxy')
+            # Rewrite relative .m3u8 and .ts URLs to go through proxy
+            import re
+            def rewrite(match):
+                segment = match.group(0)
+                if segment.startswith('http'):
+                    return segment
+                return f'/stream_proxy/{segment}'
+            content = re.sub(r'(?m)^(?!#)(\S+)$', rewrite, content)
+            return Response(content, status=200, content_type='application/vnd.apple.mpegurl')
+
         return Response(
             resp.iter_content(chunk_size=1024),
             status=resp.status_code,
@@ -99,27 +114,6 @@ def stream_proxy(filename):
     except Exception:
         logging.error(f"Failed stream proxy: {target_url}\n{traceback.format_exc()}")
         return "Internal Proxy Error", 500
-        
-# ── HELPERS ────────────────────────────────────────────
-def log_action(action, username="anonymous"):
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    ph_time = datetime.now(pytz.timezone('Asia/Manila'))
-
-    entry = ActivityLog(
-        ip_address=ip,
-        username=username,
-        action=action,
-        timestamp=ph_time.replace(tzinfo=None)
-    )
-
-    db.session.add(entry)
-    db.session.commit()
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
 
 # ── AUTH ROUTES ────────────────────────────────────────
 @app.route('/signup', methods=['GET', 'POST'])
