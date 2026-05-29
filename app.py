@@ -53,6 +53,8 @@ def load_user(user_id):
 Talisman(app,
     content_security_policy={
         'default-src': ["'self'"],
+        'object-src': ["'none'"],
+        'base-uri': ["'self'"],
         'style-src': [
             "'self'",
             "'unsafe-inline'",
