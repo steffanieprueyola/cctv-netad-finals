@@ -79,13 +79,16 @@ Talisman(app,
 @login_required
 def stream_proxy(filename):
     base_url = os.getenv('MEDIAMTX_HLS_URL')
-    target_url = f"{base_url.rstrip('/')}/{filename}"
-    
     user = os.getenv('MEDIAMTX_USER')
     password = os.getenv('MEDIAMTX_PASSWORD')
 
-    # TEMPORARY DEBUG - remove after fixing
-    logging.warning(f"DEBUG user='{user}' password='{password}' url='{target_url}'")
+    # Embed credentials directly in URL to bypass ngrok auth interception
+    from urllib.parse import urlparse, urlunparse
+    parsed = urlparse(base_url)
+    authed_base = urlunparse(parsed._replace(
+        netloc=f"{user}:{password}@{parsed.netloc}"
+    ))
+    target_url = f"{authed_base.rstrip('/')}/{filename}"
 
     session = requests.Session()
     session.headers.update({
@@ -93,12 +96,7 @@ def stream_proxy(filename):
     })
 
     try:
-        resp = session.get(
-            target_url,
-            timeout=5,
-            stream=True,
-            auth=(user, password)
-        )
+        resp = session.get(target_url, timeout=5, stream=True)
         resp.raise_for_status()
         
         return Response(
