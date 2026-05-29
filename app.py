@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import requests
 import bcrypt
 from datetime import datetime
@@ -98,19 +99,21 @@ def stream_proxy(filename):
     base_url = os.getenv('MEDIAMTX_HLS_URL')
     target_url = f"{base_url.rstrip('/')}/{filename}"
 
-    session = requests.Session()
-    session.headers.update({
+    headers = {
         "ngrok-skip-browser-warning": "true",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    })
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/vnd.apple.mpegurl, application/x-mpegURL, */*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Connection": "keep-alive",
+        "Referer": base_url,
+    }
 
     try:
-        resp = session.get(target_url, timeout=5, stream=True)
+        resp = requests.get(target_url, headers=headers, timeout=10, stream=True)
         resp.raise_for_status()
 
         if filename.endswith('.m3u8'):
             content = resp.text
-            logging.warning(f"PLAYLIST CONTENT for {filename}:\n{content}")
             content = content.replace(base_url.rstrip('/'), '/stream_proxy')
             def rewrite(match):
                 segment = match.group(0)
@@ -118,7 +121,6 @@ def stream_proxy(filename):
                     return segment
                 return f'/stream_proxy/{segment}'
             content = re.sub(r'(?m)^(?!#)(\S+)$', rewrite, content)
-            logging.warning(f"REWRITTEN PLAYLIST:\n{content}")
             return Response(content, status=200, content_type='application/vnd.apple.mpegurl')
 
         return Response(
