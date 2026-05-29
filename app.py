@@ -84,6 +84,10 @@ def stream_proxy(filename):
     user = os.getenv('MEDIAMTX_USER') 
     password = os.getenv('MEDIAMTX_PASSWORD')
 
+    # DEBUG: Check if variables are even loading
+    if not user or not password:
+        logging.error("DEBUG: Credentials are missing from environment variables!")
+
     try:
         resp = requests.get(target_url, auth=HTTPBasicAuth(user, password), timeout=5, stream=True)
         resp.raise_for_status()
