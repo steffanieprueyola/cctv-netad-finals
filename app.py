@@ -107,7 +107,14 @@ def stream_proxy(filename):
     })
 
     try:
-        resp = session.get(target_url, timeout=10, stream=True, allow_redirects=True)
+        resp = session.get(target_url, timeout=10, stream=False, allow_redirects=True)
+        
+        if resp.status_code == 401 or 'cookieCheck' in resp.url:
+            domain = base_url.split("//")[1].split("/")[0]
+            session.cookies.set("cookieCheck", "1", domain=domain)
+            session.cookies.set("hlsSession", "proxy-session", domain=domain)
+            resp = session.get(target_url, timeout=10, stream=True, allow_redirects=True)
+        
         resp.raise_for_status()
 
         if filename.endswith('.m3u8'):
