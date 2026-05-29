@@ -101,15 +101,10 @@ def stream_proxy(filename):
 
     session = requests.Session()
     session.headers.update({
-        "ngrok-skip-browser-warning": "true",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/vnd.apple.mpegurl, application/x-mpegURL, */*",
         "Accept-Language": "en-US,en;q=0.9",
-        "Connection": "keep-alive",
-        "Referer": base_url,
     })
-
-    session.cookies.set("cookieCheck", "1", domain=base_url.split("//")[1].split("/")[0])
 
     try:
         resp = session.get(target_url, timeout=10, stream=True, allow_redirects=True)
