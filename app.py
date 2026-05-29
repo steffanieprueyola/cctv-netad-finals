@@ -84,6 +84,9 @@ def stream_proxy(filename):
     user = os.getenv('MEDIAMTX_USER')
     password = os.getenv('MEDIAMTX_PASSWORD')
 
+    # TEMPORARY DEBUG - remove after fixing
+    logging.warning(f"DEBUG user='{user}' password='{password}' url='{target_url}'")
+
     session = requests.Session()
     session.headers.update({
         "ngrok-skip-browser-warning": "true"
@@ -94,7 +97,7 @@ def stream_proxy(filename):
             target_url,
             timeout=5,
             stream=True,
-            auth=(user, password) 
+            auth=(user, password)
         )
         resp.raise_for_status()
         
