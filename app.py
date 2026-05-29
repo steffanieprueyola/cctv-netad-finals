@@ -4,7 +4,7 @@ import bcrypt
 from datetime import datetime
 import pytz
 from flask import (
-    Flask, render_template, request,
+    Flask, Response, render_template, request,
     redirect, url_for, flash, jsonify, abort
 )
 from flask_login import (
@@ -77,28 +77,28 @@ Talisman(app,
 @app.route('/stream_proxy/<path:filename>')
 @login_required
 def stream_proxy(filename):
-
     base_url = os.getenv('MEDIAMTX_HLS_URL')
-
     if not base_url:
-        logging.error("MEDIAMTX_HLS_URL is not set")
         return "Stream configuration missing", 500
 
     target_url = f"{base_url.rstrip('/')}/{filename}"
 
     try:
-        resp = requests.get(target_url, timeout=5)
+        # Use stream=True for video segments to avoid loading everything into memory
+        resp = requests.get(target_url, timeout=5, stream=True)
         resp.raise_for_status()
-        return resp.content, resp.status_code
+
+        # Create a Flask Response that keeps the original headers (Content-Type, etc)
+        return Response(
+            resp.iter_content(chunk_size=1024),
+            status=resp.status_code,
+            headers=dict(resp.headers)
+        )
 
     except Exception:
-        logging.error(
-            f"Failed stream proxy: {target_url}\n"
-            f"{traceback.format_exc()}"
-        )
+        logging.error(f"Failed stream proxy: {target_url}\n{traceback.format_exc()}")
         return "Internal Proxy Error", 500
-
-
+        
 # ── HELPERS ────────────────────────────────────────────
 def log_action(action, username="anonymous"):
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
