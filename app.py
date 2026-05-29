@@ -44,6 +44,11 @@ login_manager.login_view = 'login'
 limiter.init_app(app)
 csrf = CSRFProtect(app)
 
+# ── USER LOADER ────────────────────────────────────────
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
 # ── SECURITY HEADERS ───────────────────────────────────
 Talisman(app,
     content_security_policy={
