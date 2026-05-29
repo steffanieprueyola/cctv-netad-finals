@@ -97,7 +97,7 @@ def log_action(action, username="anonymous"):
 @login_required
 def stream_proxy(filename):
     base_url = os.getenv('MEDIAMTX_HLS_URL')
-    cdn_secret = os.getenv('HLS_CDN_SECRET')  
+    cdn_secret = os.getenv('HLS_CDN_SECRET')
     target_url = f"{base_url.rstrip('/')}/{filename}"
 
     session = requests.Session()
@@ -105,27 +105,30 @@ def stream_proxy(filename):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/vnd.apple.mpegurl, application/x-mpegURL, */*",
         "Accept-Language": "en-US,en;q=0.9",
-        "Authorization": f"Bearer {cdn_secret}",  
+        "Authorization": f"Bearer {cdn_secret}",
     })
 
     try:
         resp = session.get(target_url, timeout=10, stream=False, allow_redirects=True)
-        
+
         if resp.status_code == 401 or 'cookieCheck' in resp.url:
             domain = base_url.split("//")[1].split("/")[0]
             session.cookies.set("cookieCheck", "1", domain=domain)
             session.cookies.set("hlsSession", "proxy-session", domain=domain)
             resp = session.get(target_url, timeout=10, stream=True, allow_redirects=True)
-        
+
         resp.raise_for_status()
 
         if filename.endswith('.m3u8'):
             content = resp.text
+            base_path = '/'.join(filename.split('/')[:-1])
             content = content.replace(base_url.rstrip('/'), '/stream_proxy')
             def rewrite(match):
                 segment = match.group(0)
-                if segment.startswith('http'):
+                if segment.startswith('http') or segment.startswith('/'):
                     return segment
+                if base_path:
+                    return f'/stream_proxy/{base_path}/{segment}'
                 return f'/stream_proxy/{segment}'
             content = re.sub(r'(?m)^(?!#)(\S+)$', rewrite, content)
             return Response(content, status=200, content_type='application/vnd.apple.mpegurl')
