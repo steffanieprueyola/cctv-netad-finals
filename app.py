@@ -86,6 +86,9 @@ def stream_proxy(filename):
 
     session = requests.Session()
     session.auth = (user, password)
+    session.headers.update({
+        "ngrok-skip-browser-warning": "true"
+    })
 
     try:
         resp = session.get(target_url, timeout=5, stream=True)
@@ -99,6 +102,7 @@ def stream_proxy(filename):
     except Exception:
         logging.error(f"Failed stream proxy: {target_url}\n{traceback.format_exc()}")
         return "Internal Proxy Error", 500
+        
         
 # ── HELPERS ────────────────────────────────────────────
 def log_action(action, username="anonymous"):
