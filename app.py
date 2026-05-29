@@ -1,9 +1,9 @@
 import os
+import re
 import requests
 import bcrypt
 from datetime import datetime
 import pytz
-from requests.auth import HTTPBasicAuth
 from flask import (
     Flask, Response, render_template, request,
     redirect, url_for, flash, jsonify, abort
@@ -27,7 +27,6 @@ app = Flask(__name__)
 
 # ── CONFIG ─────────────────────────────────────────────
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-
 app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 
@@ -79,6 +78,19 @@ Talisman(app,
     }
 )
 
+# ── HELPERS ────────────────────────────────────────────
+def log_action(action, username="anonymous"):
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    ph_time = datetime.now(pytz.timezone('Asia/Manila'))
+    entry = ActivityLog(
+        ip_address=ip,
+        username=username,
+        action=action,
+        timestamp=ph_time.replace(tzinfo=None)
+    )
+    db.session.add(entry)
+    db.session.commit()
+
 # ── HLS STREAM PROXY ───────────────────────────────────
 @app.route('/stream_proxy/<path:filename>')
 @login_required
@@ -98,16 +110,15 @@ def stream_proxy(filename):
 
         if filename.endswith('.m3u8'):
             content = resp.text
-            logging.warning(f"PLAYLIST CONTENT for {filename}:\n{content}")  # debug
+            logging.warning(f"PLAYLIST CONTENT for {filename}:\n{content}")
             content = content.replace(base_url.rstrip('/'), '/stream_proxy')
-            import re
             def rewrite(match):
                 segment = match.group(0)
                 if segment.startswith('http'):
                     return segment
                 return f'/stream_proxy/{segment}'
             content = re.sub(r'(?m)^(?!#)(\S+)$', rewrite, content)
-            logging.warning(f"REWRITTEN PLAYLIST:\n{content}")  # debug
+            logging.warning(f"REWRITTEN PLAYLIST:\n{content}")
             return Response(content, status=200, content_type='application/vnd.apple.mpegurl')
 
         return Response(
@@ -124,7 +135,6 @@ def stream_proxy(filename):
 @limiter.limit("10 per hour")
 def signup():
     if request.method == 'POST':
-
         username = request.form['username'].strip()
         email = request.form['email'].strip().lower()
         password = request.form['password']
@@ -147,18 +157,14 @@ def signup():
             return redirect(url_for('signup'))
 
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
         user = User(
             username=username,
             email=email,
             password=hashed.decode('utf-8')
         )
-
         db.session.add(user)
         db.session.commit()
-
         log_action(f"New account signed up: {username}")
-
         flash("Account created! You can now log in.", "success")
         return redirect(url_for('login'))
 
@@ -169,10 +175,8 @@ def signup():
 @limiter.limit("5 per minute")
 def login():
     if request.method == 'POST':
-
         username = request.form['username'].strip()
         password = request.form['password']
-
         user = User.query.filter_by(username=username).first()
 
         if user and bcrypt.checkpw(
@@ -199,7 +203,6 @@ def dashboard():
         logs = ActivityLog.query.order_by(
             ActivityLog.timestamp.desc()
         ).limit(50).all()
-
         return render_template('dashboard.html', logs=logs)
 
     return render_template('user_dashboard.html', logs=[])
@@ -220,11 +223,9 @@ def logout():
 def view_logs():
     if not current_user.is_admin:
         abort(403)
-
     logs = ActivityLog.query.order_by(
         ActivityLog.timestamp.desc()
     ).all()
-
     return render_template('logs.html', logs=logs)
 
 
@@ -233,10 +234,8 @@ def view_logs():
 def admin_users():
     if not current_user.is_admin:
         abort(403)
-
     users = User.query.order_by(User.created_at.desc()).all()
     log_action("Viewed user list", username=current_user.username)
-
     return render_template('admin_users.html', users=users)
 
 
@@ -245,20 +244,14 @@ def admin_users():
 def delete_user(user_id):
     if not current_user.is_admin:
         abort(403)
-
     if user_id == current_user.id:
         flash("You cannot delete your own account.", "error")
         return redirect(url_for('admin_users'))
-
     user = User.query.get_or_404(user_id)
     username_deleted = user.username
-
     db.session.delete(user)
     db.session.commit()
-
-    log_action(f"Deleted user '{username_deleted}'",
-               username=current_user.username)
-
+    log_action(f"Deleted user '{username_deleted}'", username=current_user.username)
     flash(f"User '{username_deleted}' has been deleted.", "success")
     return redirect(url_for('admin_users'))
 
@@ -268,14 +261,10 @@ def delete_user(user_id):
 def promote_user(user_id):
     if not current_user.is_admin:
         abort(403)
-
     user = User.query.get_or_404(user_id)
     user.is_admin = True
     db.session.commit()
-
-    log_action(f"Promoted '{user.username}' to admin",
-               username=current_user.username)
-
+    log_action(f"Promoted '{user.username}' to admin", username=current_user.username)
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
