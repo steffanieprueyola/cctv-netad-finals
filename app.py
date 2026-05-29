@@ -94,7 +94,7 @@ def stream_proxy(filename):
             target_url,
             timeout=5,
             stream=True,
-            auth=(user, password)  # pass as HTTPBasicAuth tuple
+            auth=(user, password) 
         )
         resp.raise_for_status()
         
