@@ -3,6 +3,7 @@ import requests
 import bcrypt
 from datetime import datetime
 import pytz
+from requests.auth import HTTPBasicAuth
 from flask import (
     Flask, Response, render_template, request,
     redirect, url_for, flash, jsonify, abort
@@ -78,23 +79,20 @@ Talisman(app,
 @login_required
 def stream_proxy(filename):
     base_url = os.getenv('MEDIAMTX_HLS_URL')
-    if not base_url:
-        return "Stream configuration missing", 500
-
     target_url = f"{base_url.rstrip('/')}/{filename}"
+    
+    user = os.getenv('MEDIAMTX_USER') 
+    password = os.getenv('MEDIAMTX_PASSWORD')
 
     try:
-        # Use stream=True for video segments to avoid loading everything into memory
-        resp = requests.get(target_url, timeout=5, stream=True)
+        resp = requests.get(target_url, auth=HTTPBasicAuth(user, password), timeout=5, stream=True)
         resp.raise_for_status()
-
-        # Create a Flask Response that keeps the original headers (Content-Type, etc)
+        
         return Response(
             resp.iter_content(chunk_size=1024),
             status=resp.status_code,
             headers=dict(resp.headers)
         )
-
     except Exception:
         logging.error(f"Failed stream proxy: {target_url}\n{traceback.format_exc()}")
         return "Internal Proxy Error", 500
@@ -203,7 +201,6 @@ def dashboard():
 
         return render_template('dashboard.html', logs=logs)
 
-    # FIX: always pass safe context
     return render_template('user_dashboard.html', logs=[])
 
 
