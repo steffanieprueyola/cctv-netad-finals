@@ -91,12 +91,10 @@ def stream_proxy(filename):
         resp = session.get(target_url, timeout=5, stream=True)
         resp.raise_for_status()
 
-        # If it's a playlist file, rewrite URLs to go through our proxy
         if filename.endswith('.m3u8'):
             content = resp.text
-            # Replace absolute ngrok URLs with proxy URLs
+            logging.warning(f"PLAYLIST CONTENT for {filename}:\n{content}")  # debug
             content = content.replace(base_url.rstrip('/'), '/stream_proxy')
-            # Rewrite relative .m3u8 and .ts URLs to go through proxy
             import re
             def rewrite(match):
                 segment = match.group(0)
@@ -104,6 +102,7 @@ def stream_proxy(filename):
                     return segment
                 return f'/stream_proxy/{segment}'
             content = re.sub(r'(?m)^(?!#)(\S+)$', rewrite, content)
+            logging.warning(f"REWRITTEN PLAYLIST:\n{content}")  # debug
             return Response(content, status=200, content_type='application/vnd.apple.mpegurl')
 
         return Response(
