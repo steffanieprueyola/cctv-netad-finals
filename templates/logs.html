@@ -356,6 +356,11 @@
         Manage Users
       </a>
 
+      <a href="#" onclick="refreshLogs(event)">
+        <i id="refreshIcon" class="fa-solid fa-rotate-right"></i>
+        Refresh
+      </a>
+
       <a href="/logout">
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
@@ -460,6 +465,17 @@
   </div>
 
 </div>
+
+<script>
+function refreshLogs(event){
+    event.preventDefault();
+    const icon = document.getElementById('refreshIcon');
+    icon.classList.add('fa-spin');
+    setTimeout(() => {
+        location.reload();
+    }, 300);
+}
+</script>
 
 </body>
 </html>
