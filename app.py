@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import pytz
 from flask import (
     Flask, Response, render_template, request,
-    redirect, url_for, flash, jsonify, abort
+    redirect, url_for, flash, jsonify, abort, session
 )
 from flask_login import (
     login_user, logout_user,
@@ -31,7 +31,7 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 
-# ── Session timeout (10 minutes of inactivity) ────
+# ── Session timeout (10 minutes of inactivity) ─────────
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -54,10 +54,9 @@ csrf = CSRFProtect(app)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ── Make every session permanent so the timeout applies ──
+# ── Make every session permanent so the timeout applies ─
 @app.before_request
 def make_session_permanent():
-    from flask import session
     session.permanent = True
 
 # ── SECURITY HEADERS ───────────────────────────────────
@@ -105,32 +104,22 @@ def log_action(action, username="anonymous"):
     db.session.add(entry)
     db.session.commit()
 
-# ── Proxy secret verifier ─────────────────────────
-def verify_proxy_secret():
-    expected = os.getenv('PROXY_SECRET', '')
-    if not expected:
-        return False
-    return request.headers.get('X-Proxy-Secret', '') == expected
+# ── ROBOTS.TXT — discourages crawlers ──────────────────
+@app.route('/robots.txt')
+def robots():
+    return Response("User-agent: *\nDisallow: /\n", mimetype="text/plain")
 
 # ── HLS STREAM PROXY ───────────────────────────────────
 @app.route('/stream_proxy/<path:filename>')
 @login_required
 @limiter.limit("60 per minute")
 def stream_proxy(filename):
-    if not verify_proxy_secret():
-        log_action(
-            f"Blocked stream_proxy access — missing/invalid X-Proxy-Secret "
-            f"for '{filename}'",
-            username=getattr(current_user, 'username', 'anonymous')
-        )
-        abort(403)
-
     base_url = os.getenv('MEDIAMTX_HLS_URL')
     cdn_secret = os.getenv('HLS_CDN_SECRET')
     target_url = f"{base_url.rstrip('/')}/{filename}"
 
-    session = requests.Session()
-    session.headers.update({
+    req_session = requests.Session()
+    req_session.headers.update({
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -142,13 +131,13 @@ def stream_proxy(filename):
     })
 
     try:
-        resp = session.get(target_url, timeout=10, stream=False, allow_redirects=True)
+        resp = req_session.get(target_url, timeout=10, stream=False, allow_redirects=True)
 
         if resp.status_code == 401 or 'cookieCheck' in resp.url:
             domain = base_url.split("//")[1].split("/")[0]
-            session.cookies.set("cookieCheck", "1", domain=domain)
-            session.cookies.set("hlsSession", "proxy-session", domain=domain)
-            resp = session.get(target_url, timeout=10, stream=True, allow_redirects=True)
+            req_session.cookies.set("cookieCheck", "1", domain=domain)
+            req_session.cookies.set("hlsSession", "proxy-session", domain=domain)
+            resp = req_session.get(target_url, timeout=10, stream=True, allow_redirects=True)
 
         resp.raise_for_status()
 
@@ -239,7 +228,7 @@ def login():
             log_action("Logged in", username=username)
             return redirect(url_for('dashboard'))
 
-# ── Rich failed-login logging ─────────────
+ # ── Rich failed-login logging ───────────────────
         logging.warning(
             f"[FAILED LOGIN] username='{username}' ip='{ip}' "
             f"user_exists={user is not None} "
