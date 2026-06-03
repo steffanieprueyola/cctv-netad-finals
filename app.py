@@ -97,6 +97,7 @@ def log_action(action, username="anonymous"):
 # ── HLS STREAM PROXY ───────────────────────────────────
 @app.route('/stream_proxy/<path:filename>')
 @login_required
+@limiter.limit("60 per minute") 
 def stream_proxy(filename):
     base_url = os.getenv('MEDIAMTX_HLS_URL')
     cdn_secret = os.getenv('HLS_CDN_SECRET')
