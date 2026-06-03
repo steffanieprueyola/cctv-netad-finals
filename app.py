@@ -228,7 +228,7 @@ def login():
             log_action("Logged in", username=username)
             return redirect(url_for('dashboard'))
 
- # ── Rich failed-login logging ───────────────────
+        # ── Rich failed-login logging ───────────────────
         logging.warning(
             f"[FAILED LOGIN] username='{username}' ip='{ip}' "
             f"user_exists={user is not None} "
@@ -253,7 +253,16 @@ def dashboard():
         logs = ActivityLog.query.order_by(
             ActivityLog.timestamp.desc()
         ).limit(50).all()
-        return render_template('dashboard.html', logs=logs)
+        # Pass all admin usernames so the template can color-code them correctly
+        # without relying on a hardcoded name
+        admin_usernames = [
+            u.username for u in User.query.filter_by(is_admin=True).all()
+        ]
+        return render_template(
+            'dashboard.html',
+            logs=logs,
+            admin_usernames=admin_usernames
+        )
 
     return render_template('user_dashboard.html', logs=[])
 
