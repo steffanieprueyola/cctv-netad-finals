@@ -40,7 +40,6 @@
       padding:30px;
     }
 
-    /* Background Glow */
     body::before{
       content:"";
       position:fixed;
@@ -51,7 +50,6 @@
       z-index:0;
     }
 
-    /* Grid Overlay */
     body::after{
       content:"";
       position:fixed;
@@ -70,7 +68,6 @@
       z-index:2;
     }
 
-    /* Header */
     .header-card{
       background:rgba(0,0,0,0.72);
       backdrop-filter:blur(14px);
@@ -95,7 +92,6 @@
       font-size:14px;
     }
 
-    /* Navigation */
     .nav{
       display:flex;
       flex-wrap:wrap;
@@ -121,7 +117,6 @@
       box-shadow:0 0 12px rgba(0,255,170,0.15);
     }
 
-    /* Dashboard Grid */
     .dashboard-grid{
       display:grid;
       grid-template-columns:2fr 1fr;
@@ -149,7 +144,6 @@
       gap:10px;
     }
 
-    /* Live Feed */
     .live-feed video{
       width:100%;
       border-radius:16px;
@@ -157,7 +151,6 @@
       background:#000;
     }
 
-    /* Status Box */
     .status-box{
       display:flex;
       flex-direction:column;
@@ -183,7 +176,6 @@
       word-break:break-word;
     }
 
-    /* Recent Activity Layout */
     .activity-legend{
       display:flex;
       flex-wrap:wrap;
@@ -209,7 +201,6 @@
       flex-shrink:0;
     }
 
-    /* Table Structural Setup */
     .table-wrapper{
       width:100%;
       overflow-x:auto;
@@ -243,7 +234,6 @@
       white-space:nowrap;
     }
 
-    /* Targets all text components except cells containing status badges */
     tbody tr td.timestamp,
     tbody tr td.ip,
     tbody tr td.username,
@@ -284,11 +274,6 @@
       line-height:1.5;
     }
 
-    /* ========================================= */
-    /* ENFORCED SCHEME PROPERTIES EACH LOG TYPE  */
-    /* ========================================= */
-
-    /* Success Theme */
     .log-success{
       background:rgba(0,255,178,0.08);
       --row-color: #cffff0;
@@ -301,7 +286,6 @@
       border-radius:0 14px 14px 0;
     }
 
-    /* Failed Theme */
     .log-failed{
       background:rgba(255,59,92,0.08);
       --row-color: #ffd5dd;
@@ -314,7 +298,6 @@
       border-radius:0 14px 14px 0;
     }
 
-    /* Admin Theme */
     .log-admin{
       background:rgba(255,200,87,0.08);
       --row-color: #ffe7b2;
@@ -327,7 +310,6 @@
       border-radius:0 14px 14px 0;
     }
 
-    /* User Theme */
     .log-user{
       background:rgba(0,217,255,0.08);
       --row-color: #c8f6ff;
@@ -340,7 +322,6 @@
       border-radius:0 14px 14px 0;
     }
 
-    /* Badges */
     .badge{
       display:inline-flex;
       align-items:center;
@@ -382,7 +363,6 @@
     }
     .badge-user i { color:var(--user) !important; }
 
-    /* Responsive Design */
     @media(max-width:1000px){
       .dashboard-grid{
         grid-template-columns:1fr;
@@ -390,46 +370,20 @@
     }
 
     @media(max-width:768px){
-      body{
-        padding:15px;
-      }
-      .nav{
-        flex-direction:column;
-      }
-      .nav a{
-        width:100%;
-        justify-content:center;
-      }
-      .activity-legend{
-        flex-direction:column;
-      }
-      .header-card,
-      .card{
-        padding:18px;
-      }
-      table{
-        min-width:650px;
-      }
+      body{ padding:15px; }
+      .nav{ flex-direction:column; }
+      .nav a{ width:100%; justify-content:center; }
+      .activity-legend{ flex-direction:column; }
+      .header-card, .card{ padding:18px; }
+      table{ min-width:650px; }
     }
 
     @media(max-width:480px){
-      body{
-        padding:10px;
-      }
-      h1{
-        font-size:22px;
-        line-height:1.4;
-      }
-      .card h2{
-        font-size:18px;
-      }
-      td,th{
-        font-size:12px;
-      }
-      .badge{
-        font-size:10px;
-        padding:6px 10px;
-      }
+      body{ padding:10px; }
+      h1{ font-size:22px; line-height:1.4; }
+      .card h2{ font-size:18px; }
+      td,th{ font-size:12px; }
+      .badge{ font-size:10px; padding:6px 10px; }
     }
   </style>
 </head>
@@ -445,7 +399,6 @@
         <i id="refreshIcon" class="fa-solid fa-rotate-right"></i>
         Refresh
       </a>
-
       <a href="/logout">
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
@@ -467,7 +420,11 @@
     <div class="card live-feed">
       <h2><i class="fa-solid fa-video"></i> LIVE FEED</h2>
       <video id="cam" autoplay muted playsinline controls></video>
-      <div class="stream-error" id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">  
+      <!-- FIX: camera status is now driven by JS, not hardcoded -->
+      <div id="stream-online" style="color:#7dffb3;font-size:13px;margin-top:8px;display:none;">
+        <i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i> Stream online
+      </div>
+      <div id="stream-error" style="color:#ff4d4d;font-size:13px;margin-top:8px;display:none;">
         <i class="fa-solid fa-triangle-exclamation"></i> Stream unavailable
       </div>
     </div>
@@ -477,9 +434,10 @@
       <div class="status-box">
         <div class="status-item">
           <h3>Camera Status</h3>
-          <p style="color:#7dffb3;font-weight:500;">
+          <!-- FIX: driven by JS below instead of hardcoded "Online" -->
+          <p id="camera-status-text" style="color:#888;font-weight:500;">
             <i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i>
-            Online
+            Connecting…
           </p>
         </div>
         <div class="status-item">
@@ -508,11 +466,11 @@
     <h2><i class="fa-solid fa-list"></i> RECENT ACTIVITY</h2>
 
     <div class="activity-legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#00ffb2; box-shadow:0 0 10px #00ffb2;"></span>Successful Login</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#ff3b5c; box-shadow:0 0 10px #ff3b5c;"></span>Failed Login</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#ffc857; box-shadow:0 0 10px #ffc857;"></span>Admin Activity</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#00d9ff; box-shadow:0 0 10px #00d9ff;"></span>User Activity</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#d14a7c; box-shadow:0 0 10px #d14a7c;"></span>Logged Out</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#00ffb2;box-shadow:0 0 10px #00ffb2;"></span>Successful Login</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ff3b5c;box-shadow:0 0 10px #ff3b5c;"></span>Failed Login</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ffc857;box-shadow:0 0 10px #ffc857;"></span>Admin Activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#00d9ff;box-shadow:0 0 10px #00d9ff;"></span>User Activity</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#d14a7c;box-shadow:0 0 10px #d14a7c;"></span>Logged Out</div>
     </div>
 
     <div class="table-wrapper">
@@ -529,59 +487,44 @@
         <tbody>
         {% for log in logs %}
         {% set is_logout = 'logout' in log.action.lower() or 'logged out' in log.action.lower() %}
+        {% set is_failed = 'failed' in log.action.lower() %}
+        {% set is_login  = 'logged in' in log.action.lower()
+                        or 'successful login' in log.action.lower()
+                        or 'login successful' in log.action.lower()
+                        or 'logged in successfully' in log.action.lower() %}
+        {# FIX: use log.is_admin flag instead of hardcoded username #}
+        {% set is_admin_user = log.username in admin_usernames %}
 
         <tr
-          class="
-            {% if is_logout %}
-              /* Styled dynamically using localized variables below */
-            {% elif 'failed' in log.action.lower() %}
-              log-failed
-            {% elif 'logged in' in log.action.lower()
-                or 'successful login' in log.action.lower()
-                or 'login successful' in log.action.lower()
-                or 'logged in successfully' in log.action.lower() %}
-              log-success
-            {% elif log.username.lower() == 'hotmariaclara' %}
-              log-admin
-            {% else %}
-              log-user
-            {% endif %}
-          "
-          style="{% if is_logout %}background: rgba(209, 74, 124, 0.08); --row-color: #f7d5e2;{% endif %}"
+          class="{% if is_logout %}{% elif is_failed %}log-failed{% elif is_login %}log-success{% elif is_admin_user %}log-admin{% else %}log-user{% endif %}"
+          style="{% if is_logout %}background:rgba(209,74,124,0.08);--row-color:#f7d5e2;{% endif %}"
         >
-          <td class="timestamp" style="{% if is_logout %}border-left: 4px solid #d14a7c; border-radius: 14px 0 0 14px;{% endif %}">
+          <td class="timestamp" style="{% if is_logout %}border-left:4px solid #d14a7c;border-radius:14px 0 0 14px;{% endif %}">
             {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
           </td>
 
-          <td class="ip">
-            {{ log.ip_address }}
-          </td>
+          <td class="ip">{{ log.ip_address }}</td>
 
-          <td class="username">
-            {{ log.username }}
-          </td>
+          <td class="username">{{ log.username }}</td>
 
           <td>
             {% if is_logout %}
-              <span class="badge" style="background: rgba(209, 74, 124, 0.15); color: #d14a7c !important;">
-                <i class="fa-solid fa-right-from-bracket" style="color: #d14a7c !important;"></i>
+              <span class="badge" style="background:rgba(209,74,124,0.15);color:#d14a7c !important;">
+                <i class="fa-solid fa-right-from-bracket" style="color:#d14a7c !important;"></i>
                 Logged Out
               </span>
-            {% elif 'failed' in log.action.lower() %}
+            {% elif is_failed %}
               <span class="badge badge-failed"><i class="fa-solid fa-circle"></i> Failed</span>
-            {% elif 'logged in' in log.action.lower()
-                or 'successful login' in log.action.lower()
-                or 'login successful' in log.action.lower()
-                or 'logged in successfully' in log.action.lower() %}
+            {% elif is_login %}
               <span class="badge badge-success"><i class="fa-solid fa-circle"></i> Success</span>
-            {% elif log.username.lower() == 'hotmariaclara' %}
+            {% elif is_admin_user %}
               <span class="badge badge-admin"><i class="fa-solid fa-shield-halved"></i> Admin</span>
             {% else %}
               <span class="badge badge-user"><i class="fa-solid fa-user"></i> User</span>
             {% endif %}
           </td>
 
-          <td class="action" style="{% if is_logout %}border-radius: 0 14px 14px 0;{% endif %}">
+          <td class="action" style="{% if is_logout %}border-radius:0 14px 14px 0;{% endif %}">
             {{ log.action }}
           </td>
         </tr>
@@ -595,35 +538,44 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
+  const statusText = document.getElementById('camera-status-text');
+
+  function setOnline() {
+    statusText.innerHTML = '<i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i> Online';
+    statusText.style.color = '#7dffb3';
+    document.getElementById('stream-online').style.display = 'block';
+    document.getElementById('stream-error').style.display = 'none';
+  }
+
+  function setOffline() {
+    statusText.innerHTML = '<i class="fa-solid fa-circle" style="font-size:10px;margin-right:4px;"></i> Unavailable';
+    statusText.style.color = '#ff4d4d';
+    document.getElementById('stream-online').style.display = 'none';
+    document.getElementById('stream-error').style.display = 'block';
+  }
+
   fetch('/stream_url')
     .then(r => r.json())
     .then(data => {
-      const streamUrl = data.stream_url; 
-      if (!streamUrl) { 
-        document.getElementById('stream-error').style.display = 'block'; 
-        return; 
-      }
+      const streamUrl = data.stream_url;
+      if (!streamUrl) { setOffline(); return; }
+
       const video = document.getElementById('cam');
       if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(streamUrl);
         hls.attachMedia(video);
-        hls.on(Hls.Events.ERROR, (_, d) => { 
-            if (d.fatal) {
-                document.getElementById('stream-error').style.display = 'block';
-            }
-        });
-      } 
-      else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = streamUrl; 
-      } 
-      else {
-        document.getElementById('stream-error').style.display = 'block';
+        hls.on(Hls.Events.MANIFEST_PARSED, () => setOnline());
+        hls.on(Hls.Events.ERROR, (_, d) => { if (d.fatal) setOffline(); });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = streamUrl;
+        video.addEventListener('loadedmetadata', () => setOnline());
+        video.addEventListener('error', () => setOffline());
+      } else {
+        setOffline();
       }
     })
-    .catch(() => {
-      document.getElementById('stream-error').style.display = 'block';
-    });
+    .catch(() => setOffline());
 </script>
 
 <script>
