@@ -3,7 +3,7 @@ import re
 import time
 import requests
 import bcrypt
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from flask import (
     Flask, Response, render_template, request,
@@ -31,6 +31,11 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['RATELIMIT_STORAGE_URI'] = 'memory://'
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 
+# ── Session timeout (10 minutes of inactivity) ────
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
 database_url = os.getenv('DATABASE_URL', 'sqlite:///cctv.db')
 if database_url.startswith('postgres://'):
     database_url = database_url.replace('postgres://', 'postgresql://', 1)
@@ -48,6 +53,12 @@ csrf = CSRFProtect(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+# ── Make every session permanent so the timeout applies ──
+@app.before_request
+def make_session_permanent():
+    from flask import session
+    session.permanent = True
 
 # ── SECURITY HEADERS ───────────────────────────────────
 Talisman(app,
@@ -94,18 +105,37 @@ def log_action(action, username="anonymous"):
     db.session.add(entry)
     db.session.commit()
 
+# ── Proxy secret verifier ─────────────────────────
+def verify_proxy_secret():
+    expected = os.getenv('PROXY_SECRET', '')
+    if not expected:
+        return False
+    return request.headers.get('X-Proxy-Secret', '') == expected
+
 # ── HLS STREAM PROXY ───────────────────────────────────
 @app.route('/stream_proxy/<path:filename>')
 @login_required
-@limiter.limit("60 per minute") 
+@limiter.limit("60 per minute")
 def stream_proxy(filename):
+    if not verify_proxy_secret():
+        log_action(
+            f"Blocked stream_proxy access — missing/invalid X-Proxy-Secret "
+            f"for '{filename}'",
+            username=getattr(current_user, 'username', 'anonymous')
+        )
+        abort(403)
+
     base_url = os.getenv('MEDIAMTX_HLS_URL')
     cdn_secret = os.getenv('HLS_CDN_SECRET')
     target_url = f"{base_url.rstrip('/')}/{filename}"
 
     session = requests.Session()
     session.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ),
         "Accept": "application/vnd.apple.mpegurl, application/x-mpegURL, */*",
         "Accept-Language": "en-US,en;q=0.9",
         "Authorization": f"Bearer {cdn_secret}",
@@ -134,7 +164,11 @@ def stream_proxy(filename):
                     return f'/stream_proxy/{base_path}/{segment}'
                 return f'/stream_proxy/{segment}'
             content = re.sub(r'(?m)^(?!#)(\S+)$', rewrite, content)
-            return Response(content, status=200, content_type='application/vnd.apple.mpegurl')
+            return Response(
+                content,
+                status=200,
+                content_type='application/vnd.apple.mpegurl'
+            )
 
         return Response(
             resp.iter_content(chunk_size=1024),
@@ -142,7 +176,9 @@ def stream_proxy(filename):
             headers=dict(resp.headers)
         )
     except Exception:
-        logging.error(f"Failed stream proxy: {target_url}\n{traceback.format_exc()}")
+        logging.error(
+            f"Failed stream proxy: {target_url}\n{traceback.format_exc()}"
+        )
         return "Internal Proxy Error", 500
 
 # ── AUTH ROUTES ────────────────────────────────────────
@@ -192,6 +228,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password']
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         user = User.query.filter_by(username=username).first()
 
         if user and bcrypt.checkpw(
@@ -202,7 +239,16 @@ def login():
             log_action("Logged in", username=username)
             return redirect(url_for('dashboard'))
 
-        log_action(f"Failed login attempt for '{username}'")
+# ── Rich failed-login logging ─────────────
+        logging.warning(
+            f"[FAILED LOGIN] username='{username}' ip='{ip}' "
+            f"user_exists={user is not None} "
+            f"time='{datetime.utcnow().isoformat()}'"
+        )
+        log_action(
+            f"Failed login attempt — username: '{username}' | IP: {ip}",
+            username="anonymous"
+        )
         flash('Invalid credentials.', 'error')
 
     return render_template('login.html')
@@ -266,7 +312,10 @@ def delete_user(user_id):
     username_deleted = user.username
     db.session.delete(user)
     db.session.commit()
-    log_action(f"Deleted user '{username_deleted}'", username=current_user.username)
+    log_action(
+        f"Deleted user '{username_deleted}'",
+        username=current_user.username
+    )
     flash(f"User '{username_deleted}' has been deleted.", "success")
     return redirect(url_for('admin_users'))
 
@@ -279,7 +328,10 @@ def promote_user(user_id):
     user = User.query.get_or_404(user_id)
     user.is_admin = True
     db.session.commit()
-    log_action(f"Promoted '{user.username}' to admin", username=current_user.username)
+    log_action(
+        f"Promoted '{user.username}' to admin",
+        username=current_user.username
+    )
     flash(f"'{user.username}' is now an admin.", "success")
     return redirect(url_for('admin_users'))
 
