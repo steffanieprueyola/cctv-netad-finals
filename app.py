@@ -282,10 +282,21 @@ def logout():
 def view_logs():
     if not current_user.is_admin:
         abort(403)
+
     logs = ActivityLog.query.order_by(
         ActivityLog.timestamp.desc()
     ).all()
-    return render_template('logs.html', logs=logs)
+
+    admin_usernames = [
+        u.username
+        for u in User.query.filter_by(is_admin=True).all()
+    ]
+
+    return render_template(
+        'logs.html',
+        logs=logs,
+        admin_usernames=admin_usernames
+    )
 
 
 @app.route('/admin/users')
@@ -350,3 +361,4 @@ with app.app_context():
 
 if __name__ == '__main__':
     app.run(debug=False)
+
