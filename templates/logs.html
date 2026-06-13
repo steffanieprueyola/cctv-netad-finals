@@ -408,7 +408,7 @@
                 or 'login successful' in log.action.lower()
                 or 'logged in successfully' in log.action.lower() %}
               log-success
-            {% elif log.username.lower() == 'hotmariaclara' %}
+            {% elif log.role.lower() == 'admin' %}
               log-admin
             {% else %}
               log-user
@@ -443,7 +443,7 @@
               <span class="badge badge-success">
                 <i class="fa-solid fa-circle"></i> Success
               </span>
-            {% elif log.username.lower() == 'hotmariaclara' %}
+            {% elif log.role.lower() == 'admin' %}
               <span class="badge badge-admin">
                 <i class="fa-solid fa-shield-halved"></i> Admin
               </span>
