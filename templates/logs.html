@@ -396,69 +396,83 @@
 
         <tbody>
         {% for log in logs %}
+
+          {% set is_logout = 'logout' in log.action.lower() or 'logged out' in log.action.lower() %}
+          {% set is_failed = 'failed' in log.action.lower() %}
+          {% set is_login =
+                'logged in' in log.action.lower()
+              or 'successful login' in log.action.lower()
+              or 'login successful' in log.action.lower()
+              or 'logged in successfully' in log.action.lower()
+          %}
+
+          {% set is_admin_user = log.username in admin_usernames %}
+
         <tr class="
-            {% if 'logged out' in log.action.lower() %}
+          {% if is_logout %}
               log-logged-out
-            {% elif 'logout' in log.action.lower() %}
-              log-logout
-            {% elif 'failed' in log.action.lower() %}
+          {% elif is_failed %}
               log-failed
-            {% elif 'logged in' in log.action.lower()
-                or 'successful login' in log.action.lower()
-                or 'login successful' in log.action.lower()
-                or 'logged in successfully' in log.action.lower() %}
+          {% elif is_login %}
               log-success
-            {% elif log.role.lower() == 'admin' %}
+          {% elif is_admin_user %}
               log-admin
-            {% else %}
+          {% else %}
               log-user
-            {% endif %}
-          "
-        >
-          <td class="timestamp">
-            {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
-          </td>
+          {% endif %}
+          ">
 
-          <td class="ip">
-            {{ log.ip_address }}
-          </td>
+      <td class="timestamp">
+          {{ (log.timestamp.replace(tzinfo=None) | string)[:19] }}
+      </td>
 
-          <td class="username">
-            {{ log.username }}
-          </td>
+      <td class="ip">
+          {{ log.ip_address }}
+      </td>
 
-          <td>
-            {% if 'logged out' in log.action.lower() or 'logout' in log.action.lower() %}
-              <span class="badge badge-logged-out">
-                <i class="fa-solid fa-right-from-bracket"></i> Logged Out
-              </span>
-            {% elif 'failed' in log.action.lower() %}
-              <span class="badge badge-failed">
-                <i class="fa-solid fa-circle"></i> Failed
-              </span>
-            {% elif 'logged in' in log.action.lower()
-                or 'successful login' in log.action.lower()
-                or 'login successful' in log.action.lower()
-                or 'logged in successfully' in log.action.lower() %}
-              <span class="badge badge-success">
-                <i class="fa-solid fa-circle"></i> Success
-              </span>
-            {% elif log.role.lower() == 'admin' %}
-              <span class="badge badge-admin">
-                <i class="fa-solid fa-shield-halved"></i> Admin
-              </span>
-            {% else %}
-              <span class="badge badge-user">
-                <i class="fa-solid fa-user"></i> User
-              </span>
-            {% endif %}
-          </td>
+      <td class="username">
+          {{ log.username }}
+      </td>
 
-          <td class="action">
+      <td>
+          {% if is_logout %}
+            <span class="badge badge-logged-out">
+              <i class="fa-solid fa-right-from-bracket"></i>
+                Logged Out
+            </span>
+
+          {% elif is_failed %}
+            <span class="badge badge-failed">
+              <i class="fa-solid fa-circle"></i>
+                Failed
+            </span>
+
+          {% elif is_login %}
+            <span class="badge badge-success">
+              <i class="fa-solid fa-circle"></i>
+                Success
+            </span>
+
+          {% elif is_admin_user %}
+            <span class="badge badge-admin">
+              <i class="fa-solid fa-shield-halved"></i>
+                Admin
+             </span>
+
+          {% else %}
+             <span class="badge badge-user">
+               <i class="fa-solid fa-user"></i>
+                 User
+            </span>
+          {% endif %}
+       </td>
+
+        <td class="action">
             {{ log.action }}
-          </td>
+        </td>
+
         </tr>
-        {% endfor %}
+          {% endfor %}
         </tbody>
       </table>
     </div>
